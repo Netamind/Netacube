@@ -170,11 +170,7 @@
 .table-striped-column tr:nth-child(odd) td:nth-child(1) {
   background-color: #e6e6e6;
 }
-
-
-
-
-
+ 
 	</style>
 </head>
 <body>
@@ -318,11 +314,12 @@ Manage wholesale branch products <strong><?php echo e($categoryName); ?></strong
                 <div class="col-sm-12">
                 <label>Search a product you want to add</label>
                 <div class="input-group input-group-button">
-                <input type="text" class="form-control" placeholder="Search here ................."  id="mobile-search" autocomplete="off">
+                <input type="text" style="width:80%;border:1px solid #8c8c8c;text-align:center;"  id="mobile-search" autocomplete="off"><button style="border:1px solid #8c8c8c"  id="cancelsearch" >Cancel</button>
+                <!--<input type="text" class="form-control" placeholder="Search here ................."  id="mobile-search" autocomplete="off">
                 <div class="input-group-prepend">
                 <span class="input-group-text btn btn-primary" id="cancelsearch" >
                 <span class>Cancel</span>
-                </span></div>
+                </span></div>-->
                 </div>
                 </div>
                 </div>
@@ -332,6 +329,7 @@ Manage wholesale branch products <strong><?php echo e($categoryName); ?></strong
      
           </div>
           </div>
+
         <table class="table-sm table mobile-table " style="display:none;font-size:14px" id="mobile-table">
         <thead>
         <tr style="border-top:none">
@@ -357,14 +355,16 @@ Manage wholesale branch products <strong><?php echo e($categoryName); ?></strong
         <?php echo csrf_field(); ?>
 
 
+            <input type="text" style="width:70%;border:1px solid #8c8c8c;text-align:center;"><button style="border:1px solid #8c8c8c">Add</button>
+     
 
     
-        <div class="input-group input-group-sm mb-3">
+        <!--<div class="input-group input-group-sm mb-3">
+          <input type="text" class="form-control" aria-label="Small" aria-describedby="inputGroup-sizing-sm">
           <div class="input-group-prepend">
             <span class="input-group-text" id="inputGroup-sizing-sm">Small</span>
           </div>
-          <input type="text" class="form-control" aria-label="Small" aria-describedby="inputGroup-sizing-sm">
-        </div>
+        </div>-->
                   
                   
                     

@@ -33,3 +33,4 @@ class CreateWholesalebranchproductsTable extends Migration
         Schema::dropIfExists('wholesalebranchproducts');
     }
 }
+ 

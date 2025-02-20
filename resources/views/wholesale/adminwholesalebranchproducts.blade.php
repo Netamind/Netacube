@@ -170,11 +170,7 @@
 .table-striped-column tr:nth-child(odd) td:nth-child(1) {
   background-color: #e6e6e6;
 }
-
-
-
-
-
+ 
 	</style>
 </head>
 <body>
@@ -297,178 +293,114 @@ Manage wholesale branch products <strong>{{$categoryName}}</strong>
 </section>
 
 
-
-<section decription="Modal for app data info">
-<div class="modal fade-scale" tabindex="-1" role="dialog" id="newDataModal" data-backdrop="static">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header bg-primary">
-        <h5 class="modal-title"><i class="fa fa-plus-circle"></i> Add a product</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-
-            <?php $data = DB::table('wholesalebaseproducts')->whereIn('supplier',$supplierArray)->get(); ?>
-            <input type="search" id="search-input" placeholder="Search products..." class="form-control">
-            <table id="search-results" style="display: none;">
-                <thead>
-                    <tr>
-                        <th>Product Name</th>
-                        <th>Quantity</th>
-                    </tr>
-                </thead>
-                <tbody id="search-results-body">
-                    {{-- Search results will be displayed here --}}
-                </tbody>
-            </table>
-
-
-
-
-		
-      </div>
-    </div>
-  </div>
-</div>
-</section>
-
-
-
 <section>
-<div class="modal fade-scale" tabindex="-1" role="dialog" id="editDataModal" data-backdrop="static">
-  <div class="modal-dialog" role="document">
+  <div class="modal fade card-info"  id="newDataModal" data-backdrop="static">
+  <div class="modal-dialog ">
     <div class="modal-content">
-      <div class="modal-header bg-primary">
-        <h5 class="modal-title">Edit product <strong>{{$categoryName}}</strong></h5>
+      <div class="modal-header btn-primary">
+        <h4 class="modal-title">Add product for {{$branchName}}</h4>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
+
       <div class="modal-body">
-      <form action="edit-wholesale-baseproduct" method="post"   id="editDataForm">
-			@csrf
-      <input type="hidden" id="editId" name="id">
-      <input type="hidden" id="editRow">
 
-      
+          <?php
+             $data = DB::table('wholesalebaseproducts')->whereIn('supplier',$supplierArray)->get();
+             ?>
 
-		<div class="row">
-			<div class="form-group col-md-6">
-				<label for="#">Product Name</label>
-				<input type="text"name="product" class="form-control" id="editproduct">
-			</div>
+                <div class="row">
+                <div class="col-sm-12">
+                <label>Search a product you want to add</label>
+                <div class="input-group input-group-button">
+                <input type="text" style="width:80%;border:1px solid #8c8c8c;text-align:center;"  id="mobile-search" autocomplete="off"><button style="border:1px solid #8c8c8c"  id="cancelsearch" >Cancel</button>
+                <!--<input type="text" class="form-control" placeholder="Search here ................."  id="mobile-search" autocomplete="off">
+                <div class="input-group-prepend">
+                <span class="input-group-text btn btn-primary" id="cancelsearch" >
+                <span class>Cancel</span>
+                </span></div>-->
+                </div>
+                </div>
+                </div>
 
-
-
-
-
-			<div class="form-group col-md-6">
-				<label for="#">Unit</label>
-				<input type="text" name="unit" class="form-control" id="editunit">
-			</div>
-
-
-
-			<div class="form-group col-md-6">
-				<label for="#">Order Price</label>
-				<input type="number" name="orderprice" class="form-control" id="editorderprice">
-			</div>
-
-      
-
-      
-      
-			<div class="form-group col-md-6">
-				<label for="#">Selling Price</label>
-				<input type="number" name="sellingprice" class="form-control" id="editsellingprice">
-			</div>
-
-
-      
-      
-			<div class="form-group col-md-6">
-				<label for="#">Batch Number</label>
-				<input type="text" name="batchnumber" class="form-control" id="editbatchnumber">
-			</div>
-
-      
-			<div class="form-group col-md-6">
-				<label for="#">Expiry Date</label>
-				<input type="date" name="expirydate" class="form-control" id="editexpirydate">
-			</div>
-
-
-
-
-      <div class="form-group col-md-6">
-        <?php $vatstatus = DB::table('vat_configuration')->value('status')?>
-        <label for="#">VAT</label>
-				<select name="vat" class="form-control"   id="editvat" >
-        <?php 
-        $vats = DB::table('vat_statuses')->get();
-        ?>
-        @foreach($vats as $vat)
-        <option value="{{$vat->code}}">{{$vat->code}} ({{$vat->status}})</option>
-        @endforeach
-        </select>
-			</div>
-
-      <div class="col-md-12">
-
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        <button class="btn btn-primary" style="float:right" id="submitEditDataBtn">Submit</button>
-
-
-      </div>
-    
-  
-
-
-    </div>
-		</form>
-
-      </div>
+          <div class="row">
+          <div class="col-md-12">
      
-    </div>
-  </div>
-</div>
-</section>
+          </div>
+          </div>
+
+        <table class="table-sm table mobile-table " style="display:none;font-size:14px" id="mobile-table">
+        <thead>
+        <tr style="border-top:none">
+        <th style="border-top:none;border-bottom:none;font-weight:bold">Item Description</th>
+        <th style="text-align:center;border-top:none;border-bottom:none;font-weight:bold">Action</th>
+        </tr>
+        </thead>
+        <tbody >
+        @foreach($data as  $d)
+        <tr>
+        <td>{{$d->product}} &nbsp;
+        <strong>@convert($d->sellingprice)</strong> / {{$d->unit}}
+        </td>
+        <?php
+        $btnid = "myid".$d->id;
+        ?>
+        <td style="margin-align:center">
+        <form  action="insert-retailproduct"  id="{{$d->id}}"  class="cart-forms"  method="post">
+        @csrf
 
 
+            <input type="text" style="width:70%;border:1px solid #8c8c8c;text-align:center;"><button style="border:1px solid #8c8c8c">Add</button>
+     
+
+    
+        <!--<div class="input-group input-group-sm mb-3">
+          <input type="text" class="form-control" aria-label="Small" aria-describedby="inputGroup-sizing-sm">
+          <div class="input-group-prepend">
+            <span class="input-group-text" id="inputGroup-sizing-sm">Small</span>
+          </div>
+        </div>-->
+                  
+                  
+                    
 
 
+        </form>
+        </td>
 
 
-<section>
-<!-- Modal -->
-<div class="sweet-modal-container ">
-  <div class="modal fade sweet-modal " id="deleteDataModal" tabindex="-1" role="dialog" aria-labelledby="sweet-modal-label" aria-hidden="true" data-backdrop="static">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-      <div class="modal-content">
-        <div class="modal-body text-center" >
-          <i class="feather icon-alert-circle text-warning" style="font-size:50px"></i>
-		<h4 style="paddin-top:10px;padding-bottom:10px">Are you sure you want to delete <span id="displayDeleteItem"></span> ?</h4>
-		   <h5>You won't be able to revert this!</h5>
-		   <form action="delete-business-cartigory" method="post" id="deleteForm">
-			@csrf
-			<input type="hidden" id="deleteInputId" name="id">
-			<input type="hidden" id="deleteInputRow">
-		   </form>
-		<a href="#" class="btn btn-primary deleteDataBtn" style="margin-top:25px;margin-bottom:10px">Yes, Delete it</a>
-		<a href="#" class="btn btn-warning keepDataBtn" style="margin-top:25px;margin-bottom:10px" >No, Keep it</a>
+       <!-- <td style="margin-align:center">
+          <form  action="insert-retailproduct"  id="{{$d->id}}"  class="cart-forms"  method="post">
+          @csrf 
+          <input type="hidden" name="productid"  value="{{$d->id}}"> 
+            <input type="hidden" name="branch"  value="0"> 
+            <input type="hidden" name="rate"  value="1.00"> 
+              <div class="input-group" style="font-size:10px">
+              <input type="text" class="form-control" style="width:50%;text-align:center" name="quantity"  min="0" p autocomplete="off" >
+              <div class="input-group-append" style="font-size:10px">
+              <a href="#" style="width:100%;text-align:center;color:blue" class="input-group-text sale-data" data-id="{{$d->id}}"  id1="{{$btnid}}" id="{{$btnid}}">Add</a>
+              </div>
+            </form>
+        </td>-->
+        </tr>
+        @endforeach
+        </tbody>
+
+          </table>
+
+        
+          </div>
+            
+            </div>
+
+          </div>
+          <!-- /.modal-content -->
         </div>
+        <!-- /.modal-dialog -->
       </div>
-    </div>
-  </div>
-</div>
-</section>
-
-
-
-
-
+      <!-- /.excel modal -->
+      </section>
 
 
 
@@ -536,47 +468,37 @@ $('#business-table').DataTable({
   });
 
 
-    const data = @json($data);
-    console.log(data);
-
-    const searchInput = document.getElementById('search-input');
-    const searchResultsTable = document.getElementById('search-results');
-    const searchResultsBody = document.getElementById('search-results-body');
-
-    searchInput.addEventListener('input', (e) => {
-        const searchTerm = e.target.value.toLowerCase();
-        const searchResults = data.filter((product) => product.name.toLowerCase().includes(searchTerm));
-
-        searchResultsBody.innerHTML = '';
-
-        searchResults.forEach((product) => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${product.name}</td>
-                <td>
-                    <form>
-                        <input type="number" name="quantity" value="0">
-                        <button type="submit">Submit</button>
-                    </form>
-                </td>
-            `;
-            searchResultsBody.appendChild(row);
-        });
-
-        if (searchResults.length > 0) {
-            searchResultsTable.style.display = 'table';
-        } else {
-            searchResultsTable.style.display = 'none';
-        }
-    });
-
-
-    
+  
 
 
 })
-
 </script>
+
+<script>
+$(document).ready( function () {
+ var table = $("#mobile-table").DataTable({
+          "paging": false,
+        "bInfo" : false,
+        "ordering":false,
+  dom: 'lrtip'
+  })
+  $('#mobile-table').hide();
+  $('#mobile-search').keyup( function() {
+    var value = document.getElementById('mobile-search').value;
+    if (value.length<2) {
+      $('#mobile-table').hide();
+    }else{
+      $('#mobile-table').show();
+     table.search($(this).val()).draw();
+    }
+  } );
+} );
+$('body').on('click', '#cancelsearch', function () {
+  $('#mobile-search').val('');
+  $('#mobile-table').hide();
+});
+</script>
+
 <!--js toastr notification-->
 <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js"></script>

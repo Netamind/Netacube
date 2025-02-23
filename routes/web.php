@@ -65,9 +65,16 @@ Route::post('delete-wholesale-baseproduct', 'WholesaleController@deletewholesale
 Route::post('edit-wholesale-baseproduct', 'WholesaleController@editwholesalebaseproduct');
 Route::post('upload-wholesale-baseproducts-csvfile', 'WholesaleController@uploadwholesalebaseproductscsvfile');
 
+<<<<<<< HEAD
 Route::post('insert-wholesale-branch-product', 'WholesaleController@insertwholesalebranchproduct');
 
 /*========================================== End  Wholesale Routes=================================================================*/
+=======
+
+Route::post('insert-wholesale-branch-product', 'WholesaleController@insertwholesalebranchproduct');
+
+/*==========================================Wholesale  Wholesale Routes=================================================================*/
+>>>>>>> 08cdc4366b4da7a7838c09bdb6881b9c787b0a4e
 
 
 

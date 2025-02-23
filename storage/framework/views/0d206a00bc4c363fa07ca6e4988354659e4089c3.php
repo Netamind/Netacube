@@ -284,8 +284,50 @@ Manage wholesale branch products <strong><?php echo e($categoryName); ?></strong
 <th style="text-align:center">Action</th>
 </tr>
 </thead>
+<?php
+$data = DB::table('wholesalebranchproducts')->where('branch',$branchId)->get();
+?>
 <tbody id="tbody">
+<?php $__currentLoopData = $data; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $d): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+<?php
+ $editrow = "editrow".$d->id;
+ $productName = DB::table('wholesalebaseproducts')->where('id', $d->product)->value('product');
+ $productUnit = DB::table('wholesalebaseproducts')->where('id', $d->product)->value('unit');
+ $productPrice = DB::table('wholesalebaseproducts')->where('id', $d->product)->value('sellingprice');
+ ?>
+<tr id="<?php echo e($editrow); ?>">
+   <td ><?php echo e($productName); ?></td>
+   <td style="text-align:center"><?php echo e($productUnit); ?></td>
+   <td style="text-align:center"><?php echo e($d->quantity); ?></td>
+   <td style="text-align:center"><?php 
+                $value = is_numeric($productPrice) ? $productPrice : 0; 
+                echo number_format($value, 0); 
+            ?></td>
+   <td style="text-align:center"><?php echo e($d->product); ?></td>
 
+   <td style="text-align:center"><?php echo e($d->product); ?></td>
+   <td style="text-align:center"><?php echo e($d->product); ?></td>
+   <td style="text-align:center"><?php echo e($d->product); ?></td>
+	 <td style="text-align:center">
+	 <a href="#" class="editDataBtnClass" 
+    editId ="<?php echo e($d->id); ?>"
+    editRow=<?php echo e($editrow); ?> 
+    editbranch="<?php echo e($d->product); ?>" 
+    editsector="<?php echo e($d->product); ?>" 
+    editcategory="<?php echo e($d->product); ?>" 
+    editaddress="<?php echo e($d->product); ?>" 
+    editcontact="<?php echo e($d->product); ?>" 
+    editemail="<?php echo e($d->product); ?>" 
+    > 
+    <i class="fa fa-edit text-primary fa-2x" ></i>
+    </a>
+		<a href="#" class="deleteDataBtnClass" deleteLabel="<?php echo e($productName); ?>"  deleteId="<?php echo e($d->id); ?>" deleteRow="<?php echo e($editrow); ?>">
+      <i class="fa fa-trash text-danger fa-2x"></i>
+    </a>
+	</td>
+
+</tr>
+<?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 </tbody>
 </table>
 </div>
@@ -315,11 +357,7 @@ Manage wholesale branch products <strong><?php echo e($categoryName); ?></strong
                 <label>Search a product you want to add</label>
                 <div class="input-group input-group-button">
                 <input type="text" style="width:80%;border:1px solid #8c8c8c;text-align:center;"  id="mobile-search" autocomplete="off"><button style="border:1px solid #8c8c8c"  id="cancelsearch" >Cancel</button>
-                <!--<input type="text" class="form-control" placeholder="Search here ................."  id="mobile-search" autocomplete="off">
-                <div class="input-group-prepend">
-                <span class="input-group-text btn btn-primary" id="cancelsearch" >
-                <span class>Cancel</span>
-                </span></div>-->
+            
                 </div>
                 </div>
                 </div>
@@ -348,45 +386,22 @@ Manage wholesale branch products <strong><?php echo e($categoryName); ?></strong
 
         </td>
         <?php
-        $btnid = "myid".$d->id;
+        $btnrow = "row".$d->id;
+        $formid = "form".$d->id;
         ?>
         <td style="margin-align:center">
-        <form  action="insert-retailproduct"  id="<?php echo e($d->id); ?>"  class="cart-forms"  method="post">
+        <form  action="insert-wholesale-branch-product"  id="<?php echo e($formid); ?>"  class="cart-forms"  method="post">
         <?php echo csrf_field(); ?>
 
-
-            <input type="text" style="width:70%;border:1px solid #8c8c8c;text-align:center;"><button style="border:1px solid #8c8c8c">Add</button>
-     
-
-    
-        <!--<div class="input-group input-group-sm mb-3">
-          <input type="text" class="form-control" aria-label="Small" aria-describedby="inputGroup-sizing-sm">
-          <div class="input-group-prepend">
-            <span class="input-group-text" id="inputGroup-sizing-sm">Small</span>
-          </div>
-        </div>-->
-                  
-                  
-                    
-
+            <input type="hidden" name="productid"  value="<?php echo e($d->id); ?>"> 
+            <input type="hidden" name="branch"  value="<?php echo e($branchId); ?>"> 
+              <div class="input-group-append" style="font-size:10px">
+            <input type="text" name = "quantity" style="width:70%;border:1px solid #8c8c8c;text-align:center;"><button class="insertDataBtn" style="border:1px solid #8c8c8c" form="<?php echo e($formid); ?>"  row="<?php echo e($btnrow); ?>" id="<?php echo e($btnrow); ?>">Add</button>
+  
 
         </form>
         </td>
 
-
-       <!-- <td style="margin-align:center">
-          <form  action="insert-retailproduct"  id="<?php echo e($d->id); ?>"  class="cart-forms"  method="post">
-          <?php echo csrf_field(); ?> 
-          <input type="hidden" name="productid"  value="<?php echo e($d->id); ?>"> 
-            <input type="hidden" name="branch"  value="0"> 
-            <input type="hidden" name="rate"  value="1.00"> 
-              <div class="input-group" style="font-size:10px">
-              <input type="text" class="form-control" style="width:50%;text-align:center" name="quantity"  min="0" p autocomplete="off" >
-              <div class="input-group-append" style="font-size:10px">
-              <a href="#" style="width:100%;text-align:center;color:blue" class="input-group-text sale-data" data-id="<?php echo e($d->id); ?>"  id1="<?php echo e($btnid); ?>" id="<?php echo e($btnid); ?>">Add</a>
-              </div>
-            </form>
-        </td>-->
         </tr>
         <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
         </tbody>
@@ -465,12 +480,67 @@ $('#business-table').DataTable({
   
   ]
  }); 
-
-
  $('#newDataBtn').click(function() {
     $('#csvDataModal').modal('show');
   });
 
+
+  $('body').on('click', '.insertDataBtn', function(e) {
+      var self = $(this);
+      var formid = $(this).attr('form');
+      var row =  $(this).attr('row');
+      $(this).prop("disabled", true);
+      var form = document.getElementById(formid);
+
+      e.preventDefault(); 
+      
+      $.ajaxSetup({
+          headers: {
+              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+          }
+      });
+      $.ajax({
+        type:"post",
+         url: '/insert-wholesale-branch-product',
+         data: $(form).serialize(),
+          timeout: 60000,
+          beforeSend: function() {
+            $('#loading-status').css('display', 'block');
+          },
+          complete: function() {
+            $('#loading-status').css('display', 'none');
+            $("#tbody").load(" #tbody  > *",function(){});
+            self.prop("disabled", false);
+           },
+          success: function(data) {
+            if(data.status===201){
+              toastr.success(data.success,'Success',{ timeOut : 5000 ,	progressBar: true});
+            }else if(data.status===422){
+              toastr.error(data.error,'Error',{ timeOut : 5000 , 	progressBar: true})  
+            }else{
+              toastr.info('Success!','Success',{ timeOut : 5000 , 	progressBar: true}); 
+            }
+          },
+        error: function(xhr, status, error) {
+        if (xhr.status === 0 && xhr.readyState === 0) {
+            toastr.error('Timeout check your internet connect and try again','Timeout Error',{ timeOut : 5000 , 	progressBar: true})  
+          } else if (xhr.status === 422) {
+              var errorPassage = '';
+              var errors = xhr.responseJSON.errors;
+              $.each(errors, function(key, value) { errorPassage += value + '\n'});
+              toastr.error(errorPassage, 'Validation Errors', {timeOut: 5000, 	progressBar: true});
+          } else if (xhr.status === 500) {
+              var errorMessage = xhr.responseText;
+              toastr.error('Internal server error occured try again later', 'Server Error', {timeOut: 5000 , 	progressBar: true});
+          } else {
+          toastr.error('Unspecified error occured try again later', 'Unspecified Error',{timeOut: 5000 ,	progressBar: true});
+         }   
+         form.reset();
+          }  
+        });
+      });
+
+	  
 
   
 

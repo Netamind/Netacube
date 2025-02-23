@@ -192,6 +192,48 @@ private function extractNumber($value)
     return implode('', $matches[0]) ?? 0;
 }
 
+public function hy(request $request){
+ $data = array();
+ $data['product'] = $request->productid;
+ $data['branch'] = $request->branch;
+ $data['quantity'] = $request->quantity;
+
+ DB::table('wholesalebranchproducts')->insert($data);
+  
+}
+
+
+
+
+public function insertwholesalebranchproduct(Request $request) {
+      $data = array();
+      $data['product'] = $request->productid;
+      $data['branch'] = $request->branch;
+      $data['quantity'] = $request->quantity;
+
+      $messages = [
+          'quantity.required' => 'Quantity is required.',
+          'quantity.numeric' => 'Quantity must be a number.',
+          'branch.gt' => 'Select a sipecific branch.',
+      ];
+
+      $validator = $request->validate([
+          'quantity' => 'required|numeric',
+          'branch' => 'gt:0',
+      ], $messages);
+
+      if ($validator) {
+          $insertData = DB::table('wholesalebranchproducts')->insert($data);
+          if ($insertData) {
+              return response()->json(['success' => 'Data submitted successfully', 'status' => 201]);
+          } else {
+              return response()->json(['error' => 'An error occurred. Try again later', 'status' => 422]);
+          }
+      } else {
+          return back()->withErrors($validator)->withInput();
+      }
+
+}
 
 
 

@@ -59,13 +59,15 @@ Route::get('admin-wholesale-branch-products', 'WholesaleController@adminwholesal
 
 
 
-/*==========================================Wholesale Operations Routes=================================================================*/
+/*==========================================Wholesale Oper Routes=================================================================*/
 Route::post('insert-wholesale-baseproduct', 'WholesaleController@insertwholesalebaseproduct');
 Route::post('delete-wholesale-baseproduct', 'WholesaleController@deletewholesalebaseproduct');
 Route::post('edit-wholesale-baseproduct', 'WholesaleController@editwholesalebaseproduct');
 Route::post('upload-wholesale-baseproducts-csvfile', 'WholesaleController@uploadwholesalebaseproductscsvfile');
 
-/*==========================================Wholesale  Wholesale Routes=================================================================*/
+Route::post('insert-wholesale-branch-product', 'WholesaleController@insertwholesalebranchproduct');
+
+/*========================================== End  Wholesale Routes=================================================================*/
 
 
 

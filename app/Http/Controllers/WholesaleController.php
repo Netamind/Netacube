@@ -193,6 +193,17 @@ private function extractNumber($value)
 }
 
 
+public function insertwholesalebranchproduct(request $request){
+  $data = array();
+  $data['branch']=$request->branch;
+  $data['product']=$request->product;
+  $data['quantity']=$request->quantity;
+  $data['rate']=$request->rate;
+  $data['snumber']=$request->snumber;
+
+
+
+}
 
 
 

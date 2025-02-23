@@ -314,7 +314,7 @@ Manage wholesale branch products <strong>{{$categoryName}}</strong>
                 <div class="col-sm-12">
                 <label>Search a product you want to add</label>
                 <div class="input-group input-group-button">
-                <input type="text" style="width:80%;border:1px solid #8c8c8c;text-align:center;"  id="mobile-search" autocomplete="off"><button style="border:1px solid #8c8c8c"  id="cancelsearch" >Cancel</button>
+                <input type="text" style="width:80%;border:1px solid #8c8c8c;text-align:left;"  id="mobile-search" autocomplete="off"><button style="border:1px solid #8c8c8c"  id="cancelsearch" >Cancel</button>
                 <!--<input type="text" class="form-control" placeholder="Search here ................."  id="mobile-search" autocomplete="off">
                 <div class="input-group-prepend">
                 <span class="input-group-text btn btn-primary" id="cancelsearch" >

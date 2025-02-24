@@ -211,6 +211,33 @@ public function insertwholesalebranchproduct(Request $request) {
       $data['branch'] = $request->branch;
       $data['quantity'] = $request->quantity;
 
+      $dnote = array();
+      $dnote['branchid'] = $request->branch;
+      $dnote['productid'] = $request->productid;
+      $dnote['date'] = Carbon::today()->toDateString();
+      $dnote['quantity'] = $request->quantity;
+      $dnote['productname'] = DB::table('wholesalebaseproducts')->where('id',$request->productid)->value('product');
+      $dnote['unit'] = DB::table('wholesalebaseproducts')->where('id',$request->productid)->value('unit');
+      $dnote['sellingprice'] = DB::table('wholesalebaseproducts')->where('id',$request->productid)->value('sellingprice');
+      $dnote['added_to_branch'] = "Yes";
+  
+      $history = array();
+      $qtybefore = DB::table('wholesalebranchproducts')->where('branch',$request->branch)
+                            ->where("productid",$request->productid)->value('quantity');
+      $qtyafter =  $qtybefore + $request->quantity;
+
+      $history['date']=Carbon::today()->toDateString();
+      $history['branchid']=$request->branch;
+      $history['productid']=$request->productid;
+      $history['qtyadded']=$request->qtyadded;
+      $history['username']=Auth::user()->username;
+      $history['devicedetails']=$devicedetails;
+      $history['qtybefore']=  $qtybefore;
+      $history['qtyafter']=  $qtyafter;
+      $history['description']=  $description;
+      $history['time']=  $time;
+
+
       $messages = [
           'quantity.required' => 'Quantity is required.',
           'quantity.numeric' => 'Quantity must be a number.',
@@ -232,18 +259,6 @@ public function insertwholesalebranchproduct(Request $request) {
       } else {
           return back()->withErrors($validator)->withInput();
       }
-
-}
-
-public function insertwholesalebranchproduct(request $request){
-  $data = array();
-  $data['branch']=$request->branch;
-  $data['product']=$request->product;
-  $data['quantity']=$request->quantity;
-  $data['rate']=$request->rate;
-  $data['snumber']=$request->snumber;
-
-
 
 }
 

@@ -353,18 +353,10 @@ $data = DB::table('wholesalebranchproducts')->where('branch',$branchId)->get();
                 <div class="col-sm-12">
                 <label>Search a product you want to add</label>
                 <div class="input-group input-group-button">
-<<<<<<< HEAD
-                <input type="text" style="width:80%;border:1px solid #8c8c8c;text-align:left;"  id="mobile-search" autocomplete="off"><button style="border:1px solid #8c8c8c"  id="cancelsearch" >Cancel</button>
-                <!--<input type="text" class="form-control" placeholder="Search here ................."  id="mobile-search" autocomplete="off">
-                <div class="input-group-prepend">
-                <span class="input-group-text btn btn-primary" id="cancelsearch" >
-                <span class>Cancel</span>
-                </span></div>-->
-=======
-                <input type="text" style="width:80%;border:1px solid #8c8c8c;text-align:center;"  id="mobile-search" autocomplete="off"><button style="border:1px solid #8c8c8c"  id="cancelsearch" >Cancel</button>
-            
->>>>>>> 08cdc4366b4da7a7838c09bdb6881b9c787b0a4e
-                </div>
+
+                <input type="text" autocomplete="off" style="width:80%;border:1px solid #8c8c8c;text-align:left;"  id="mobile-search" ><button style="border:1px solid #8c8c8c"  id="cancelsearch" >Cancel</button>
+               
+              </div>
                 </div>
                 </div>
 

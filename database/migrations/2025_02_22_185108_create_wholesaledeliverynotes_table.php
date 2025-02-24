@@ -24,7 +24,7 @@ class CreateWholesaledeliverynotesTable extends Migration
             $table->integer('price');
             $table->integer('errorvalue');
             $table->string('errorstate')->default("Pending");
-            $table->string('erroruser');
+            $table->string('erroruser')->nullable();
             $table->string('added_to_branch')->default("No");
         });
     }

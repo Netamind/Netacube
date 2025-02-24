@@ -22,7 +22,7 @@ class CreateWholesaledeliverynotesTable extends Migration
             $table->string('productname');
             $table->string('unit');
             $table->integer('price');
-            $table->integer('errorvalue');
+            $table->decimal('errorvalue',20,2)->default(0.00);
             $table->string('errorstate')->default("Pending");
             $table->string('erroruser')->nullable();
             $table->string('added_to_branch')->default("No");

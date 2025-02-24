@@ -204,8 +204,72 @@ public function hy(request $request){
 
 
 
-
 public function insertwholesalebranchproduct(Request $request) {
+  $data = array();
+  $data['product'] = $request->productid;
+  $data['branch'] = $request->branch;
+  $data['quantity'] = $request->quantity;
+
+  $dnote = array();
+  $dnote['branchid'] = $request->branch;
+  $dnote['productid'] = $request->productid;
+  $dnote['date'] = Carbon::today()->toDateString();
+  $dnote['quantity'] = $request->quantity;
+  $dnote['productname'] = DB::table('wholesalebaseproducts')->where('id',$request->productid)->value('product');
+  $dnote['unit'] = DB::table('wholesalebaseproducts')->where('id',$request->productid)->value('unit');
+  $dnote['price'] = DB::table('wholesalebaseproducts')->where('id',$request->productid)->value('sellingprice');
+  $dnote['added_to_branch'] = "Yes";
+
+  $history = array();
+  $time = 0;
+  $description = 0;
+  $devicedetails = 0;
+  $qtybefore = DB::table('wholesalebranchproducts')->where('branch',$request->branch) ->where("product",$request->productid)->value('quantity');
+  $qtyafter = $qtybefore + $request->quantity;
+  $history['date']=Carbon::today()->toDateString();
+  $history['branchid']=$request->branch;
+  $history['productid']=$request->productid;
+  $history['qtyadded']=$request->quantity;
+  $history['username']=Auth::user()->username;
+  $history['devicedetails']=$devicedetails;
+  $history['qtybefore']= $qtybefore;
+  $history['qtyafter']= $qtyafter;
+  $history['description']= $description;
+  $history['time']= $time;
+
+  $messages = [
+      'quantity.required' => 'Quantity is required.',
+      'quantity.numeric' => 'Quantity must be a number.',
+      'branch.gt' => 'Select a specific branch.',
+  ];
+
+  $validator = $request->validate([
+      'quantity' => 'required|numeric',
+      'branch' => 'gt:0',
+  ], $messages);
+
+  if ($validator) {
+      DB::transaction(function () use ($data, $dnote, $history) {
+          $insertData = DB::table('wholesalebranchproducts')->insert($data);
+          $insertDnote = DB::table('wholesaledeliverynotes')->insert($dnote);
+          $insertHistory = DB::table('wholesaleproducthistory')->insert($history);
+
+          if (!$insertData || !$insertDnote || !$insertHistory) {
+              throw new \Exception('Failed to insert data');
+          }
+      });
+
+      return response()->json(['success' => 'Data submitted successfully', 'status' => 201]);
+  } else {
+      return back()->withErrors($validator)->withInput();
+  }
+}
+
+
+
+
+
+public function insertwholesalebranchproduct2(Request $request) {
       $data = array();
       $data['product'] = $request->productid;
       $data['branch'] = $request->branch;
@@ -218,18 +282,20 @@ public function insertwholesalebranchproduct(Request $request) {
       $dnote['quantity'] = $request->quantity;
       $dnote['productname'] = DB::table('wholesalebaseproducts')->where('id',$request->productid)->value('product');
       $dnote['unit'] = DB::table('wholesalebaseproducts')->where('id',$request->productid)->value('unit');
-      $dnote['sellingprice'] = DB::table('wholesalebaseproducts')->where('id',$request->productid)->value('sellingprice');
+      $dnote['price'] = DB::table('wholesalebaseproducts')->where('id',$request->productid)->value('sellingprice');
       $dnote['added_to_branch'] = "Yes";
   
       $history = array();
+      $time = 0;
+      $description = 0;
+      $devicedetails = 0;
       $qtybefore = DB::table('wholesalebranchproducts')->where('branch',$request->branch)
-                            ->where("productid",$request->productid)->value('quantity');
+                            ->where("product",$request->productid)->value('quantity');
       $qtyafter =  $qtybefore + $request->quantity;
-
       $history['date']=Carbon::today()->toDateString();
       $history['branchid']=$request->branch;
       $history['productid']=$request->productid;
-      $history['qtyadded']=$request->qtyadded;
+      $history['qtyadded']=$request->quantity;
       $history['username']=Auth::user()->username;
       $history['devicedetails']=$devicedetails;
       $history['qtybefore']=  $qtybefore;
@@ -248,9 +314,10 @@ public function insertwholesalebranchproduct(Request $request) {
           'quantity' => 'required|numeric',
           'branch' => 'gt:0',
       ], $messages);
-
       if ($validator) {
           $insertData = DB::table('wholesalebranchproducts')->insert($data);
+          $insertDnote = DB::table('wholesaledeliverynotes')->insert($dnote);
+          $insertHistory = DB::table('wholesaleproducthistory')->insert($history);
           if ($insertData) {
               return response()->json(['success' => 'Data submitted successfully', 'status' => 201]);
           } else {

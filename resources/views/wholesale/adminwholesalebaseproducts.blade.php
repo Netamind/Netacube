@@ -309,8 +309,6 @@ $categories = DB::table('businesscategories')->get();
 <th style="text-align:center">Unit</th>
 <th style="text-align:center">Order Price</th>
 <th style="text-align:center">Selling Price</th>
-<th style="text-align:center">Batch NO.</th>
-<th style="text-align:center">Expiry</th>
 <th style="text-align:center">VAT</th>
 <th style="text-align:center">Action</th>
 </tr>
@@ -326,8 +324,6 @@ $data  = DB::table('wholesalebaseproducts')->whereIn('supplier',$supplierArray)-
    <td style="text-align:center">{{$d->unit}}</td>
    <td style="text-align:center"> @convert($d->orderprice) </td>
    <td style="text-align:center"> @convert($d->sellingprice) </td>
-   <td style="text-align:center">{{$d->batchnumber}}</td>
-   <td style="text-align:center">{{$d->expirydate}}</td>
    <td style="text-align:center">{{$d->vat}}</td>
 	 <td style="text-align:center">
 		<a href="#" class="editDataBtnClass" 
@@ -338,8 +334,6 @@ $data  = DB::table('wholesalebaseproducts')->whereIn('supplier',$supplierArray)-
     editunit="{{$d->unit}}" 
     editorderprice="{{$d->orderprice}}" 
     editsellingprice="{{$d->sellingprice}}" 
-    editbatchnumber="{{$d->batchnumber}}" 
-    editexpirydate="{{$d->expirydate}}" 
     editvat="{{$d->vat}}" 
     > 
     <i class="fa fa-edit text-primary fa-2x" ></i>
@@ -423,24 +417,12 @@ $data  = DB::table('wholesalebaseproducts')->whereIn('supplier',$supplierArray)-
 			</div>
 
 
-      
-      
-			<div class="form-group col-md-6">
-				<label for="#">Batch Number</label>
-				<input type="text" name="batchnumber" class="form-control" placeholder="Enter batch number">
-			</div>
-
-      
-			<div class="form-group col-md-6">
-				<label for="#">Expiry Date</label>
-				<input type="date" name="expirydate" class="form-control" placeholder="Enter expiry date">
-			</div>
+    
 
 
 
 
       <div class="form-group col-md-6">
-        <?php $vatstatus = DB::table('vat_configuration')->value('status')?>
         <label for="#">VAT</label>
 				<select name="vat"  class="form-control"    >
         <option value="EX" hidden>Select VAT</option>
@@ -541,23 +523,10 @@ $data  = DB::table('wholesalebaseproducts')->whereIn('supplier',$supplierArray)-
 
 
       
-      
-			<div class="form-group col-md-6">
-				<label for="#">Batch Number</label>
-				<input type="text" name="batchnumber" class="form-control" id="editbatchnumber">
-			</div>
-
-      
-			<div class="form-group col-md-6">
-				<label for="#">Expiry Date</label>
-				<input type="date" name="expirydate" class="form-control" id="editexpirydate">
-			</div>
-
 
 
 
       <div class="form-group col-md-6">
-        <?php $vatstatus = DB::table('vat_configuration')->value('status')?>
         <label for="#">VAT</label>
 				<select name="vat" class="form-control"   id="editvat" >
         <?php 
@@ -637,7 +606,7 @@ $data  = DB::table('wholesalebaseproducts')->whereIn('supplier',$supplierArray)-
       <div class="modal-body">
           <div class="form-group" id="csvdiv">
              To upload a csv prepare an excel file as shown below and save it as csv. 
-             For <strong>Order price</strong> , <strong>Batch No</strong>  and <strong>Expiry Collumns</strong>  if you dont have  data you can leave them blank but the row should contain headers for all the collumns.
+             For <strong>Order price</strong> collumn if you dont have  data you can leave it blank but the first row should contain headers for all the collumns and in that order.
              <img src="system/images/basecsv.png" alt="" style="width:100%;margin-top:5px">
              <br> <br>
              <input type="file"  accept=".csv" id="csvinput" >

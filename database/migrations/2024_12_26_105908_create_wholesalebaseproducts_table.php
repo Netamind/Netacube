@@ -20,8 +20,6 @@ class CreateWholesalebaseproductsTable extends Migration
             $table->string('unit');
             $table->integer('orderprice');
             $table->integer('sellingprice');
-            $table->string('batchnumber')->nullable();
-            $table->date('expirydate')->nullable();
             $table->string('vat')->default('EX');
         });
     }

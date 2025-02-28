@@ -14,7 +14,7 @@ use Auth;
 class WholesaleController extends Controller
 {
     public function adminwholesalebaseproducts(){
-        return view('wholesale.adminbaseproducts');
+        return view('wholesale.adminwholesalebaseproducts');
     }
 
     public function adminwholesalebranchproducts(){
@@ -28,8 +28,6 @@ class WholesaleController extends Controller
     $data['unit'] = $request->unit;
     $data['orderprice'] = $request->orderprice;
     $data['sellingprice'] = $request->sellingprice;
-    $data['batchnumber'] = $request->batchnumber;
-    $data['expirydate'] = $request->expirydate;
     $data['vat'] = $request->vat;
 
     $messages = [
@@ -70,8 +68,6 @@ class WholesaleController extends Controller
     $data['unit'] = $request->unit;
     $data['orderprice'] = $request->orderprice;
     $data['sellingprice'] = $request->sellingprice;
-    $data['batchnumber'] = $request->batchnumber;
-    $data['expirydate'] = $request->expirydate;
     $data['vat'] = $request->vat;
 
     $messages = [
@@ -120,15 +116,13 @@ public function deletewholesalebaseproduct(request $request){
 }
 
 
-public function uploadWholesaleBaseProductsCsvFile(Request $request) 
+public function uploadWholesaleBaseProductsCsvFile(Request $request)
 {
     $csvData = json_decode($request->data, true);
     $supplier = Cookie::get('supplier') ?? "NA";
     $vat = "EX";
-    $defaultExpiryDate = Carbon::today()->addYears(2);
     $chunkSize = 50;
     $chunks = array_chunk($csvData, $chunkSize);
-
     $imported = 0;
     $errors = [];
 
@@ -137,35 +131,30 @@ public function uploadWholesaleBaseProductsCsvFile(Request $request)
             if (!empty($row)) {
                 $values = array_values($row);
                 if (!empty($values[0])) {
-                    $orderPrice = $this->extractNumber($values[2]);
-                    $sellingPrice = $this->extractNumber($values[3]);
-                    $expiryDate = $values[5];
-                    if (strtotime($expiryDate)) {
-                        $expiryDate = date('Y-m-d', strtotime($expiryDate));
-                    } else {
-                      $expiryDate = $defaultExpiryDate; 
-                    }
+                    $orderPrice = $this->extractNumber($values[1]);
+                    $sellingPrice = $this->extractNumber($values[2]);
 
                     if (!is_numeric($orderPrice)) {
                         $orderPrice = 0;
                     }
+
                     if (!is_numeric($sellingPrice)) {
                         $sellingPrice = 0;
                     }
+
                     $baseProduct = [
                         'product' => $values[0] ?? null,
-                        'unit' => $values[1] ?: "Each",
+                        'unit' => $values[3] ?: "Each",
                         'orderprice' => $orderPrice,
                         'sellingprice' => $sellingPrice,
-                        'batchnumber' => $values[4] ?: "NA",
-                        'expirydate' =>$expiryDate,
                         'vat' => $vat,
                         'supplier' => $supplier,
                     ];
+
                     try {
                         $importData = DB::table('wholesalebaseproducts')->insertOrIgnore($baseProduct);
-                        if( $importData){
-                          $imported++;
+                        if ($importData) {
+                            $imported++;
                         }
                     } catch (\Exception $e) {
                         $errors[] = "Error importing record: " . $e->getMessage();
@@ -184,6 +173,9 @@ public function uploadWholesaleBaseProductsCsvFile(Request $request)
         'errors' => $errors,
     ]);
 }
+
+
+
 
 private function extractNumber($value)
 {

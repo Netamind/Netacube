@@ -12,7 +12,7 @@ class CreateWholesaleproducthistoryTable extends Migration
      * @return void
      */
     public function up()
-    {
+    {     
         Schema::create('wholesaleproducthistory', function (Blueprint $table) {
             $table->id();
             $table->date('date');
@@ -20,10 +20,10 @@ class CreateWholesaleproducthistoryTable extends Migration
             $table->integer('productid');
             $table->decimal('qtyadded', 20, 2);
             $table->string('username');
-            $table->string('devicedetails');
-            $table->decimal('qtybefore', 20, 2); 
+            $table->text('devicedetails'); 
+            $table->decimal('qtybefore', 20, 2);
             $table->decimal('qtyafter', 20, 2);
-            $table->string('description');
+            $table->text('description');
             $table->string('time');
         });
     }

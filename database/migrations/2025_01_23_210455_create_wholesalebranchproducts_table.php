@@ -20,10 +20,10 @@ class CreateWholesalebranchproductsTable extends Migration
             $table->decimal('quantity', 20, 2)->default(0.00);
             $table->decimal('rate', 20, 2)->default(1.00);
             $table->string('snumber')->nullable();
-            $table->string('batchnumber');
-            $table->string('expirydate');
+            $table->string('batchnumber')->nullable();
+            $table->string('expirydate')->nullable();
             $table->string('status')->default("Active");
-            $table->unique(['branch', 'product', 'batchnumber'], 'unique_batch');
+            $table->unique(['branch', 'product']);
         });
     }
 

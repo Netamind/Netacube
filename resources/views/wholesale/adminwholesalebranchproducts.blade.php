@@ -433,12 +433,11 @@ $data = DB::table('wholesalebranchproducts')->where('branch',$branchId)->get();
     });
 $(document).ready(function() {
 
+
   $('#uploadCsvBtn').click(function() {
     $('#newDataModal').modal('show');
   });
 
-      
- 
 $('#business-table').DataTable({ 
      dom: 'Bfrtip', 
      autoWidth:false,
@@ -504,6 +503,7 @@ $('#business-table').DataTable({
           complete: function() {
             $('#loading-status').css('display', 'none');
             $("#tbody").load(" #tbody  > *",function(){});
+            form.reset();
             self.prop("disabled", false);
            },
           success: function(data) {
@@ -514,6 +514,7 @@ $('#business-table').DataTable({
             }else{
               toastr.info('Success!','Success',{ timeOut : 5000 , 	progressBar: true}); 
             }
+            self.css('color','red')
           },
         error: function(xhr, status, error) {
         if (xhr.status === 0 && xhr.readyState === 0) {
@@ -533,12 +534,6 @@ $('#business-table').DataTable({
           }  
         });
       });
-
-	  
-
-  
-
-
 })
 </script>
 

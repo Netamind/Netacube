@@ -208,6 +208,7 @@
   ?>
 
 <h4>
+  <i class="feather icon-home"></i>
 <select name="category" id="" style=";border:none;margin-left:-4px" onchange="submitBranchId(this.value)">
 <option value="" hidden>{{$branchName}}</option>
 <?php
@@ -227,7 +228,7 @@ $branches = DB::table('branches')->where('sector','Wholesale')->get();
 </a>
 
 
-<a href="#" class="btn btn-primary"  id="newDataBtn"   style="float:right;margin-right:10px" title="Find more info">
+<a href="#" class="btn btn-primary"  id="newDataBtn"   style="float:right;margin-right:10px" title="view more info">
     <i class="feather icon-info"></i>
 </a> 
 
@@ -269,7 +270,7 @@ Manage wholesale branch products <strong>{{$categoryName}}</strong>
 <div class="card-block" style="margin-top:-15px">
 
 <div class="table-wrapper">
-<table id="business-table" class="table-striped-column  table-sm table-striped table-fixed-first-column table-fixed-header" >
+<table id="wbproducts-table" class="table-striped-column  table-sm table-striped table-fixed-first-column table-fixed-header" >
 <thead class="table-dark">
 <tr>
 <th class="table-dark">
@@ -280,6 +281,7 @@ Manage wholesale branch products <strong>{{$categoryName}}</strong>
 <th style="text-align:center">Rate</th>
 <th style="text-align:center">Batch</th>
 <th style="text-align:center">Expiry</th>
+<th style="text-align:center">Status</th>
 <th style="text-align:center">VAT</th>
 <th style="text-align:center">Action</th>
 </tr>
@@ -294,27 +296,41 @@ $data = DB::table('wholesalebranchproducts')->where('branch',$branchId)->get();
  $productName = DB::table('wholesalebaseproducts')->where('id', $d->product)->value('product');
  $productUnit = DB::table('wholesalebaseproducts')->where('id', $d->product)->value('unit');
  $productPrice = DB::table('wholesalebaseproducts')->where('id', $d->product)->value('sellingprice');
+ $vat = DB::table('wholesalebaseproducts')->where('id', $d->product)->value('vat');
  ?>
 <tr id="{{$editrow}}">
    <td >{{$productName}}</td>
    <td style="text-align:center">{{$productUnit}}</td>
    <td style="text-align:center">{{$d->quantity}}</td>
    <td style="text-align:center">@convert($productPrice)</td>
-   <td style="text-align:center">{{$d->product}}</td>
+   <td style="text-align:center">{{$d->rate}}</td>
 
-   <td style="text-align:center">{{$d->product}}</td>
-   <td style="text-align:center">{{$d->product}}</td>
-   <td style="text-align:center">{{$d->product}}</td>
+    <td style="text-align:center">
+    @if($d->batchnumber)
+    {{$d->batchnumber}}
+    @else
+    <span style="color:gray">NA</span>
+    @endif
+    </td>
+    <td style="text-align:center">
+    @if($d->expirydate)
+    {{$d->expirydate}}
+    @else
+    <span style="color:gray">NA</span>
+    @endif
+    </td>
+    <td style="text-align:center">{{$d->status}}</td>
+   <td style="text-align:center">{{$vat}}</td>
 	 <td style="text-align:center">
 	 <a href="#" class="editDataBtnClass" 
     editId ="{{$d->id}}"
-    editRow={{$editrow}} 
-    editbranch="{{$d->product}}" 
-    editsector="{{$d->product}}" 
-    editcategory="{{$d->product}}" 
-    editaddress="{{$d->product}}" 
-    editcontact="{{$d->product}}" 
-    editemail="{{$d->product}}" 
+    editRow="{{$editrow}}"
+    editproduct="{{$productName}}" 
+    editunit="{{$productUnit}}" 
+    
+    editprice="@branchprice($productPrice*$d->rate)"
+
+    editquantity="{{$d->quantity}}" 
     > 
     <i class="fa fa-edit text-primary fa-2x" ></i>
     </a>
@@ -322,7 +338,6 @@ $data = DB::table('wholesalebranchproducts')->where('branch',$branchId)->get();
       <i class="fa fa-trash text-danger fa-2x"></i>
     </a>
 	</td>
-
 </tr>
 @endforeach
 </tbody>
@@ -390,7 +405,7 @@ $data = DB::table('wholesalebranchproducts')->where('branch',$branchId)->get();
             <input type="hidden" name="productid"  value="{{$d->id}}"> 
             <input type="hidden" name="branch"  value="{{$branchId}}"> 
               <div class="input-group-append" style="font-size:10px">
-            <input type="text" name = "quantity" style="width:70%;border:1px solid #8c8c8c;text-align:center;"><button class="insertDataBtn" style="border:1px solid #8c8c8c" form="{{$formid}}"  row="{{$btnrow}}" id="{{$btnrow}}">Add</button>
+            <input type="text" name = "quantity" style="width:70%;border:1px solid #8c8c8c;text-align:center;" autocomplete="off"><button class="insertDataBtn" style="border:1px solid #8c8c8c" form="{{$formid}}"  row="{{$btnrow}}" id="{{$btnrow}}">Add</button>
   
 
         </form>
@@ -415,12 +430,117 @@ $data = DB::table('wholesalebranchproducts')->where('branch',$branchId)->get();
       <!-- /.excel modal -->
       </section>
 
+      
+
+<section>
+<!-- Modal -->
+<div class="sweet-modal-container ">
+  <div class="modal fade sweet-modal " id="deleteDataModal" tabindex="-1" role="dialog" aria-labelledby="sweet-modal-label" aria-hidden="true" data-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-body text-center" >
+          <i class="feather icon-alert-circle text-warning" style="font-size:50px"></i>
+		<h4 style="paddin-top:10px;padding-bottom:10px">Are you sure you want to delete <span id="displayDeleteItem"></span> ?</h4>
+		   <h5>You won't be able to revert this!</h5>
+		   <form action="delete-wholesale-branch-product" method="post" id="deleteForm">
+			@csrf
+			<input type="hidden" id="deleteInputId" name="id">
+			<input type="hidden" id="deleteInputRow">
+		   </form>
+		<a href="#" class="btn btn-primary deleteDataBtn" style="margin-top:25px;margin-bottom:10px">Yes, Delete it</a>
+		<a href="#" class="btn btn-warning keepDataBtn" style="margin-top:25px;margin-bottom:10px" >No, Keep it</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+
+
+<section decription="Modal for app data info">
+<div class="modal fade-scale" tabindex="-1" role="dialog" id="editDataModal" data-backdrop="static">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header bg-primary">
+        <h5 class="modal-title">Edit product</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+		<form action="edit-business-cartigory" method="post"   id="editDataForm">
+			@csrf
+      <input type="hidden" id="editId" name="id">
+      <input type="hidden" id="editRow">
+
+      
+		<div class="row">
+
+			<div class="form-group col-md-6">
+				<label for="#">Product Name</label>
+				<input type="text"name="product" class="form-control" id="editproduct" readonly>
+			</div>
 
 
 
 
 
-<!-- jQuery -->
+			<div class="form-group col-md-6">
+				<label for="#">Unit</label>
+				<input type="text" name="unit" class="form-control" id="editunit" readonly>
+			</div>
+
+
+
+			<div class="form-group col-md-6">
+				<label for="#">Price</label>
+				<input type="number" name="orderprice" class="form-control" id="editprice" readonly>
+			</div>
+
+      
+
+      
+      
+			<div class="form-group col-md-6">
+				<label for="#">Quantity</label>
+				<input type="number" name="quantity" class="form-control" id="editquantity">
+			</div>
+
+
+      
+
+
+        <div class="col-md-12">
+
+              
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button class="btn btn-primary" style="float:right" id="submitEditDataBtn">Submit</button>
+
+        </div>
+
+
+
+
+
+		</form>
+
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+
+
+
+
+
+
+
+
+
+
 <script src="Admin320/plugins/jquery/jquery.min.js"></script>
 <script src="Admin320/plugins/sweetalert2/sweetalert2.min.js"></script>
 <script src="Admin320/plugins/toastr/toastr.min.js"></script>
@@ -438,14 +558,20 @@ $(document).ready(function() {
     $('#newDataModal').modal('show');
   });
 
-$('#business-table').DataTable({ 
+ $('#newDataBtn').click(function() {
+    $('#csvDataModal').modal('show');
+  });
+
+
+  
+$('#wbproducts-table').DataTable({ 
      dom: 'Bfrtip', 
      autoWidth:false,
      paging: true,
      buttons: [
      {
       extend: 'excel',
-      title: 'Wholesale baseproducts',
+      title: 'Wholesale branch products',
       exportOptions: {
         columns: ':visible:not(:last-child)'
       }
@@ -467,16 +593,9 @@ $('#business-table').DataTable({
        
         });
       },
-     
-
     }
-  
   ]
  }); 
- $('#newDataBtn').click(function() {
-    $('#csvDataModal').modal('show');
-  });
-
 
   $('body').on('click', '.insertDataBtn', function(e) {
       var self = $(this);
@@ -534,6 +653,165 @@ $('#business-table').DataTable({
           }  
         });
       });
+
+
+
+	  
+
+      $('#tbody').on('click', '.deleteDataBtnClass', function() {
+      $('#deleteInputId').val($(this).attr('deleteId'));  
+      $('#displayDeleteItem').html($(this).attr('deleteLabel'));
+      $('#deleteInputRow').val($(this).attr('deleteRow'));
+      $('#deleteDataModal').modal('show');
+      })
+
+      
+		$('.keepDataBtn').click(function() {
+			$('#deleteDataModal').modal('hide');
+			toastr.info('Your data is safe', 'Great!',
+			{
+				timeOut: 5000,
+				progressBar: true,
+				
+			});
+		});
+	
+      
+  $(document).on("click", ".deleteDataBtn", function(e) {
+  var self = $(this);
+  $(this).prop("disabled", true);
+  $('#deleteDataModa').modal('hide');
+  var form = document.getElementById("deleteForm");
+  var row = document.getElementById('deleteInputRow').value;
+  e.preventDefault(); 
+  $.ajaxSetup({
+	headers: {
+		'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+		}
+  });
+  $.ajax({
+      type:"post",
+      url: '/delete-wholesale-branch-product',     
+	  data: $(form).serialize(),
+	  beforeSend: function() {
+        $('#loading-status').css('display', 'block');
+       },
+     complete: function() {
+		$('#loading-status').css('display', 'none');
+		$("#"+row).load(" "+"#"+row+ ">"+ "*",function(){});
+		self.prop("disabled", false);
+		form.reset();
+       },
+  success:function(data) {
+	  if(data.status===201){
+		toastr.success(data.success,'Success',{ timeOut : 5000 ,	progressBar: true});
+    $('#deleteDataModal').modal('hide'); 
+		}else if(data.status===422){
+		toastr.error(data.error,'Error',{ timeOut : 5000 , 	progressBar: true});
+    $('#deleteDataModal').modal('hide'); 
+		}else{
+		toastr.info('Success!','Success',{ timeOut : 5000 , 	progressBar: true});
+    $('#deleteDataModal').modal('hide');  
+		}
+      },
+      error:function(jqXHR, textStatus, errorThrown) {
+        if(textStatus === 'timeout')
+          {   
+            toastr.error('It is taking longer to delete the data check your internet connection and try again','Timeout Error',{ timeOut : 5000 , 	progressBar: true})  
+            form.reset();
+          }
+          else{
+        
+            toastr.error('Server error occured try again later','Server Error',{ timeOut : 5000 , 	progressBar: true})  
+            form.reset();
+          }
+      },
+      timeout: 60000
+     });
+  })
+
+
+  
+
+  
+
+$('#tbody').on('click', '.editDataBtnClass', function() {
+
+$('#editId').val($(this).attr('editId'));
+
+$('#editRow').val($(this).attr('editRow'));
+
+$('#editproduct').val($(this).attr('editproduct'));
+
+$('#editunit').val($(this).attr('editunit'));
+
+$('#editprice').val($(this).attr('editprice'));
+
+$('#editquantity').val($(this).attr('editquantity'));
+
+
+$('#editDataModal').modal('show');
+});
+
+
+
+
+$(document).on("click", "#submitEditDataBtn", function(e) {
+var self = $(this);
+$(this).prop("disabled", true);
+$('#editDataModal').modal('hide');
+var form = document.getElementById("editDataForm");
+var row = document.getElementById('editRow').value;
+e.preventDefault(); 
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        }
+    });
+    $.ajax({
+      type:"post",
+       url: '/edit-employee',
+       data: $(form).serialize(),
+        timeout: 60000,
+        beforeSend: function() {
+          $('#loading-status').css('display', 'block');
+        },
+        complete: function() {
+          $('#loading-status').css('display', 'none');
+          $("#"+row).load(" "+"#"+row+ ">"+ "*",function(){});
+           self.prop("disabled", false);
+           form.reset();
+         },
+        success: function(data) {
+          if(data.status===201){
+            toastr.success(data.success,'Success',{ timeOut : 5000 ,	progressBar: true});
+          }else if(data.status===422){
+            toastr.error(data.error,'Error',{ timeOut : 5000 , 	progressBar: true})  
+          }else{
+            toastr.info('Success!','Success',{ timeOut : 5000 , 	progressBar: true}); 
+          }
+        },
+      error: function(xhr, status, error) {
+      if (xhr.status === 0 && xhr.readyState === 0) {
+          toastr.error('Timeout check your internet connect and try again','Timeout Error',{ timeOut : 5000 , 	progressBar: true})  
+        } else if (xhr.status === 422) {
+            var errorPassage = '';
+            var errors = xhr.responseJSON.errors;
+            $.each(errors, function(key, value) { errorPassage += value + '\n'});
+            toastr.error(errorPassage, 'Validation Errors', {timeOut: 5000, 	progressBar: true});
+        } else if (xhr.status === 500) {
+            var errorMessage = xhr.responseText;
+            toastr.error('Internal server error occured try again later', 'Server Error', {timeOut: 5000 , 	progressBar: true});
+        } else {
+        toastr.error('Unspecified error occured try again later', 'Unspecified Error',{timeOut: 5000 ,	progressBar: true});
+      }
+        }  
+      });
+    })
+
+
+
+
 })
 </script>
 
@@ -561,7 +839,6 @@ $('body').on('click', '#cancelsearch', function () {
   $('#mobile-table').hide();
 });
 </script>
-
 <!--js toastr notification-->
 <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js"></script>

@@ -186,7 +186,7 @@
 <section>
 <div class="card">
 <div class="card-header">
-<h4><i class="feather icon-list"></i> Base products 
+<h4><i class="fa fa-database"></i>  Wholesale Base Products 
 <a href="#" class="btn btn-primary" id="uploadCsvBtn"style="float:right"> <i class="feather icon-plus-circle" style="color:white"></i> New</a>
 
 <a href="#" class="btn btn-primary"  id="newDataBtn"   style="float:right;margin-right:10px"><i class="fa fa-cloud-upload" style="color:white"></i> CSV</a> 
@@ -607,7 +607,7 @@ $data  = DB::table('wholesalebaseproducts')->whereIn('supplier',$supplierArray)-
           <div class="form-group" id="csvdiv">
              To upload a csv prepare an excel file as shown below and save it as csv. 
              For <strong>Order price</strong> collumn if you dont have  data you can leave it blank but the first row should contain headers for all the collumns and in that order.
-             <img src="system/images/basecsv.png" alt="" style="width:100%;margin-top:5px">
+             <img src="system/images/csvsample.png" alt="" style="width:100%;margin-top:5px">
              <br> <br>
              <input type="file"  accept=".csv" id="csvinput" >
              <button style="float:right;margin-top:5px;border:1px solid gray" id="uploadcsvbtn">Submit</button>

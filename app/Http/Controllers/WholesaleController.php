@@ -131,8 +131,8 @@ public function uploadWholesaleBaseProductsCsvFile(Request $request)
             if (!empty($row)) {
                 $values = array_values($row);
                 if (!empty($values[0])) {
-                    $orderPrice = $this->extractNumber($values[1]);
-                    $sellingPrice = $this->extractNumber($values[2]);
+                    $orderPrice = $this->extractNumber($values[2]);
+                    $sellingPrice = $this->extractNumber($values[3]);
 
                     if (!is_numeric($orderPrice)) {
                         $orderPrice = 0;
@@ -144,7 +144,7 @@ public function uploadWholesaleBaseProductsCsvFile(Request $request)
 
                     $baseProduct = [
                         'product' => $values[0] ?? null,
-                        'unit' => $values[3] ?: "Each",
+                        'unit' => $values[1] ?: "Each",
                         'orderprice' => $orderPrice,
                         'sellingprice' => $sellingPrice,
                         'vat' => $vat,
@@ -213,10 +213,8 @@ public function insertwholesalebranchproduct(Request $request) {
   $dnote['added_to_branch'] = "Yes";
 
   $history = array();
-  $time = 0;
-  $description = 0;
-  
-$devicedetails = "User Agent: " . $request->header('User-Agent');
+  $time = Carbon::now()->toTimeString();
+  $devicedetails = "User Agent: " . $request->header('User-Agent');
                   
         $messages = [
           'quantity.required' => 'Quantity is required.',
@@ -241,14 +239,12 @@ if($validator){
       $qtybefore = $existingProduct->quantity;
       $qtyafter = $qtybefore + $request->quantity;
 
-      DB::transaction(function () use ($request, $existingProduct, $dnote, $history, $qtybefore, $qtyafter, $devicedetails, $description, $time) {
+      DB::transaction(function () use ($request, $existingProduct, $dnote, $history, $qtybefore, $qtyafter, $devicedetails, $time) {
           DB::table('wholesalebranchproducts')
               ->where('branch', $request->branch)
               ->where('product', $request->productid)
               ->update(['quantity' => $qtyafter]);
-
           DB::table('wholesaledeliverynotes')->insert($dnote);
-
           $history['date'] = Carbon::today()->toDateString();
           $history['branchid'] = $request->branch;
           $history['productid'] = $request->productid;
@@ -257,13 +253,12 @@ if($validator){
           $history['devicedetails'] = $devicedetails;
           $history['qtybefore'] = $qtybefore;
           $history['qtyafter'] = $qtyafter;
-          $history['description'] = $description;
+          $history['description'] = "Directly added (update)";
           $history['time'] = $time;
-
           DB::table('wholesaleproducthistory')->insert($history);
       });
   } else {
-      DB::transaction(function () use ($data, $dnote, $history, $request, $devicedetails, $description, $time) {
+      DB::transaction(function () use ($data, $dnote, $history, $request, $devicedetails,$time) {
           DB::table('wholesalebranchproducts')->insert($data);
           DB::table('wholesaledeliverynotes')->insert($dnote);
 
@@ -275,7 +270,7 @@ if($validator){
           $history['devicedetails'] = $devicedetails;
           $history['qtybefore'] = 0;
           $history['qtyafter'] = $data['quantity'];
-          $history['description'] = $description;
+          $history['description'] = "Directly added (insert)";
           $history['time'] = $time;
 
           DB::table('wholesaleproducthistory')->insert($history);
@@ -295,7 +290,41 @@ else{
 
 }
 
+public function deletewholesalebranchproduct(Request $request)
+{
+    $history = array();
+    $baseproductid = DB::table('wholesalebranchproducts')->where('id', $request->id)->value('product');
+    $branchid = DB::table('wholesalebranchproducts')->where('id', $request->id)->value('branch');
+    $qtyafter = 0;
+    $qtybefore = DB::table('wholesalebranchproducts')->where('id', $request->id)->where('branch',$branchid)->value('quantity');
+    $description = "Deleted by " . Auth::user()->username;
+    $date = Carbon::today()->toDateString();
+    $devicedetails = "User Agent: " . $request->header('User-Agent');
+    $time = Carbon::now()->toTimeString();
 
+    $history['date'] = Carbon::today()->toDateString();
+    $history['branchid'] = $branchid;
+    $history['productid'] = $baseproductid;
+    $history['qtyadded'] = -$qtybefore;
+    $history['username'] = Auth::user()->username;
+    $history['devicedetails'] = $devicedetails;
+    $history['qtybefore'] = $qtybefore;
+    $history['qtyafter'] = $qtyafter;
+    $history['description'] = $description;
+    $history['time'] = $time;
+    try {
+      DB::transaction(function () use ($history, $request) {
+          DB::table('wholesaleproducthistory')->insert($history);
+          DB::table('wholesalebranchproducts')->where('id', $request->id)->delete();
+      });
+      return response()->json(['success' => 'Data deleted successfully', 'status' => 201]);
+  } catch (\Exception $e) {
+      return response()->json(['error' => 'An error occurred, try again later', 'status' => 422]);
+  }
+
+
+
+}
 
 
 

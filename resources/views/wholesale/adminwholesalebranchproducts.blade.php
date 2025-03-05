@@ -297,13 +297,14 @@ $data = DB::table('wholesalebranchproducts')->where('branch',$branchId)->get();
  $productUnit = DB::table('wholesalebaseproducts')->where('id', $d->product)->value('unit');
  $productPrice = DB::table('wholesalebaseproducts')->where('id', $d->product)->value('sellingprice');
  $vat = DB::table('wholesalebaseproducts')->where('id', $d->product)->value('vat');
+ $price = round($productPrice*$d->rate, -2)
  ?>
 <tr id="{{$editrow}}">
-   <td >{{$productName}}</td>
+   <td ><input type="checkbox" name="select" class="select"> {{$productName}}</td>
    <td style="text-align:center">{{$productUnit}}</td>
    <td style="text-align:center">{{$d->quantity}}</td>
-   <td style="text-align:center">@convert($productPrice)</td>
-   <td style="text-align:center">{{$d->rate}}</td>
+   <td style="text-align:center">@convert($price)</td>
+   <td style="text-align:center;color:gray">{{$d->rate}}</td>
 
     <td style="text-align:center">
     @if($d->batchnumber)
@@ -322,15 +323,18 @@ $data = DB::table('wholesalebranchproducts')->where('branch',$branchId)->get();
     <td style="text-align:center">{{$d->status}}</td>
    <td style="text-align:center">{{$vat}}</td>
 	 <td style="text-align:center">
+    
 	 <a href="#" class="editDataBtnClass" 
     editId ="{{$d->id}}"
     editRow="{{$editrow}}"
     editproduct="{{$productName}}" 
     editunit="{{$productUnit}}" 
-    
-    editprice="@branchprice($productPrice*$d->rate)"
-
+    editprice="{{$price}}"
     editquantity="{{$d->quantity}}" 
+    editbatchnumber="{{$d->batchnumber}}" 
+    editexpirydate="{{$d->expirydate}}"
+    editstatus="{{$d->status}}"
+    editshelfnumber="{{$d->snumber}}"
     > 
     <i class="fa fa-edit text-primary fa-2x" ></i>
     </a>
@@ -509,6 +513,37 @@ $data = DB::table('wholesalebranchproducts')->where('branch',$branchId)->get();
 
 
       
+      
+			<div class="form-group col-md-6">
+				<label for="#">Batch Number</label>
+				<input type="text" name="batchnumber" class="form-control" id="editbatchnumber">
+			</div>
+
+      
+			<div class="form-group col-md-6">
+				<label for="#">Expiry Date</label>
+				<input type="date" name="expirydate" class="form-control" id="editexpirydate">
+			</div>
+
+
+      
+      
+			<div class="form-group col-md-6">
+				<label for="#">Status</label>
+			  <select name="status" class="form-control" id="edtitstatus">
+          <option value="Active">Active (Able to sale)</option>
+          <option value="Locked">Locked (Not able to sale)</option>
+        </select>
+			</div>
+
+
+
+      
+			<div class="form-group col-md-6">
+				<label for="#">Shelf Number</label>
+				<input type="text" name="shelfnumber" class="form-control" id="editshelfnumber">
+			</div>
+
 
 
         <div class="col-md-12">
@@ -750,64 +785,75 @@ $('#editprice').val($(this).attr('editprice'));
 $('#editquantity').val($(this).attr('editquantity'));
 
 
+$('#editbatchnumber').val($(this).attr('editbatchnumber'));
+
+$('#editexpirydate').val($(this).attr('editexpirydate'));
+
+
+$('#editstatus').val($(this).attr('editstatus'));
+
+$('#editshelfnumber').val($(this).attr('editshelfnumber'));
+
 $('#editDataModal').modal('show');
 });
 
 
 
 
+
 $(document).on("click", "#submitEditDataBtn", function(e) {
-var self = $(this);
-$(this).prop("disabled", true);
-$('#editDataModal').modal('hide');
-var form = document.getElementById("editDataForm");
-var row = document.getElementById('editRow').value;
-e.preventDefault(); 
-    $.ajaxSetup({
-        headers: {
-            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-        }
-    });
-    $.ajax({
-      type:"post",
-       url: '/edit-employee',
-       data: $(form).serialize(),
-        timeout: 60000,
-        beforeSend: function() {
-          $('#loading-status').css('display', 'block');
-        },
-        complete: function() {
-          $('#loading-status').css('display', 'none');
-          $("#"+row).load(" "+"#"+row+ ">"+ "*",function(){});
-           self.prop("disabled", false);
-           form.reset();
-         },
-        success: function(data) {
-          if(data.status===201){
-            toastr.success(data.success,'Success',{ timeOut : 5000 ,	progressBar: true});
-          }else if(data.status===422){
-            toastr.error(data.error,'Error',{ timeOut : 5000 , 	progressBar: true})  
-          }else{
-            toastr.info('Success!','Success',{ timeOut : 5000 , 	progressBar: true}); 
+  var self = $(this);
+  $(this).prop("disabled", true);
+  $('#editDataModal').modal('hide');
+  var form = document.getElementById("editDataForm");
+  var row = document.getElementById('editRow').value;
+  e.preventDefault(); 
+      $.ajaxSetup({
+          headers: {
+              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
           }
-        },
-      error: function(xhr, status, error) {
-      if (xhr.status === 0 && xhr.readyState === 0) {
-          toastr.error('Timeout check your internet connect and try again','Timeout Error',{ timeOut : 5000 , 	progressBar: true})  
-        } else if (xhr.status === 422) {
-            var errorPassage = '';
-            var errors = xhr.responseJSON.errors;
-            $.each(errors, function(key, value) { errorPassage += value + '\n'});
-            toastr.error(errorPassage, 'Validation Errors', {timeOut: 5000, 	progressBar: true});
-        } else if (xhr.status === 500) {
-            var errorMessage = xhr.responseText;
-            toastr.error('Internal server error occured try again later', 'Server Error', {timeOut: 5000 , 	progressBar: true});
-        } else {
-        toastr.error('Unspecified error occured try again later', 'Unspecified Error',{timeOut: 5000 ,	progressBar: true});
-      }
-        }  
       });
-    })
+      $.ajax({
+        type:"post",
+         url: '/update-wholesale-branch-product',
+         data: $(form).serialize(),
+          timeout: 60000,
+          beforeSend: function() {
+            $('#loading-status').css('display', 'block');
+          },
+          complete: function() {
+            $('#loading-status').css('display', 'none');
+            $("#"+row).load(" "+"#"+row+ ">"+ "*",function(){});
+		         self.prop("disabled", false);
+		         form.reset();
+           },
+          success: function(data) {
+            if(data.status===201){
+              toastr.success(data.success,'Success',{ timeOut : 5000 ,	progressBar: true});
+            }else if(data.status===422){
+              toastr.error(data.error,'Error',{ timeOut : 5000 , 	progressBar: true})  
+            }else{
+              toastr.info('Success!','Success',{ timeOut : 5000 , 	progressBar: true}); 
+            }
+          },
+        error: function(xhr, status, error) {
+        if (xhr.status === 0 && xhr.readyState === 0) {
+            toastr.error('Timeout check your internet connect and try again','Timeout Error',{ timeOut : 5000 , 	progressBar: true})  
+          } else if (xhr.status === 422) {
+              var errorPassage = '';
+              var errors = xhr.responseJSON.errors;
+              $.each(errors, function(key, value) { errorPassage += value + '\n'});
+              toastr.error(errorPassage, 'Validation Errors', {timeOut: 5000, 	progressBar: true});
+          } else if (xhr.status === 500) {
+              var errorMessage = xhr.responseText;
+              toastr.error('Internal server error occured try again later', 'Server Error', {timeOut: 5000 , 	progressBar: true});
+          } else {
+          toastr.error('Unspecified error occured try again later', 'Unspecified Error',{timeOut: 5000 ,	progressBar: true});
+        }
+          }  
+        });
+      })
+
 
 
 

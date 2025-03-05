@@ -23,8 +23,8 @@ class CreateWholesaleproducthistoryTable extends Migration
             $table->text('devicedetails'); 
             $table->decimal('qtybefore', 20, 2);
             $table->decimal('qtyafter', 20, 2);
-            $table->text('description');
-            $table->string('time');
+            $table->text('description')->nullable();
+            $table->string('time')->nullable();
         });
     }
 

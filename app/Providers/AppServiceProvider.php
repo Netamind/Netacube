@@ -41,11 +41,6 @@ class AppServiceProvider extends ServiceProvider
             ?>"; 
         });
 
-
-        Blade::directive('branchprice', function ($num) {
-            return "<?php echo round($num , -2); ?>";
-        });
-
     }
 
 

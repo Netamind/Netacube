@@ -24,7 +24,7 @@ class CreateVatStatusesTable extends Migration
         $vatStatuses = [
             [
                 'status' => 'Exempt',
-                'description' => 'Product is exempt from VAT',
+                'description' => 'Product is exempted from VAT',
                 'code' => 'EX',
                 'rate' => 0.00,
             ],

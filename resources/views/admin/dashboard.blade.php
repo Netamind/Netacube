@@ -255,20 +255,46 @@
 
 <li class="{{request()->is('admin-wholesale-baseproducts') ? 'active' : '' }}">
 <a href="admin-wholesale-baseproducts">
-<span class="pcoded-mtext">Base products</span>
+<span class="pcoded-mtext">Base</span>
 </a>
 </li>
 
 
 <li >
 <a href="admin-wholesale-branch-products">
-<span class="pcoded-mtext">Branch products</span>
+<span class="pcoded-mtext">Products</span>
 </a>
 </li>
 
 
 
+<li >
+<a href="admin-wholesale-product-tracker">
+<span class="pcoded-mtext">Logs</span>
+</a>
+</li>
 
+
+<li >
+<a href="admin-wholesale-product-supplies">
+<span class="pcoded-mtext">Supplies</span>
+</a>
+</li>
+
+
+<li >
+<a href="admin-wholesale-product-supplies">
+<span class="pcoded-mtext">Sales</span>
+</a>
+</li>
+
+
+
+<!--<li >
+<a href="admin-wholesale-product-supplies">
+<span class="pcoded-mtext">Documents</span>
+</a>
+</li>-->
 
 
 </ul>

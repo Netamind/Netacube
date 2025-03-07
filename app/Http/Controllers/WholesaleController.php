@@ -14,13 +14,24 @@ use Auth;
 class WholesaleController extends Controller
 {
     public function adminwholesalebaseproducts(){
-        return view('wholesale.adminwholesalebaseproducts');
+        return view('wholesale.admin.wholesalebaseproducts');
     }
 
     public function adminwholesalebranchproducts(){
-      return view('wholesale.adminwholesalebranchproducts');
+      return view('wholesale.admin.wholesalebranchproducts');
   }
 
+  public function  adminwholesaleproducttracker(){
+    return view('wholesale.admin.wholesaleproducttracker');
+}
+
+
+public function  adminwholesaleproductsupplies(){
+  return view('wholesale.admin.wholesaleproductsupplies');
+}
+
+
+ 
   public function  insertwholesalebaseproduct(request $request){
     $data = array();
     $data['product'] = $request->product;
@@ -325,79 +336,6 @@ public function deletewholesalebranchproduct(Request $request)
 
 
 }
-
-
-public function   updatewholesalebranchproduct2(request $request){
-      
-      $data = array();
-      $data['quantity'] = $request->quantity;
-      $data['batchnumber'] = $request->batchnumber;
-      $data['expirydate'] = $request->expirydate;
-      $data['status'] = $request->status;
-      $data['snumber'] = $request->shelfnumber;
-
-
-      $history = array();
-      $baseproductid = DB::table('wholesalebranchproducts')->where('id', $request->id)->value('product');
-      $branchid = DB::table('wholesalebranchproducts')->where('id', $request->id)->value('branch');
-      $qtybefore = DB::table('wholesalebranchproducts')->where('id', $request->id)->value('quantity');
-      $qtyafter = $qtybefore+$request->quantity;
-      $qtyadded = $qtyafter-$qtybefore;
-      $description = $request->description;
-      $date = Carbon::today()->toDateString();
-      $devicedetails = "User Agent: " . $request->header('User-Agent');
-      $time = Carbon::now()->toTimeString();
-  
-      $history['date'] = Carbon::today()->toDateString();
-      $history['branchid'] = $branchid;
-      $history['productid'] = $baseproductid;
-      $history['qtyadded'] = -$qtybefore;
-      $history['username'] = Auth::user()->username;
-      $history['devicedetails'] = $devicedetails;
-      $history['qtybefore'] = $qtybefore;
-      $history['qtyafter'] = $qtyafter;
-      $history['description'] = $description;
-      $history['time'] = $time;
-  
-      $messages = [
-          'quantity.gte:0' => 'Quantity must be greater than or equal to 0',
-        ];
-      $validator = $request->validate([
-        'quantity' => 'required|gte:0',
-      ], $messages);
-      
-    if($validator){
-
-      if($qtybefore == $request->quantity){
-        $updateData =DB::table('wholesalebranchproducts')->where('id',$request->id)->update($data);
-        if($updateData ){
-            return response()->json(['success' => 'Data updated succesfully','status'=>201]);
-        }else{
-            return response()->json(['error' => 'An error occured no data change detected','status'=>422]);
-        }
-      }
-      else{
-        
-        try {
-          DB::transaction(function () use ($history, $request) {
-              DB::table('wholesaleproducthistory')->insert($history);
-              DB::table('wholesalebranchproducts')->where('id', $request->id)->update($data);
-          });
-          return response()->json(['success' => 'Data updated succesfully','status'=>201]);
-      } catch (\Exception $e) {
-          return response()->json(['error' => 'An error occurred, try again later', 'status' => 422]);
-      }
-
-
-      }
-    }
-    else{
-      return back()->withErrors($validator)->withInput();
-    }
-
-} 
-
-
 
 public function updatewholesalebranchproduct(Request $request){
   $data = array();

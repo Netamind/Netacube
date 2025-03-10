@@ -31,7 +31,11 @@ public function  adminwholesaleproductsupplies(){
 }
 
 
- 
+public function  adminwholesaleclients(){
+  return view('wholesale.admin.wholesaleclients');
+}
+
+
   public function  insertwholesalebaseproduct(request $request){
     $data = array();
     $data['product'] = $request->product;
@@ -393,6 +397,96 @@ public function updatewholesalebranchproduct(Request $request){
   } else{
       return back()->withErrors($validator)->withInput();
   }
+}
+
+
+
+public function insertwholesaleclient(request $request){
+  $data = array();
+  $data['client']=$request->client;
+  $data['address']=$request->address;
+  $data['contact']=$request->contact;
+  $data['email']=$request->email;  
+  $data['date']=Carbon::today()->toDateString();
+  $messages = [
+    'client.required' => 'Client name is required.',
+    'client.unique' => 'Client name must be unique.',
+    'email.unique' => 'Email must be unique.',
+    'email.required' => 'Email  is required.',
+    'email.email' => 'Email must be valid.',
+    'contact.required' => 'Contact is required.',
+    'address.required' => 'Address is required.',
+];
+
+$validator = $request->validate([
+    'client' => 'required|unique:wholesaleclients,client',
+    'email' => 'required|email|unique:wholesaleclients,email',
+    'contact' => 'required|unique:wholesaleclients,contact',
+    'address' => 'required',
+  
+], $messages);
+if($validator){
+  $insertData = DB::table('wholesaleclients')->insert($data);
+  if($insertData){
+    return response()->json(['success' => 'Data submitted succesifully','status'=>201]);
+  }
+  else{
+
+    return response()->json(['error' => 'An error occured try again later','status'=>422]);
+  } 
+}else{
+  return  back()->withErrors($validator)->withInput();
+}
+
+}
+
+
+
+public function deletewholesaleclient(request $request){
+  $id = $request->id;
+  $deleteData = DB::table('wholesaleclients')->where('id',$id)->delete();  
+  if($deleteData){
+    return response()->json(['success' => 'Data deleted succesifully','status'=>201]);
+  }else{
+    return response()->json(['error' => 'An error occured try again later','status'=>422]);
+  }
+}
+
+
+public function updatewholesaleclient(Request $request)
+{
+    $data = array();
+    $data['client'] = $request->client;
+    $data['address'] = $request->address;
+    $data['contact'] = $request->contact;
+    $data['email'] = $request->email;
+    $data['date'] = Carbon::today()->toDateString();
+
+    $messages = [
+        'client.required' => 'Client name is required.',
+        'email.required' => 'Email is required.',
+        'email.email' => 'Email must be valid.',
+        'contact.required' => 'Contact is required.',
+        'address.required' => 'Address is required.',
+    ];
+
+    $validator = $request->validate([
+        'client' => 'required|unique:wholesaleclients,client,' . $request->id,
+        'email' => 'required|email|unique:wholesaleclients,email,' . $request->id,
+        'contact' => 'required|unique:wholesaleclients,contact,' . $request->id,
+        'address' => 'required',
+    ], $messages);
+
+    if ($validator) {
+        $updateData = DB::table('wholesaleclients')->where('id', $request->id)->update($data);
+        if ($updateData) {
+            return response()->json(['success' => 'Data updated succesfully', 'status' => 201]);
+        } else {
+            return response()->json(['error' => 'An error occured no data change detected', 'status' => 422]);
+        }
+    } else {
+        return back()->withErrors($validator)->withInput();
+    }
 }
 
 

@@ -77,7 +77,7 @@
 <a class="mobile-menu" id="mobile-collapse" href="#!">
 <i class="feather icon-menu"></i>
 </a>
-<a href="index.html">
+<a href="admin-dashboard">
 <img class="img-fluid" src="system/images/netacube.png" style="height:43px;" alt="#" />
 </a>
 <a class="mobile-options">
@@ -245,6 +245,10 @@
 
 <li class="pcoded-hasmenu
   {{request()->is('admin-wholesale-baseproducts') ? 'active pcoded-trigger' : '' }} 
+  {{request()->is('admin-wholesale-branch-products') ? 'active pcoded-trigger' : '' }} 
+  {{request()->is('admin-wholesale-product-tracker') ? 'active pcoded-trigger' : '' }} 
+  {{request()->is('admin-wholesale-product-supplies') ? 'active pcoded-trigger' : '' }} 
+  {{request()->is('admin-wholesale-clients') ? 'active pcoded-trigger' : '' }} 
 
 ">
 <a href="javascript:void(0)">
@@ -260,7 +264,7 @@
 </li>
 
 
-<li >
+<li class="{{request()->is('admin-wholesale-branch-products') ? 'active' : '' }}" >
 <a href="admin-wholesale-branch-products">
 <span class="pcoded-mtext">Products</span>
 </a>
@@ -268,25 +272,32 @@
 
 
 
-<li >
+<li class="{{request()->is('admin-wholesale-product-tracker') ? 'active' : '' }}" >
 <a href="admin-wholesale-product-tracker">
 <span class="pcoded-mtext">Logs</span>
 </a>
 </li>
 
 
-<li >
+<li class="{{request()->is('admin-wholesale-product-supplies') ? 'active' : '' }}" >
 <a href="admin-wholesale-product-supplies">
 <span class="pcoded-mtext">Supplies</span>
 </a>
 </li>
 
 
-<li >
+
+<li  class="{{request()->is('admin-wholesale-clients') ? 'active' : '' }}">
+<a href="admin-wholesale-clients">
+<span class="pcoded-mtext">Clients</span>
+</a>
+</li>
+
+<!--<li >
 <a href="admin-wholesale-product-supplies">
 <span class="pcoded-mtext">Sales</span>
 </a>
-</li>
+</li>-->
 
 
 
@@ -299,6 +310,74 @@
 
 </ul>
 </li>
+
+
+
+
+
+
+<li class="pcoded-hasmenu
+  {{request()->is('admin-retail-baseproducts') ? 'active pcoded-trigger' : '' }} 
+  {{request()->is('admin-retail-branch-products') ? 'active pcoded-trigger' : '' }} 
+  {{request()->is('admin-retail-product-tracker') ? 'active pcoded-trigger' : '' }} 
+  {{request()->is('admin-retail-product-supplies') ? 'active pcoded-trigger' : '' }} 
+">
+<a href="javascript:void(0)">
+<span class="pcoded-micon"> <i class="fa fa-shopping-cart"></i></span>
+<span class="pcoded-mtext">Retail</span>
+</a>
+<ul class="pcoded-submenu">
+
+<li class="{{request()->is('admin-retail-baseproducts') ? 'active' : '' }}">
+<a href="admin-wholesale-baseproducts">
+<span class="pcoded-mtext">Base</span>
+</a>
+</li>
+
+
+<li class="{{request()->is('admin-retail-branch-products') ? 'active' : '' }}" >
+<a href="admin-wholesale-branch-products">
+<span class="pcoded-mtext">Products</span>
+</a>
+</li>
+
+
+
+<li class="{{request()->is('admin-retail-product-tracker') ? 'active' : '' }}" >
+<a href="admin-wholesale-product-tracker">
+<span class="pcoded-mtext">Logs</span>
+</a>
+</li>
+
+
+<li class="{{request()->is('admin-retail-product-supplies') ? 'active' : '' }}" >
+<a href="admin-wholesale-product-supplies">
+<span class="pcoded-mtext">Supplies</span>
+</a>
+</li>
+
+
+
+<!--<li >
+<a href="admin-wholesale-product-supplies">
+<span class="pcoded-mtext">Sales</span>
+</a>
+</li>-->
+
+
+
+<!--<li >
+<a href="admin-wholesale-product-supplies">
+<span class="pcoded-mtext">Documents</span>
+</a>
+</li>-->
+
+
+</ul>
+</li>
+
+
+
 
 
 

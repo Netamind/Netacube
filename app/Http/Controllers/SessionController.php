@@ -76,6 +76,25 @@ public function selectproduct(Request $request)
 
 
 
+public function selectwdate(Request $request)
+{
+  $wdate = Carbon::parse($request->date);
+  $now = Carbon::now();
+  $diffInDays = $now->diffInDays($wdate);
+
+  if ($diffInDays <= 124) {
+    Cookie::queue('wdate', $wdate->format('Y-m-d'), 144000);
+    return Redirect()->back();
+  } else {
+    $notification = array(
+      'message' => 'Error!. The selected date should be within the last 124 days',
+      'alert-type' => 'error'
+    );
+    return Redirect()->back()->with($notification);
+  }
+}
+
+
 
 
 

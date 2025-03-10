@@ -55,7 +55,7 @@ Route::get('admin-wholesale-baseproducts', 'WholesaleController@adminwholesaleba
 Route::get('admin-wholesale-branch-products', 'WholesaleController@adminwholesalebranchproducts');
 Route::get('admin-wholesale-product-tracker', 'WholesaleController@adminwholesaleproducttracker');
 Route::get('admin-wholesale-product-supplies', 'WholesaleController@adminwholesaleproductsupplies');
-
+Route::get('admin-wholesale-clients', 'WholesaleController@adminwholesaleclients');
 
 /*==========================================Start of Admin Wholesale Routes=================================================================*/
 
@@ -72,6 +72,11 @@ Route::post('delete-wholesale-branch-product', 'WholesaleController@deletewholes
 Route::post('update-wholesale-branch-product', 'WholesaleController@updatewholesalebranchproduct');
 
 
+Route::post('insert-wholesale-client', 'WholesaleController@insertwholesaleclient');
+Route::post('delete-wholesale-client', 'WholesaleController@deletewholesaleclient');
+Route::post('update-wholesale-client', 'WholesaleController@updatewholesaleclient');
+
+
 
 /*==========================================Wholesale  Wholesale Routes=================================================================*/
 
@@ -84,6 +89,8 @@ Route::post('select-supplier', 'SessionController@selectSupplier');
 Route::post('select-branch', 'SessionController@selectBranch');
 Route::post('change-date-interval', 'SessionController@changedateinterval');
 Route::post('select-product', 'SessionController@selectproduct');
+
+Route::post('select-wdate', 'SessionController@selectwdate');
 
 
 

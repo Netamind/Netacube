@@ -230,6 +230,7 @@
 <div class="card">
 <div class="card-header">
 <h4>
+  
 <i class="feather icon-calendar" style="font-weight:bold;color:gray;"></i>
 <select name="category" id="" style=";border:none;margin-left:-4px" onchange="submitBranchId(this.value)">
 <option value="" hidden>{{$branchName}}</option>

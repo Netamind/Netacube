@@ -6,7 +6,15 @@
 	<title>Document</title>
 </head>
 <body>
-	
+
+<?php
+$homepage = DB::table('adminhomepagesettings')->where('user',Auth::user()->id)->get();
+?>
+@if($homepage->isEmpty())
+Please enable your homepage settings under <a href="admin-homepage-settings" class="text-primary">Settings / Homepage</a>
+@else
+
+@endif
 
 <!--<div class="row">
 

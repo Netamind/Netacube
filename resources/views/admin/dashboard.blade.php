@@ -383,7 +383,10 @@
 
 
 
-<li class="pcoded-hasmenu ">
+<li class="pcoded-hasmenu 
+{{request()->is('admin-homepage-settings') ? 'active pcoded-trigger' : '' }} 
+
+">
 <a href="javascript:void(0)">
 <span class="pcoded-micon"><i class="fa fa-cog"></i></span>
 <span class="pcoded-mtext">Settings</span>
@@ -391,8 +394,8 @@
 <ul class="pcoded-submenu">
 
 
-<li class="{{request()->is('website-settings') ? 'active' : '' }} ">
-<a href="website-settings">
+<li class="{{request()->is('admin-homepage-settings') ? 'active' : '' }} ">
+<a href="admin-homepage-settings">
 <span class="pcoded-mtext">Settings</span>
 </a>
 </li>

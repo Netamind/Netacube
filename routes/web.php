@@ -92,14 +92,14 @@ Route::post('select-product', 'SessionController@selectproduct');
 
 Route::post('select-wdate', 'SessionController@selectwdate');
 
-
-
-
-
-
 /*==========================================End Session=================================================================*/
 
 
+
+/*==========================================Settings=================================================================*/
+Route::get('admin-homepage-settings', 'SettingsController@adminhomepagesettings');
+
+/*==========================================End Settings=================================================================*/
 
 
 

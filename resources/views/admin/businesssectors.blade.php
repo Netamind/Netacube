@@ -192,7 +192,7 @@
 <a href="#" class="btn btn-primary" id="newDataBtn" style="float:right"><i class="fa fa-plus-circle" style="color:white"></i>New Sector</a>
 </h4>
 <span style="font-size:18px;">
-Prior to assigning sectors to businesses, ensure that you have a comprehensive understanding of each sector's distinct characteristics and requirements.
+Prior to assigning sectors to branches, ensure that you have a comprehensive understanding of each sector's distinct characteristics and requirements.
 </span>
 </div>
 <div class="card-block">

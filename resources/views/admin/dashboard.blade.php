@@ -322,6 +322,7 @@
   {{request()->is('admin-retail-branch-products') ? 'active pcoded-trigger' : '' }} 
   {{request()->is('admin-retail-product-tracker') ? 'active pcoded-trigger' : '' }} 
   {{request()->is('admin-retail-product-supplies') ? 'active pcoded-trigger' : '' }} 
+  {{request()->is('admin-retail-clients') ? 'active pcoded-trigger' : '' }} 
 ">
 <a href="javascript:void(0)">
 <span class="pcoded-micon"> <i class="fa fa-shopping-cart"></i></span>
@@ -330,14 +331,14 @@
 <ul class="pcoded-submenu">
 
 <li class="{{request()->is('admin-retail-baseproducts') ? 'active' : '' }}">
-<a href="admin-wholesale-baseproducts">
+<a href="admin-retail-baseproducts">
 <span class="pcoded-mtext">Base</span>
 </a>
 </li>
 
 
 <li class="{{request()->is('admin-retail-branch-products') ? 'active' : '' }}" >
-<a href="admin-wholesale-branch-products">
+<a href="admin-retail-branch-products">
 <span class="pcoded-mtext">Products</span>
 </a>
 </li>
@@ -345,15 +346,22 @@
 
 
 <li class="{{request()->is('admin-retail-product-tracker') ? 'active' : '' }}" >
-<a href="admin-wholesale-product-tracker">
+<a href="admin-retail-product-tracker">
 <span class="pcoded-mtext">Logs</span>
 </a>
 </li>
 
 
 <li class="{{request()->is('admin-retail-product-supplies') ? 'active' : '' }}" >
-<a href="admin-wholesale-product-supplies">
+<a href="admin-retail-product-supplies">
 <span class="pcoded-mtext">Supplies</span>
+</a>
+</li>
+
+
+<li  class="{{request()->is('admin-retail-clients') ? 'active' : '' }}">
+<a href="admin-retail-clients">
+<span class="pcoded-mtext">Clients</span>
 </a>
 </li>
 

@@ -18,6 +18,7 @@ class CreateSessionTable extends Migration
             $table->integer('user')->unique();
             $table->string('sector')->nullable();
             $table->string('category')->nullable();
+            $table->string('rcategory')->nullable();
         });
     }
 

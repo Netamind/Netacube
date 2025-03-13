@@ -76,21 +76,59 @@ Route::post('insert-wholesale-client', 'WholesaleController@insertwholesaleclien
 Route::post('delete-wholesale-client', 'WholesaleController@deletewholesaleclient');
 Route::post('update-wholesale-client', 'WholesaleController@updatewholesaleclient');
 
-
-
 /*==========================================Wholesale  Wholesale Routes=================================================================*/
+
+
+
+/*==========================================Start of Admin Retail Routes=================================================================*/
+Route::get('admin-retail-baseproducts', 'AdminRetailController@adminretailbaseproducts');
+Route::get('admin-retail-branch-products', 'AdminRetailController@adminretailbranchproducts');
+Route::get('admin-retail-product-tracker', 'AdminRetailController@adminretailproducttracker');
+Route::get('admin-retail-product-supplies', 'AdminRetailController@adminretailproductsupplies');
+Route::get('admin-retail-clients', 'AdminRetailController@adminretailclients');
+
+/*==========================================Start of Admin Retail Routes=================================================================*/
+
+
+
+/*==========================================Retail Oper Routes=================================================================*/
+Route::post('insert-retail-baseproduct', 'AdminRetailController@insertretailbaseproduct');
+Route::post('delete-retail-baseproduct', 'AdminRetailController@deleteretailbaseproduct');
+Route::post('edit-retail-baseproduct', 'AdminRetailController@editretailbaseproduct');
+Route::post('upload-retail-baseproducts-csvfile', 'AdminRetailController@uploadretailbaseproductscsvfile');
+
+Route::post('insert-retail-branch-product', 'AdminRetailController@insertretailbranchproduct');
+Route::post('delete-retail-branch-product', 'AdminRetailController@deleteretailbranchproduct');
+Route::post('update-retail-branch-product', 'AdminRetailController@updateretailbranchproduct');
+
+
+Route::post('insert-retail-client', 'AdminRetailController@insertretailclient');
+Route::post('delete-retail-client', 'AdminRetailController@deleteretailclient');
+Route::post('update-retail-client', 'AdminRetailController@updateretailclient');
+
+/*==========================================Retail  Wholesale Routes=================================================================*/
+
 
 
 
 
 /*==========================================Session=================================================================*/
+Route::post('change-date-interval', 'SessionController@changedateinterval');
+
 Route::post('select-category', 'SessionController@selectCategory');
 Route::post('select-supplier', 'SessionController@selectSupplier');
 Route::post('select-branch', 'SessionController@selectBranch');
-Route::post('change-date-interval', 'SessionController@changedateinterval');
 Route::post('select-product', 'SessionController@selectproduct');
-
 Route::post('select-wdate', 'SessionController@selectwdate');
+
+
+Route::post('select-rcategory', 'SessionController@selectrCategory');
+Route::post('select-rsupplier', 'SessionController@selectrSupplier');
+Route::post('select-rbranch', 'SessionController@selectrBranch');
+Route::post('select-rproduct', 'SessionController@selectrproduct');
+Route::post('select-rdate', 'SessionController@selectrdate');
+
+
 
 /*==========================================End Session=================================================================*/
 

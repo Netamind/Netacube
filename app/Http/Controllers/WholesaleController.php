@@ -199,15 +199,7 @@ private function extractNumber($value)
     return implode('', $matches[0]) ?? 0;
 }
 
-public function hy(request $request){
- $data = array();
- $data['product'] = $request->productid;
- $data['branch'] = $request->branch;
- $data['quantity'] = $request->quantity;
 
- DB::table('wholesalebranchproducts')->insert($data);
-  
-}
 
 
 

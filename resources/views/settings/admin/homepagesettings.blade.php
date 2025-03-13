@@ -1,3 +1,4 @@
+    
 @extends('admin.dashboard')
 @section('content')
 <!DOCTYPE html>
@@ -7,6 +8,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="csrf-token" content="{{ csrf_token() }}">
   <link rel="stylesheet" type="text/css" href="dashboard/files/assets/icon/feather/css/feather.css">
+ <link rel="stylesheet" type="text/css" href="dashboard/files/assets/icon/font-awesome/css/font-awesome.min.css">
 
 
 	<style>
@@ -186,37 +188,89 @@
 <section>
 <div class="card">
 <div class="card-header">
-<h4><i class="feather icon-lock" style="font-weight:bold;color:gray;"></i> Home page settings
-<a href="#" class="btn btn-primary" id="newDataBtn" style="float:right"><i class="fa fa-plus-circle" style="color:white"></i>info</a>
+<h4><i class="fa fa-cog" style="font-weight:bold;color:gray"></i> Home page settings
+<a href="#" class="btn btn-primary" id="newDataBtn" style="float:right"><i class="fa fa-info-circle" style="color:white"></i>Info</a>
 </h4>
 <span style="font-size:18px;">
-Enable or disable features you want to display on the home page.
+These settings allow you to select the sectors you want to display on your homepage.
 </span>
 </div>
 <div class="card-block">
 
 <div class="table-wrapper">
-<table id="roles-table" class="table-striped-column table table-sm table-striped table-fixed-first-column table-fixed-header" >
+<table id="settings-table" style="padding:2px" class="table-striped-column table table-sm table-striped table-fixed-first-column table-fixed-header" >
 <thead class="table-dark">
 <tr>
-<th class="table-dark">Role</th>
-<th style="text-align:left">Descriptions</th>
+<th class="table-dark">Sector</th>
+<th style="text-align:center">Status</th>
+<th style="text-align:center">Action</th>
 </tr>
 </thead>
 <tbody id="tbody">
-<?php
-$data  = DB::table('roles')->get();
-?>
-@foreach($data as $d)
-<?php $row = "row".$d->id;?>
-<tr id="{{$row}}">
-   <td >{{$d->role}}</td>
-   <td style="text-align:left">{{$d->description}}</td>
+<tr>
+  <td>Retail</td>
+  <td style="text-align:center">
+   <?php
+     $retailstatus = DB::table('adminhomepagesettings')->where('user',Auth::user()->id)->where('sector',"Retail")->value('status');
+    ?>
+    {{$retailstatus}}
+  </td>
+  <td style="text-align:center">
+    
+      <?php
+      $checkretail = DB::table('adminhomepagesettings')->where('user',Auth::user()->id)->where('sector',"Retail")->value('status');
+      ?>
+      @if($checkretail=="Enabled")
+      <form action="set-admin-homepage" method="post">
+        @csrf
+        <input type="hidden" name="sector" value="Retail">
+        <input type="hidden" name="status" value="Disabled">
+        <button class="btn btn-primary">Disable</button>
+      </form>
+      @else
+      <form action="set-admin-homepage" method="post">
+        @csrf
+        <input type="hidden" name="sector" value="Retail">
+        <input type="hidden" name="status" value="Enabled">
+        <button class="btn btn-primary">Enable</button>
+      </form>
+      @endif
+  </td>
 </tr>
-@endforeach
+<tr>
+  <td>Wholesale</td>
+  <td style="text-align:center">
+  <?php
+    $wholesalestatus = DB::table('adminhomepagesettings')->where('user',Auth::user()->id)->where('sector',"Wholesale")->value('status');
+    ?>
+     {{$wholesalestatus}}
+  </td>
+  <td style="text-align:center">
+    
+      <?php
+      $checkwholesale = DB::table('adminhomepagesettings')->where('user',Auth::user()->id)->where('sector',"Wholesale")->value('status');
+      ?>
+      @if($checkwholesale=="Enabled")
+      <form action="set-admin-homepage" method="post">
+        @csrf
+        <input type="hidden" name="sector" value="Wholesale">
+        <input type="hidden" name="status" value="Disabled">
+        <button class="btn btn-primary">Disable</button>
+      </form>
+      @else
+      <form action="set-admin-homepage" method="post">
+        @csrf
+        <input type="hidden" name="sector" value="Wholesale">
+        <input type="hidden" name="status" value="Enabled">
+        <button class="btn btn-primary">Enable</button>
+      </form>
+      @endif
+   
+  </td>
+</tr>
 </tbody>
 </table>
-</div>
+<!--</div>-->
 
 
 </div>
@@ -230,13 +284,13 @@ $data  = DB::table('roles')->get();
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header bg-primary">
-        <h5 class="modal-title">Important Notice: Adding New Roles</h5>
+        <h5 class="modal-title">Home page settings notice</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
       <div class="modal-body">
-      As an administrator, you do not have the authority to create new roles within the system. The available roles are pre-defined and managed by our development team. If you identify a need for an additional role, please reach out to our development team. We will be happy to assist you in adding the necessary role to the system.
+     Only sectors implemented in the system have enable disable feature
       <br> <br>
       </div>
     </div>
@@ -266,17 +320,16 @@ $(document).ready(function() {
   });
 
 
-
-
+  
  
-  $('#roles-table').DataTable({ 
+$('#settings-table').DataTable({ 
      dom: 'Bfrtip', 
      autoWidth:false,
      paging: true,
      buttons: [
      {
       extend: 'excel',
-      title: 'Roles',
+      title: 'Admin homepage settings',
       exportOptions: {
         columns: ':visible:not(:last-child)'
       }
@@ -284,7 +337,7 @@ $(document).ready(function() {
     
     {
       extend: 'pdf',
-      title: 'Roles',
+      title: 'Admin homepage settings',
       exportOptions: {
       columns: ':visible:not(:last-child)'
       },
@@ -304,6 +357,8 @@ $(document).ready(function() {
   
   ]
  }); 
+
+
 
 
 

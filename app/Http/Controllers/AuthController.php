@@ -60,20 +60,14 @@ class AuthController extends Controller
         }
 
     
-    }
+         }
 
-    
-
-    public function signout(){
-
-        $userid = Auth::user()->id;
-
-        //DB::table('session')->where('user',$userid)->update(['state' => "Off"]);
-
-        Auth::logout();
-        
-        return redirect('/');
-    }
+            
+        public function signout()
+        {
+            Auth::logout();
+            return redirect('/');
+        }
     
 
 

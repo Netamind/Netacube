@@ -529,7 +529,7 @@
 
 
 <div class="text-center">
-<img src="system/images/netacube.png" alt="" style="height:70px">
+<img src="system/images/netacube.png" alt="" style="height:50px">
 </div>
 <div class="auth-box card">
 <div class="card-block">

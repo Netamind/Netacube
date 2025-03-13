@@ -1,6 +1,6 @@
 <?php
 use Illuminate\Support\Facades\Route;
-Route::get('/', 'WebController@loginview');
+Route::get('/', 'WebController@loginview')->name('login');
 Route::post('user-authentication', 'AuthController@userauthentication');
 
 /*========================================== Start of Admin Dashboard Routes=================================================================*/
@@ -98,6 +98,7 @@ Route::post('select-wdate', 'SessionController@selectwdate');
 
 /*==========================================Settings=================================================================*/
 Route::get('admin-homepage-settings', 'SettingsController@adminhomepagesettings');
+Route::post('set-admin-homepage', 'SettingsController@setadminhomepage');
 
 /*==========================================End Settings=================================================================*/
 

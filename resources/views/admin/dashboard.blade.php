@@ -29,6 +29,7 @@
 <link rel="stylesheet" type="text/css" href="dashboard/files/assets/css/jquery.mCustomScrollbar.css">
 <link rel="stylesheet" type="text/css" href="dashboard/files/bower_components/lightbox2/dist/css/lightbox.min.css">
 <link rel="stylesheet" type="text/css" href="dashboard/custom/css/fixedColumns.css">
+
 </head>
 <body>
 <div class="theme-loader">
@@ -78,7 +79,7 @@
 <i class="feather icon-menu"></i>
 </a>
 <a href="admin-dashboard">
-<img class="img-fluid" src="system/images/netacube.png" style="height:43px;" alt="#" />
+<img class="img-fluid" src="system/images/netacube.png" style="height:37px;" alt="#" />
 </a>
 <a class="mobile-options">
 <i class="feather icon-more-horizontal"></i>
@@ -396,7 +397,7 @@
 
 <li class="{{request()->is('admin-homepage-settings') ? 'active' : '' }} ">
 <a href="admin-homepage-settings">
-<span class="pcoded-mtext">Settings</span>
+<span class="pcoded-mtext">Homepage</span>
 </a>
 </li>
 
@@ -434,7 +435,6 @@
 </div>
 </div>
 </div>
-
 
 <script type="text/javascript" src="dashboard/files/bower_components/jquery/dist/jquery.min.js"></script>
 <script type="text/javascript" src="dashboard/files/bower_components/jquery-ui/jquery-ui.min.js"></script>
@@ -511,10 +511,5 @@
 <script type="text/javascript" src="dashboard/files/assets/pages/advance-elements/select2-custom.js"></script>
 
 <script src="papaparse/papaparse.min.js"></script>
-
-
-
-
-
 </body>
 </html>

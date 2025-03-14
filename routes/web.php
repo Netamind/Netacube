@@ -128,8 +128,6 @@ Route::post('select-rbranch', 'SessionController@selectrBranch');
 Route::post('select-rproduct', 'SessionController@selectrproduct');
 Route::post('select-rdate', 'SessionController@selectrdate');
 
-
-
 /*==========================================End Session=================================================================*/
 
 
@@ -141,14 +139,14 @@ Route::post('set-admin-homepage', 'SettingsController@setadminhomepage');
 /*==========================================End Settings=================================================================*/
 
 
-
-
-
-
-
 /*========================================== Start of Admin Dashboard Routes=================================================================*/
 Route::get('operations-dashboard', 'OperationsController@operationsdashboard');
-
-
-
 /*========================================== End of Admin Dashboard Routes=================================================================*/
+
+
+/*==========================================Retail Sales=================================================================*/
+Route::get('retail-sales-dashboard', 'RetailSalesController@retailsalesdashboard');
+Route::post('set-admin-homepage', 'SettingsController@setadminhomepage');
+
+/*==========================================Retail Sales=================================================================*/
+

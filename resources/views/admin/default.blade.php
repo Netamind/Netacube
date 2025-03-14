@@ -14,7 +14,7 @@ $retailstatus = DB::table('adminhomepagesettings')->where('user',Auth::user()->i
 $wholesalestatus = DB::table('adminhomepagesettings')->where('user',Auth::user()->id)->where('sector','Wholesale')->value('status')
 ?>
 @if($homepage->isEmpty())
-Please enable your homepage settings under <a href="admin-homepage-settings" class="text-primary">Settings / Homepage</a>
+Please enable your homepage settings under <a href="admin-homepage-settings" class="text-primary">Settings / Homepage <br><br></a> 
 @else
 
 

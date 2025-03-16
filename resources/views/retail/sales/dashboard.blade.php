@@ -78,7 +78,7 @@
 <a class="mobile-menu" id="mobile-collapse" href="#!">
 <i class="feather icon-menu"></i>
 </a>
-<a href="admin-dashboard">
+<a href="retail-sales-dashboard">
 <img class="img-fluid" src="system/images/netacube.png" style="height:37px;" alt="#" />
 </a>
 <a class="mobile-options">
@@ -116,7 +116,7 @@
 <ul class="show-notification profile-notification dropdown-menu" data-dropdown-in="fadeIn" data-dropdown-out="fadeOut">
 
 <li>
-<a href="admin-profile">
+<a href="retail-sales-profile">
 <i class="feather icon-user"></i> Profile
 </a>
 </li>
@@ -140,174 +140,45 @@
 <div class="pcoded-wrapper">
 <nav class="pcoded-navbar">
 <div class="pcoded-inner-navbar main-menu">
-<div class="pcoded-navigatio-lavel" style="letter-spacing:10px;">ADMIN</div>
+<div class="pcoded-navigatio-lavel" style="letter-spacing:10px;">SALES(R)</div>
 <ul class="pcoded-item pcoded-left-item">
 
 
+
+
 <li class="pcoded-hasmenu    
-  {{request()->is('admin-dashboard') ? 'active pcoded-trigger' : '' }} 
-  {{request()->is('app-data') ? 'active pcoded-trigger' : '' }} 
-  {{request()->is('categories') ? 'active pcoded-trigger' : '' }} 
-  {{request()->is('users') ? 'active pcoded-trigger' : '' }} 
-  {{request()->is('employees') ? 'active pcoded-trigger' : '' }} 
-  {{request()->is('users-roles') ? 'active pcoded-trigger' : '' }}
-  {{request()->is('branches') ? 'active pcoded-trigger' : '' }}
-  {{request()->is('business-sector') ? 'active pcoded-trigger' : '' }}
-  {{request()->is('vat-statuses') ? 'active pcoded-trigger' : '' }}
-  {{request()->is('business-categories') ? 'active pcoded-trigger' : '' }}
-  {{request()->is('suppliers') ? 'active pcoded-trigger' : '' }}
+  {{request()->is('retail-sales-dashboard') ? 'active pcoded-trigger' : '' }} 
+  {{request()->is('retail-sales-products') ? 'active pcoded-trigger' : '' }} 
+  {{request()->is('retail-sales-supplies') ? 'active pcoded-trigger' : '' }} 
  ">
 <a href="javascript:void(0)">
-<span class="pcoded-micon"><i class="feather icon-align-center"></i></span>
+<span class="pcoded-micon"><i class="feather icon-grid"></i></span>
 <span class="pcoded-mtext">General</span>
 </a>
 <ul class="pcoded-submenu">
 
-<li class="{{request()->is('admin-dashboard') ? 'active' : '' }} ">
-<a href="admin-dashboard">
+
+<li class="{{request()->is('retail-sales-dashboard') ? 'active' : '' }} ">
+<a href="retail-sales-dashboard">
 <span class="pcoded-mtext">Home</span>
 </a>
 </li>
 
-<li class="  {{request()->is('app-data') ? 'active' : '' }}  ">
-<a href="app-data">
-<span class="pcoded-mtext">Company</span>
-</a>
-</li>
 
 
-
-<li class="{{request()->is('business-sector') ? 'active' : '' }} ">
-<a href="business-sector">
-<span class="pcoded-mtext">Sectors</span>
-</a>
-</li>
-
-
-
-<li class="{{request()->is('business-categories') ? 'active' : '' }} ">
-<a href="business-categories">
-<span class="pcoded-mtext">Categories</span>
-</a>
-</li>
-
-
-
-<li class="{{request()->is('branches') ? 'active' : '' }}">
-<a href="branches">
-<span class="pcoded-mtext">Branches</span>
-</a>
-</li>
-
-
-<li class="{{request()->is('employees') ? 'active' : '' }} ">
-<a href="employees">
-<span class="pcoded-mtext">Employees</span>
-</a>
-</li>
-
-
-<li class="{{request()->is('users-roles') ? 'active' : '' }}">
-<a href="users-roles">
-<span class="pcoded-mtext">Roles</span>
-</a>
-</li>
-
-<li class="{{request()->is('users') ? 'active' : '' }}">
-<a href="users">
-<span class="pcoded-mtext">Users</span>
-</a>
-</li>
-
-
-
-<li class="{{request()->is('vat-statuses') ? 'active' : '' }}">
-<a href="vat-statuses">
-<span class="pcoded-mtext">VAT</span>
-</a>
-</li>
-
-
-
-<li class="{{request()->is('suppliers') ? 'active' : '' }}">
-<a href="suppliers">
-<span class="pcoded-mtext">Suppliers</span>
-</a>
-</li>
-
-
-
-</ul>
-</li>
-
-
-
-
-
-<li class="pcoded-hasmenu
-  {{request()->is('admin-wholesale-baseproducts') ? 'active pcoded-trigger' : '' }} 
-  {{request()->is('admin-wholesale-branch-products') ? 'active pcoded-trigger' : '' }} 
-  {{request()->is('admin-wholesale-product-tracker') ? 'active pcoded-trigger' : '' }} 
-  {{request()->is('admin-wholesale-product-supplies') ? 'active pcoded-trigger' : '' }} 
-  {{request()->is('admin-wholesale-clients') ? 'active pcoded-trigger' : '' }} 
-
-">
-<a href="javascript:void(0)">
-<span class="pcoded-micon"> <i class="fa fa-truck"></i></span>
-<span class="pcoded-mtext">Wholesale</span>
-</a>
-<ul class="pcoded-submenu">
-
-<li class="{{request()->is('admin-wholesale-baseproducts') ? 'active' : '' }}">
-<a href="admin-wholesale-baseproducts">
-<span class="pcoded-mtext">Base</span>
-</a>
-</li>
-
-
-<li class="{{request()->is('admin-wholesale-branch-products') ? 'active' : '' }}" >
-<a href="admin-wholesale-branch-products">
+<li class="{{request()->is('retail-sales-products') ? 'active' : '' }} ">
+<a href="#">
 <span class="pcoded-mtext">Products</span>
 </a>
 </li>
 
 
 
-<li class="{{request()->is('admin-wholesale-product-tracker') ? 'active' : '' }}" >
-<a href="admin-wholesale-product-tracker">
-<span class="pcoded-mtext">Logs</span>
-</a>
-</li>
-
-
-<li class="{{request()->is('admin-wholesale-product-supplies') ? 'active' : '' }}" >
-<a href="admin-wholesale-product-supplies">
+<li class="{{request()->is('retail-sales-supplies') ? 'active' : '' }} ">
+<a href="#">
 <span class="pcoded-mtext">Supplies</span>
 </a>
 </li>
-
-
-
-<li  class="{{request()->is('admin-wholesale-clients') ? 'active' : '' }}">
-<a href="admin-wholesale-clients">
-<span class="pcoded-mtext">Clients</span>
-</a>
-</li>
-
-<!--<li >
-<a href="admin-wholesale-product-supplies">
-<span class="pcoded-mtext">Sales</span>
-</a>
-</li>-->
-
-
-
-<!--<li >
-<a href="admin-wholesale-product-supplies">
-<span class="pcoded-mtext">Documents</span>
-</a>
-</li>-->
-
 
 </ul>
 </li>
@@ -316,76 +187,25 @@
 
 
 
-
-<li class="pcoded-hasmenu
-  {{request()->is('admin-retail-baseproducts') ? 'active pcoded-trigger' : '' }} 
-  {{request()->is('admin-retail-branch-products') ? 'active pcoded-trigger' : '' }} 
-  {{request()->is('admin-retail-product-tracker') ? 'active pcoded-trigger' : '' }} 
-  {{request()->is('admin-retail-product-supplies') ? 'active pcoded-trigger' : '' }} 
-  {{request()->is('admin-retail-clients') ? 'active pcoded-trigger' : '' }} 
-">
+<li class="pcoded-hasmenu    
+  {{request()->is('retail-sales-terminal1') ? 'active pcoded-trigger' : '' }} 
+ ">
 <a href="javascript:void(0)">
-<span class="pcoded-micon"> <i class="fa fa-shopping-cart"></i></span>
-<span class="pcoded-mtext">Retail</span>
+<span class="pcoded-micon"><i class="fa fa-desktop"></i></span>
+<span class="pcoded-mtext">Terminals</span>
 </a>
 <ul class="pcoded-submenu">
 
-<li class="{{request()->is('admin-retail-baseproducts') ? 'active' : '' }}">
-<a href="admin-retail-baseproducts">
-<span class="pcoded-mtext">Base</span>
+
+<li class="{{request()->is('retail-sales-terminal1') ? 'active' : '' }} ">
+<a href="retail-sales-terminal1">
+<span class="pcoded-mtext">Terminal 1</span>
 </a>
 </li>
-
-
-<li class="{{request()->is('admin-retail-branch-products') ? 'active' : '' }}" >
-<a href="admin-retail-branch-products">
-<span class="pcoded-mtext">Products</span>
-</a>
-</li>
-
-
-
-<li class="{{request()->is('admin-retail-product-tracker') ? 'active' : '' }}" >
-<a href="admin-retail-product-tracker">
-<span class="pcoded-mtext">Logs</span>
-</a>
-</li>
-
-
-<li class="{{request()->is('admin-retail-product-supplies') ? 'active' : '' }}" >
-<a href="admin-retail-product-supplies">
-<span class="pcoded-mtext">Supplies</span>
-</a>
-</li>
-
-
-<li  class="{{request()->is('admin-retail-clients') ? 'active' : '' }}">
-<a href="admin-retail-clients">
-<span class="pcoded-mtext">Clients</span>
-</a>
-</li>
-
-
-
-<!--<li >
-<a href="admin-wholesale-product-supplies">
-<span class="pcoded-mtext">Sales</span>
-</a>
-</li>-->
-
-
-
-<!--<li >
-<a href="admin-wholesale-product-supplies">
-<span class="pcoded-mtext">Documents</span>
-</a>
-</li>-->
 
 
 </ul>
 </li>
-
-
 
 
 
@@ -404,7 +224,7 @@
 
 
 <li class="{{request()->is('admin-homepage-settings') ? 'active' : '' }} ">
-<a href="admin-homepage-settings">
+<a href="#">
 <span class="pcoded-mtext">Homepage</span>
 </a>
 </li>

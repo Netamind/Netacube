@@ -13,6 +13,15 @@ use Auth;
 
 class AdminRetailController extends Controller
 {
+
+  
+  public function __construct()
+  {
+      $this->middleware('auth');
+      $this->middleware('isadmin');
+
+  }
+
     public function adminretailbaseproducts(){
         return view('admin.retail.retailbaseproducts');
     }
@@ -33,6 +42,20 @@ public function  adminretailproductsupplies(){
 
 public function  adminretailclients(){
   return view('admin.retail.retailclients');
+}
+
+
+
+
+public function  adminretailopeningstock(){
+  return view('admin.retail.retailopeningstock');
+}
+
+
+public function adminretailopeningstockdata(){
+
+return view('admin.retail.retailopeningstockdata');
+
 }
 
 
@@ -480,6 +503,150 @@ public function updateretailclient(Request $request)
         return back()->withErrors($validator)->withInput();
     }
 }
+
+
+public function saveretailopeingstock(Request $request)
+{
+    $csvData = json_decode($request->data, true);
+    $chunkSize = 50;
+    $chunks = array_chunk($csvData, $chunkSize);
+    $imported = 0;
+    $errors = [];
+
+    foreach ($chunks as $chunk) {
+        foreach ($chunk as $row) {
+            if (!empty($row)) {
+                $values = array_values($row);
+                $quantity = 0;
+                if (is_numeric($values[6])) {
+                  $quantity = $values[6];
+              }
+
+                if (!empty($values[0])) {
+                    $stocklist = [
+                        'productid' => $values[0],
+                        'product' => $values[1],
+                        'unit' => $values[2],
+                        'price' => $values[3],
+                        'branchid' => $values[4],
+                        'date' => $values[5],
+                        'quantity' => $quantity,
+                    ];
+
+                    try {
+                        $existingRecord = DB::table('retailnewstocktaking')
+                            ->where('productid', $stocklist['productid'])
+                            ->where('branchid', $stocklist['branchid'])
+                            ->first();
+
+                        if ($existingRecord) {
+                            // Update existing record
+                            DB::table('retailnewstocktaking')
+                                ->where('productid', $values[0])
+                                ->where('branchid', $values[4])
+                                ->update([
+                                    'quantity' => $existingRecord->quantity + $quantity,
+                                ]);
+                        } else {
+                            // Insert new record
+                            DB::table('retailnewstocktaking')->insert($stocklist);
+                        }
+
+                        $imported++;
+                    } catch (\Exception $e) {
+                        $errors[] = "Error importing record: " . $e->getMessage();
+                    }
+                } else {
+                    // Log or handle the case where the product name is empty
+                }
+            }
+        }
+    }
+
+    return response()->json([
+        'message' => 'Processing complete',
+        'success' => count($errors) == 0,
+        'imported' => $imported,
+        'errors' => $errors,
+    ]);
+}
+
+
+public function submitretailopeningstocktobranch()
+{
+    $branchId = Cookie::get('rbranch');
+    $date = Cookie::get('rdate');
+
+    $data = DB::table('retailnewstocktaking')
+        ->where('branchid', $branchId)
+        ->where('date', $date)
+        ->where('status', 'Pending')
+        ->get();
+
+    if ($data->isEmpty()) {
+        return response()->json([
+            'success' => false,
+            'isEmpty' => true,
+            'message' => 'No pending stock data found',
+        ]);
+    }
+
+    $chunkSize = 50;
+    $chunks = array_chunk($data->toArray(), $chunkSize);
+
+    $imported = 0;
+    $errors = [];
+
+    foreach ($chunks as $chunk) {
+        foreach ($chunk as $item) {
+            if (!empty($item)) {
+                try {
+                    DB::transaction(function () use ($branchId, $item) {
+                        $existingProduct = DB::table('retailbranchproducts')
+                            ->where('branch', $branchId)
+                            ->where('product', $item->productid)
+                            ->first();
+
+                        if ($existingProduct) {
+                            // Update existing product quantity
+                            $newQuantity = $existingProduct->quantity + $item->quantity;
+                            DB::table('retailbranchproducts')
+                                ->where('branch', $branchId)
+                                ->where('product', $item->productid)
+                                ->update(['quantity' => $newQuantity]);
+                        } else {
+                            // Insert new product
+                            DB::table('retailbranchproducts')
+                                ->insert([
+                                    'branch' => $branchId,
+                                    'product' => $item->productid,
+                                    'quantity' => $item->quantity,
+                                ]);
+                        }
+
+                        // Update status to Submitted
+                        DB::table('retailnewstocktaking')
+                            ->where('id', $item->id)
+                            ->update(['status' => 'Submitted']);
+                    });
+
+                    $imported++;
+                } catch (\Exception $e) {
+                    $errors[] = "Error importing record: " . $e->getMessage();
+                }
+            }
+        }
+    }
+
+    return response()->json([
+        'success' => count($errors) == 0,
+        'isEmpty' => false,
+        'imported' => $imported,
+        'errors' => $errors,
+    ]);
+}
+
+
 
 
 

@@ -961,7 +961,7 @@ else{
 
 
 
- $(document).on("click", "#submitCsvDataBtn", function(e) {
+$(document).on("click", "#submitCsvDataBtn", function(e) {
 var self = $(this);
 $(this).prop("disabled", true);
 
@@ -1017,12 +1017,10 @@ $.ajax({
         toastr.error('Unspecified error occurred. Please refresh the page and try again.','Unspecified',{timeOut: 5000 ,	progressBar: true});
     }
 }
-
-
-
-
-
 });
+
+
+
 
 });
 

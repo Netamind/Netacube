@@ -517,6 +517,7 @@ class ComposerStaticInit91d4a6467f9c11e7d330ffb2dc40395f
         'App\\Http\\Controllers\\AuthController' => __DIR__ . '/../..' . '/app/Http/Controllers/AuthController.php',
         'App\\Http\\Controllers\\Controller' => __DIR__ . '/../..' . '/app/Http/Controllers/Controller.php',
         'App\\Http\\Controllers\\OperationsController' => __DIR__ . '/../..' . '/app/Http/Controllers/OperationsController.php',
+        'App\\Http\\Controllers\\RetailSalesController' => __DIR__ . '/../..' . '/app/Http/Controllers/RetailSalesController.php',
         'App\\Http\\Controllers\\SessionController' => __DIR__ . '/../..' . '/app/Http/Controllers/SessionController.php',
         'App\\Http\\Controllers\\SettingsController' => __DIR__ . '/../..' . '/app/Http/Controllers/SettingsController.php',
         'App\\Http\\Controllers\\VatController' => __DIR__ . '/../..' . '/app/Http/Controllers/VatController.php',

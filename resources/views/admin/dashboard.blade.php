@@ -323,6 +323,7 @@
   {{request()->is('admin-retail-product-tracker') ? 'active pcoded-trigger' : '' }} 
   {{request()->is('admin-retail-product-supplies') ? 'active pcoded-trigger' : '' }} 
   {{request()->is('admin-retail-clients') ? 'active pcoded-trigger' : '' }} 
+   {{request()->is('admin-retail-stocktaking') ? 'active pcoded-trigger' : '' }} 
 ">
 <a href="javascript:void(0)">
 <span class="pcoded-micon"> <i class="fa fa-shopping-cart"></i></span>
@@ -359,11 +360,28 @@
 </li>
 
 
-<li  class="{{request()->is('admin-retail-clients') ? 'active' : '' }}">
+
+<li  class="{{request()->is('admin-retail-openingstock') ? 'active' : '' }}">
+<a href="admin-retail-openingstock">
+<span class="pcoded-mtext">Openingstock</span>
+</a>
+</li>
+
+
+<!--<li  class="{{request()->is('admin-retail-openingstock-data') ? 'active' : '' }}">
+<a href="admin-retail-openingstock-data">
+<span class="pcoded-mtext">OpeningStock</span>
+</a>
+</li>-->
+
+
+
+
+<!--<li  class="{{request()->is('admin-retail-clients') ? 'active' : '' }}">
 <a href="admin-retail-clients">
 <span class="pcoded-mtext">Clients</span>
 </a>
-</li>
+</li>-->
 
 
 

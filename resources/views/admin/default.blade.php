@@ -30,7 +30,7 @@ Please enable your homepage settings under <a href="admin-homepage-settings" cla
 </div>
 <div class="col-auto">
 <h6 class="text-muted m-b-10">Live sales </h6>
-<h4 class="m-b-0">@convert(5984)</h4>
+<h4 class="m-b-0">@convert(0)</h4>
 </div>
 </div>
 </div>
@@ -47,7 +47,7 @@ Please enable your homepage settings under <a href="admin-homepage-settings" cla
 </div>
 <div class="col-auto">
 <h6 class="text-muted m-b-10">Yesterday's Sales </h6>
-<h4 class="m-b-0">@convert(5984)</h4>
+<h4 class="m-b-0">@convert(0)</h4>
 </div>
 </div>
 </div>
@@ -63,8 +63,8 @@ Please enable your homepage settings under <a href="admin-homepage-settings" cla
 <i class="fa fa-thumbs-down f-30 text-c-pink"></i>
 </div>
 <div class="col-auto">
-<h6 class="text-muted m-b-10">Today's loss </h6>
-<h4 class="m-b-0">@convert(5984)</h4>
+<h6 class="text-muted m-b-10">Today's losses </h6>
+<h4 class="m-b-0">@convert(0)</h4>
 </div>
 </div>
 </div>
@@ -81,8 +81,8 @@ Please enable your homepage settings under <a href="admin-homepage-settings" cla
 <i class="fa fa-warning f-30 text-c-pink"></i>
 </div>
 <div class="col-auto">
-<h6 class="text-muted m-b-10">Yesterday's loss </h6>
-<h4 class="m-b-0">@convert(5984)</h4>
+<h6 class="text-muted m-b-10">Yesterday's losses </h6>
+<h4 class="m-b-0">@convert(0)</h4>
 </div>
 </div>
 </div>
@@ -104,7 +104,7 @@ Please enable your homepage settings under <a href="admin-homepage-settings" cla
 </div>
 <div class="col-auto">
 <h6 class="text-muted m-b-10">Sales (this month) </h6>
-<h4 class="m-b-0">@convert(5984)</h4>
+<h4 class="m-b-0">@convert(0)</h4>
 </div>
 </div>
 </div>
@@ -121,7 +121,7 @@ Please enable your homepage settings under <a href="admin-homepage-settings" cla
 </div>
 <div class="col-auto">
 <h6 class="text-muted m-b-10">Sales (last month)</h6>
-<h4 class="m-b-0">@convert(5984)</h4>
+<h4 class="m-b-0">@convert(0)</h4>
 </div>
 </div>
 </div>
@@ -138,7 +138,7 @@ Please enable your homepage settings under <a href="admin-homepage-settings" cla
 </div>
 <div class="col-auto">
 <h6 class="text-muted m-b-10">Supplies (This month) </h6>
-<h4 class="m-b-0">@convert(5984)</h4>
+<h4 class="m-b-0">@convert(0)</h4>
 </div>
 </div>
 </div>
@@ -156,7 +156,7 @@ Please enable your homepage settings under <a href="admin-homepage-settings" cla
 </div>
 <div class="col-auto">
 <h6 class="text-muted m-b-10">Supplies (last month) </h6>
-<h4 class="m-b-0">@convert(598400000)</h4>
+<h4 class="m-b-0">@convert(0)</h4>
 </div>
 </div>
 </div>

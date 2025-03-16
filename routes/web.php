@@ -86,7 +86,11 @@ Route::get('admin-retail-branch-products', 'AdminRetailController@adminretailbra
 Route::get('admin-retail-product-tracker', 'AdminRetailController@adminretailproducttracker');
 Route::get('admin-retail-product-supplies', 'AdminRetailController@adminretailproductsupplies');
 Route::get('admin-retail-clients', 'AdminRetailController@adminretailclients');
+Route::get('admin-retail-openingstock', 'AdminRetailController@adminretailopeningstock');
 
+Route::post('save-retail-openingstock', 'AdminRetailController@saveretailopeingstock');
+Route::get('admin-retail-openingstock-data', 'AdminRetailController@adminretailopeningstockdata');
+Route::get('submit-retail-openingstock-to-branch', 'AdminRetailController@submitretailopeningstocktobranch');
 /*==========================================Start of Admin Retail Routes=================================================================*/
 
 
@@ -146,7 +150,10 @@ Route::get('operations-dashboard', 'OperationsController@operationsdashboard');
 
 /*==========================================Retail Sales=================================================================*/
 Route::get('retail-sales-dashboard', 'RetailSalesController@retailsalesdashboard');
-Route::post('set-admin-homepage', 'SettingsController@setadminhomepage');
+Route::get('retail-sales-profile', 'RetailSalesController@retailsalesprofile');
+Route::post('rsales-change-password', 'RetailSalesController@changepassword');
+Route::get('retail-sales-terminal1', 'RetailSalesController@retailsalesterminal1');
+
 
 /*==========================================Retail Sales=================================================================*/
 

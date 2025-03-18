@@ -154,6 +154,10 @@ Route::get('retail-sales-profile', 'RetailSalesController@retailsalesprofile');
 Route::post('rsales-change-password', 'RetailSalesController@changepassword');
 Route::get('retail-sales-terminal1', 'RetailSalesController@retailsalesterminal1');
 
+Route::post('upload-sales','RetailSalesController@submitsolddata');
+
+Route::post('insert-interval-sales','RetailSalesController@insertintervalsales');
+Route::post('edit-interval-sales','RetailSalesController@editintervalsales');
 
 /*==========================================Retail Sales=================================================================*/
 

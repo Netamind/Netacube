@@ -3,131 +3,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="csrf-token" content="{{ csrf_token() }}">
-	<style>
-.spinner {
-  border: 4px solid rgba(0, 0, 0, 0.1);
-  border-top: 4px solid #f35800; /* orange color */
-  border-radius: 50%;
-  width: 20px;
-  height: 20px;
-  animation: spin 2s linear infinite;
-}
-
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-}
-.loading-status {
-  top: 0;
-  left: 0;
-  width: 110%;
-  height: 8px;
-  background-color: #f7f7f7;
-  z-index: 1000;
-  overflow: hidden;
-}
-.waves {
-  position: absolute;
-  top: 0;
-  left: -10%;
-  width: 110%;
-  height: 7px;
-  background-image: repeating-linear-gradient(120deg, #007bff, #007bff 10px, #000 10px, #000 20px);
-  border-radius: 0;
-  animation: move 2.5s linear infinite;
-}
-
-@keyframes move {
-  0% {
-    background-position: 0 0;
-  }
-  100% {
-    background-position: 40px 0;
-  }
-}
+  <style>
 
 
-.sweet-modal-container {
-  /* styles for the modal container */
+.no-focus-outline {
+  outline: none;
 }
-
-.sweet-modal-container .sweet-modal .modal-content {
-  border-radius: 5px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  background-color: #fff;
-  transform: scale(0.5);
-  opacity: 0;
-  transition: transform 0.3s, opacity 0.3s;
-}
-
-.sweet-modal-container .sweet-modal .modal-header {
-  border-bottom: none;
-  padding: 1.5rem;
-}
-
-.sweet-modal-container .sweet-modal .modal-title {
-  font-weight: 600;
-  font-size: 1.25rem;
-}
-
-.sweet-modal-container .sweet-modal .modal-body {
-  padding: 1.5rem;
-}
-
-.sweet-modal-container .sweet-modal .modal-footer {
-  border-top: none;
-  padding: 1.5rem;
-  justify-content: flex-end;
-}
-
-.sweet-modal-container .sweet-modal .modal-footer .btn {
-  padding: 0.5rem 1rem;
-  font-size: 1rem;
-  border-radius: 5px;
-}
-
-.sweet-modal-container .sweet-modal .modal-footer .btn-secondary {
-  background-color: #f7f7f7;
-  color: #666;
-  border: 1px solid #ddd;
-}
-
-.sweet-modal-container .sweet-modal .modal-footer .btn-primary {
-  background-color: #4CAF50;
-  color: #fff;
-  border: none;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.sweet-modal-container .sweet-modal.show {
-  opacity: 1;
-}
-
-.sweet-modal-container .sweet-modal.show .modal-content {
-  transform: scale(1);
-  opacity: 1;
-}
-
-.sweet-modal-container .sweet-modal.show .modal-content {
-  animation: bounce 0.5s;
-}
-
-@keyframes bounce {
-  0%, 100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.1);
-  }
-}
-
 
 input[type="updatecart"]:focus { 
     outline: 1px solid blue;
@@ -350,93 +234,128 @@ tr.trow td {
 }
 
 
-div::-webkit-scrollbar {
-        background-color: silver;
-        height: 8px; /* Reduce the height of the scrollbar */
-    }
-    div::-webkit-scrollbar-thumb {
-        background-color: gray;
-    }
 
 
 
-	</style>
+
+  </style>
 </head>
-<body  onload="onLoadFunctions()" >
-
-
-<div class="loading-status" id="loading-status" style="display:none">
-  <div class="waves"></div>
-</div>
-
-<div class="variables">
-<?php
+<body class="hold-transition sidebar-mini layout-fixed" onload="onLoadFunctions()"  >
+    <?php
     use Carbon\Carbon;
     $date = Carbon::today()->toDateString();
+    $userbranch = DB::table('userbranch')->where('employeeid',Auth::user()->employeeid)->value('branchid');
     $user = Auth::user()->id;
     $disaplaydate = Carbon::createFromFormat('Y-m-d',$date)->format('d F Y');
-     
-    $branchId = Cookie::get('rbranch') ?? "NA";
-    $branchName = '';
-    $categoryName = '';
-  
-    $categoryId = DB::table('branches')->where('id',$branchId)->value('category');
-    $sectorName = DB::table('branches')->where('id',$branchId)->value('sector');
+    $datestring = preg_replace('/-/', '',  $date); 
+     function getTransid($n) {
+      $characters = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+      $randomString = '';
+      for ($i = 0; $i < $n; $i++) {
+          $index = rand(0, strlen($characters) - 1);
+          $randomString .= $characters[$index];
+      }
+      return $randomString;
+      }
+     $transid =  $datestring.getTransid(5);
+     $customersToday = DB::table('retailsales')->where('branch',Auth::user()->branch)->where('date', $date)->distinct('transid')->count(); 
+    ?>
+
+<!-- Main content -->
+<section class="content">
+
+<div class="row" style="margin-top:-15px">
+
+<div id="transDiv">
+<form action="#" id="transidForm">
+  <input type="hidden" id="transidInput" value="{{$transid}}">
+</form>
+</div>
 
 
-    $supplierArray = DB::table('suppliers')->where('sector','Retail')->where('category',$categoryId)->pluck('id');
 
-    if(is_numeric($branchId)){
-       
-      $branchName = DB::table('branches')->where('id',$branchId)->value('branch');
-      $categoryName = DB::table('businesscategories')->where('id',$categoryId)->value('category');
+
+<div class="col-md-12 bg-orangek " style="background-color:silver" >
+
+
+<a href="retail-sales-terminal1" title="" style="font-size:14px;font-weight:bold;color:#666666;">
+  <i class="fa fa-calendar" style="margin-top:10px"></i>  {{$disaplaydate}}
+</a>
+
+
+<a href="#" class="btn " id="addsalesinterval" style="float:right;color:#666666;font-weight:bold;padding:3px" >       
+<i class="fa fa-plus-circle"></i>
+</a>
+
+<a href="#" class="btn " id="salesbtn" style="float:right;color:#666666;font-weight:bold;padding:3px" >       
+<i class="fa fa-eye"></i>
+</a>
+
+
+<a href="#" id="recentsalesbtn" class="btn" style="float:right;color:#666666;font-weight:bold;padding:3px">
+<i class="fa fa-list" ></i>
+</a>
+
+
+
+<a href="#" class="btn "  id="unuploadeddatabtn" style="float:right;color:#666666;font-weight:bold;padding:3px">      
+<i class="fa fa-cloud"></i>   
+</a>
+
+
+
+
+</div>
+<div class="col-md-12">
+  <div class="row">
+    <div class="col-md-12  bg-primary"> 
+         
+    <a href="#" class="btn"   style="border: 2px solid silver;font-size:14px;margin-top:10px;margin-bottom:5px" onclick="uploadData()" id="uploaddatabtn">
+    <i class="fa fa-cloud-upload" style="color:silver"></i><span style="color:silver;font-size:15px;font-weight:bold">|</span>
+     <span style="font-weight:bold;color:silver;" id="cloudItems"></span>
+    </a>
+
+
       
-      }
-      else{
+    <a href="#" class="btn"   style="border: 2px solid silver;font-size:14px;margin-top:10px;margin-bottom:5px;"  id="calculatorbtn" >
+    <i class="fa fa-bell" style="color:silver"></i>
+    </a>
   
-        $branchName = 'Branch not defined';
-            
-      }
-   
-   
-   ?> 
+      
+    <a href="#" class="btn"   style="border: 2px solid silver;font-size:14px;margin-top:10px;margin-bottom:5px;"  id="calculatorbtn" >
+    <i class="fa fa-calculator" style="color:silver"></i>
+    </a>
+    
+    <a href="#" class="btn"   style="border: 2px solid silver;font-size:14px;margin-top:10px;margin-bottom:5px;margin-right:10px;"  id="calculatorbtn" >
+    <i class="fa fa-exchange" style="color:silver"></i>
+    </a>
 
-<section>
+
+    <a href="retail-sales-terminal1" class="btn"   style="font-size:18px;margin-top:10px;margin-bottom:5px;float:right"   >
+    <i class="fa fa-refresh" style="color:silver"></i>
+    </a>
+
+
+      </div>
+    </div>
+</div>
+
+<!--Left Column-->
+<div class="col-md-5 border border-info" style="height: 100%;margin-top:-3px">
 <div class="row">
-<!--Links---->    
-<div class="col-md-12" style="background-color:silver">
 
-<a href="#" title="" style="font-size:16px;font-weight:bold;color:#666666;">
- <i class="fa fa-calendar"></i> {{$disaplaydate}}
-</a>
-
-
-<a href="admin-retail-openingstock-data" class="text-info"  title="Go to openingstock data" style="margin-top:4px;font-size:16px;font-weight:bold;color:#666666;margin-left:10px;float:right">
-  Data
-</a>
-
-
-
-</div>
-<!--/Links-->
-
-<!---Left Collumn-->
-<div class="col-md-5">
-
-<div class="row">
-<!--search input-->
-<div class="col-md-12 bg-info">
-<div class="input-group " style="margin-top:6px"> 
-<br>     
-<input type="text" class="form-control" id="mobile-search" style="background-color:silver;text-transform: uppercase;font-weight:bold;" placeholder="Search product " autocomplete="off">                
+<div class="col-md-12  bg-primary" style="height:50px">     
+<div class="input-group border border-info" style="margin-top:6px">      
+<input type="text" class="form-control" id="mobile-search" style="background-color:silver;text-transform: uppercase;font-weight:bold;" placeholder="Search a product you want to sell" autocomplete="off">                
 </div>
 </div>
-<!--/search input-->
+
 
 <!--producs table-->
-<div class="col-md-12 " id="tablediv" style="background-color:silver"> 
-        
-<table class="table-sm table mobile-table table-striped" style="display:none;font-size:15px;border:1px solid #999999" id="mobile-table">
+<div class="col-md-12 border border-info " id="tablediv" > 
+
+<table class="table-sm table mobile-table table-striped" style="display:none;font-size:15px;"   id="mobile-table">
+
 <thead style="border:0">
 <tr style="border:0">
 <th style="border:0"></th>
@@ -444,46 +363,77 @@ div::-webkit-scrollbar {
 </tr>
 </thead>
 
-
 <tbody>
 
 <?php
-$products = DB::table('retailbaseproducts')->whereIn('supplier',$supplierArray)->get()
+$products = DB::table('retailbranchproducts')->where('branch',$userbranch)->get()
 ?>
 @foreach($products as  $product)
 <tr class="trow">
-<td class="tcell" style="width:60%;word-break:break-word;overflow-wrap:break-word;display:inline-block;white-space:normal;">
+<?php
+  $productname = DB::table('retailbaseproducts')->where('id',$product->product)->value('product');
+  $unit = DB::table('retailbaseproducts')->where('id',$product->product)->value('unit');
+  $price1 = DB::table('retailbaseproducts')->where('id',$product->product)->value('sellingprice');
+  
+  $inputid = $product->id."input";
+  $timeid = $product->id."time";
+  $price = $product->rate*$price1;
+
+?>
+<td class="tcell" style="width:60%;word-break:break-word;overflow-wrap:break-word;display:inline-block;white-space:normal;border:none">  
   <span style="text-transform: uppercase;font-family:takoma;font-weight:bold;">
-  {{$product->product}}
+  {{$productname}}
   </span>
-  <span style="color:gray;font-family:monospace">@convert($product->sellingprice)/{{$product->unit}} </span>
-   <?php
-     $inputid = $product->id."input";
-   ?>
+  <span style="color:gray;font-family:monospace">@convert($price)/{{$unit}}</span> <span style="color:gray;font-family:monospace">[{{$product->quantity}}]</span>
 </td>
 <td style="text-align:center;white-space:nowrap;padding-top:10px;padding-bottom:0px;width:40%;border:none">
   <form  action="#"  id="{{$product->id}}"  class="cart-forms">
-  <div style="width:100%">
   <div class="input-group" style="font-size:10px">
-
-    <input type="inputbox" id="{{$inputid}}" class="form-control sale-data cart-input submit-data-input" style="text-align:center;border: 1px solid  #999999" name="quantity"  autocomplete="off" min="0"
-  
-      productid="{{$product->id}}" 
-      product="{{$product->product}}"                    
-      unit = "{{$product->unit}}"    
-      price="{{$product->sellingprice}}"               
-      branch = {{$branchId}}                  
-      inputid = "{{$inputid}}"  
-      date = "{{$date}}"       
-    
+   <?php
+     $stock = $product->quantity;
+     $productid = $product->id;
+    ?>
+    <input type="inputbox" id="{{$inputid}}" class="form-control cart-input  sale-data submit-data-input" style="width:100%;text-align:center;" name="quantity"  autocomplete="off" min="0" 
+      id1="{{$productid}}" 
+      id2="{{$productname}}"                    
+      id3 = "{{$unit}}"    
+      id4="{{$price}}"               
+      id5 = "{{$stock}}"
+      id6="{{$transid}}"                  
+      id7 = "{{$date}}"
+      id8="{{$timeid}}"                 
+      id9 =  "{{$user}}"
+      id10 = "{{$userbranch}}"                      
+      id11 = "{{$inputid}}"           
     >
-</div>
+    
+    <input type="hidden" id="{{$timeid}}" class="form-control carttime" style="width:50%;text-align:center;">
+    
+    <div class="input-group-append" style="font-size:10px">
+   
+     <!--<a href="#"  type="text"   style="width:100%;text-align:center;background-color:#b3b3b3k" class="input-group-text sale-data text-primary submit-data-input btn bg-secondary"
+      id1="{{$productid}}" 
+      id2="{{$productname}}"                    
+      id3 = "{{$unit}}"    
+      id4="{{$price}}"               
+      id5 = "{{$stock}}"
+      id6="{{$transid}}"                  
+      id7 = "{{$date}}"
+      id8="{{$timeid}}"                 
+      id9 =  "{{$user}}"
+      id10 = "{{$userbranch}}"                      
+      id11 = "{{$inputid}}"                                    
+      >
+ 
+      <i class="fa fa-angle-right" style="color:#0d6efd;font-size:20px"></i>
+    
+    </a>-->
+  </div>
 </div>
 
 
 </form>
 </td>
-
 </tr>
 @endforeach
 </tbody>
@@ -493,78 +443,480 @@ $products = DB::table('retailbaseproducts')->whereIn('supplier',$supplierArray)-
 <!--/products table-->
 
 
-
-
 </div>
 </div>
-<!---/Left Collumn-->
+<!--/Left Column-->
 
 
-<!---Right Collumn-->
-<div class="col-md-7" >
-<div class="row bg-info" style="">
+<!--right column-->
+<div class="col-md-7 card   border border-info" style="height: 100%;margin-top:-3px">
+<div class="row">
 
-<!--Cart total-->
-<div class="col-md-12 bg-info" style="height:51px">
-<div class="" style="margin-top:5px"> 
+<div class="col-md-12 bg-primary" style="height:51px">
 
-
-<a href="admin-retail-openingstock"  style="margin-left:5px;border:2px solid silver;font-weight:bold;color:silver;width:80px" class="btn">
- <i class="fa fa-refresh" style="color:#d9d9d9"></i>
+<div style="margin-top:5px"> 
+<a href="#" class="btn"   style="border: 2px solid silver;font-weight:bold;color:silver">
+<i class="fa fa-shopping-cart"></i> | MWK<span  id="cartTotal1" style="color:#f2f2f2;font-weight:bold;font-size:17px"></span>
+<input type="hidden"  id="cartTotal2"  >
 </a>
-
-<a href="#" id="uploadopeingstockBtn"  style="float:right;border:2px solid silver;font-weight:bold;color:silver;width:80px" class="btn">
- <i class="fa fa-angle-right " style="color:#d9d9d9;font-weight:bold;font-size:15px"></i>
+<a href="#" id="submitcartbtn" onclick="clearCartData()" style="float:right;margin-left:5px;border:2px solid silver;font-weight:bold;color:silver;width:80px" class="btn">
+ <i class="fa fa-angle-right" style="color: silver;font-weight:bold"></i>  
 </a>
+</div>
+
 
 </div>
-</div>
-<!--/Cart total -->
 
 
-<div class="col-md-12" style="height:100%;background-color:silver;margin-top:10px">
-
-<!--cart table-->
-<div style="overflow-x:auto;">
-    <table class="table table-sm" id="cartTable" style="font-size:12px">
-        <thead style="color: #3d5c5c">
-            <tr style="font-size:14px">
-                <th style="border-bottom:2px solid #a6a6a6;border-top:0px solid #a6a6a6 ;font-weight:bold">Item</th>
-                <th style="text-align:center;border-bottom:2px solid #a6a6a6;border-top:1px solid #a6a6a6; font-weight:bold">Unit</th>
-                <th style="text-align:center;border-bottom:2px solid #a6a6a6;border-top:1px solid #a6a6a6; font-weight:bold">Price</th>
-                <th style="text-align:center;border-bottom:2px solid #a6a6a6;border-top:1px solid #a6a6a6; font-weight:bold">Qty</th>
-                <th style="text-align:center;border-bottom:2px solid #a6a6a6;border-top:1px solid #a6a6a6; font-weight:bold">Actn</th>
-            </tr>
-        </thead>
-        <tbody id="cartbody">
-        </tbody>
-    </table>
-</div>
-<!--/cart table-->
+<div class="col-md-12" style="height:100%;background-color:silver">
+<table class="table table-sm" id="cartTable" style="table-layout:fixed;font-size:12px">
+<thead  style="color: #3d5c5c">
+  <tr >
+    <th style="border-bottom:2px solid #a6a6a6;border-top:1px solid #a6a6a6;padding-left:0px">Item</th>
+    <th style="text-align:center;border-bottom:2px solid #a6a6a6;border-top:1px solid #a6a6a6">Unit</th>
+    <th style="text-align:center;border-bottom:2px solid #a6a6a6;border-top:1px solid #a6a6a6">Price</th>
+    <th style="text-align:center;border-bottom:2px solid #a6a6a6;border-top:1px solid #a6a6a6">Qty</th>
+    <th style="text-align:center;border-bottom:2px solid #a6a6a6;border-top:1px solid #a6a6a6">Total</th>
+    <th style="text-align:center;border-bottom:2px solid #a6a6a6;border-top:1px solid #a6a6a6">Actn</th>
+  </tr>
+</thead>
+<tbody id="cartbody">
+</tbody>
+</table>
 </div>  
 
 
 
+
+
+
+
+
 </div>
 </div>
-<!---/Right Collumn-->
+<!--/right column-->
+
+
 
 
 </div>
-
 </section>
-<section> 
-<script> 
-    function submitBranchId(value) {
-        document.getElementById('branchId').value = value;
-        document.getElementById('branchForm').submit();
-    }
-</script>
-<form action="select-rbranch" method="post" id="branchForm">
-  @csrf
-  <input type="hidden" name="branch" id="branchId">
- </form>
+<!-- /Main content -->
+
+
+
+      
+      
+<section>
+<!--Blank Modal-->
+  <div class="modal fade card-info" id="sales-modal">
+        <div class="modal-dialog  ">
+          <div class="modal-content">
+            <?php
+            $branchName = DB::table('branches')->where('id',$userbranch)->value('branch');
+            ?>
+            <div class="modal-body " style="background-color:	 #f2f2f2k">
+            <div>
+            <a href="#" style="text-align:left;color:#1a1a1a;font-weight:bold;"> {{$branchName}}<span>| <i>{{$disaplaydate}}</i>  </span></a>
+            <a href="#" style="float:right;margin-left:10px;" id="closesalesinterval"><i class="fa fa-window-close" style="color:#737373" aria-hidden="true"></i></a>
+            </div>
+           
+          
+            <table>
+              <thead>
+                <tr>
+                  <th class="text-left"  width="10" style="border-bottom:2px solid #737373;border-top:2px solid #737373;white-space: pre-line;width:30px">User</th>
+                  <th class="text-center"   width="8"style="border-bottom:2px solid #737373;border-top:2px solid #737373;;">Interval</th>
+                  <th class="text-center"  width="8" style="border-bottom:2px solid #737373;border-top:2px solid #737373;;">Sales</th>
+                </tr>
+              </thead>
+              <tbody id="tbody2">
+              <?php
+              $grandTotal = DB::table('intervalsales')->where('branch',$userbranch)->where('date',$date)->sum('sales');
+              $sales = DB::table('intervalsales')->where('branch',$userbranch)->where('date',$date)->orderBy('id','asc')->get();
+              ?>
+              @foreach( $sales as  $sale)
+              <tr>
+                <?php
+                $userName = DB::table('users')->where('id',$sale->user)->value('username');
+                ?>
+                <td style=" border-bottom:1px solid #737373; max-width:30%;padding-right;2px;padding-top:8px;padding-bottom:8px">{{$userName}}</td>
+                <td style="text-align:center; border-bottom:1px solid #737373;max-width:30%;padding-right;2px;padding-top:8px;padding-bottom:8px">{{$sale->slot}}</td>
+                <td style="text-align:center; border-bottom:1px solid #737373;max-width:40%;padding-right;2px;padding-top:8px;padding-bottom:8px">
+                <a href="#" class="editsalesbtn" style="color:black"
+
+                id1 = "{{$sale->id}}"
+                id2 = "{{$sale->branch}}"
+                id3 = "{{$sale->date}}"
+                id4 = "{{$sale->sales}}"
+                id5 = "{{$sale->user}}"
+                id6 = "{{$userName}}"
+                id7 = "{{$sale->slot}}"
+                id8 = "{{$sale->sales}}"
+                >@convert($sale->sales)</a>  
+              </td>
+              </tr>
+              @endforeach
+              <tr>
+                <td  style="text-align:center;color: black;font-weight:bold;border-top:2px solid #737373; border-bottom:2px solid #737373;"></td>
+                <td  style="text-align:center;color: black;font-weight:bold;border-top:2px solid #737373; border-bottom:2px solid #737373">Grand total</td>
+                <td style="text-align:center;color: black;font-weight:bold;border-top:2px solid #737373; border-bottom:2px solid #737373">@convert($grandTotal)</td>
+              </tr>
+
+              </tbody>
+             </table>
+            </div>
+          </div>
+          <!-- /.modal-content -->
+
+
+
+        </div>
+        <!-- /.modal-dialog -->
+      </div>
+      <!-- /.blank modal -->
+      </section>
+
+
+
+      <section>
+<!--Blank Modal-->
+  <div class="modal fade card-info" id="salesinterval-modal">
+        <div class="modal-dialog ">
+          <div class="modal-content">
+            <div class="modal-body " style="background-color:#e6e6e6k">
+
+            <a href="#" style="font-weight:bold;font-size:20px">Add interval sales </a>
+            <a href="#" style="float:right;margin-left:10px;" id="closesalesinterval2"><i class="fa fa-window-close" aria-hidden="true"></i></a>
+    
+            
+            <form action="insert-interval-sales" id="submitsalesform" method="post">
+              @csrf
+
+              <input type="hidden"  name="user" value="{{$user}}" >
+              <input type="hidden"  name="branch" value="{{$userbranch}}" >
+              <input type="hidden"  name="date" value="{{$date}}" >
+
+             <div class="form-group">
+              <label for="">Interval</label>
+
+              <?php
+                 $countIntervals = DB::table('intervalsales')->where('branch',$userbranch)->where('date',$date)->count();
+            
+                 if($countIntervals == 0){
+                   $interval = "07:00AM-10:00AM"; 
+                  }
+                  if($countIntervals == 1){
+                    $interval = "10:00AM-12:00PM"; 
+                   }
+                   if($countIntervals == 2){
+                    $interval = "12:00PM-02:00PM"; 
+                   }
+                   if($countIntervals == 3){
+                    $interval = "02:00PM-04:00PM"; 
+                   }
+                   if($countIntervals == 4){
+                    $interval = "04:00PM-05:00PM"; 
+                   }
+  
+                   if($countIntervals == 5){
+                    $interval = "05:00PM-07:00PM"; 
+                   }
+
+                   if($countIntervals == 6){
+                    $interval = "07:00PM-09:00PM"; 
+                   }
+
+                   if($countIntervals == 7){
+                    $interval = "09:00PM-12:00AM"; 
+                   }
+                   if($countIntervals > 7){
+                    $interval = "12:00AM-07:00AM"; 
+                   } 
+              ?>
+              <input type="text" name="slot" class="form-control" placeholder="Enter Sales"  id="seleectslot" value="{{$interval}}" readonly>
+            
+             </div>
+
+             <div class="form-group">
+              <label for="">Sales</label>
+
+              <input type="number" name="sales" class="form-control" placeholder="Enter Sales" id="entersales" autocomplete="off">
+            
+            </div>
+
+             <h4 class="text-center">
+              <a href="#" class="btn btn-primary" id="submitsalesbtn">Submit</a>
+            </h4>
+
+
+            </form>
+          </div>
+          <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+      </div>
+      <!-- /.blank modal -->
+      </section>
+
+
+      
+
+      <section>
+  <div class="modal fade card-info" id="editsales-modal">
+        <div class="modal-dialog  modal-sm">
+          <div class="modal-content">
+            <div class="modal-body " style="background-color:#e6e6e6k">
+
+            <a href="#" style="font-weight:bold;font-size:20px">Edit sales </a>
+            <a href="#" style="float:right;margin-left:10px;" id="closesalesinterval3"><i class="fa fa-window-close" aria-hidden="true"></i></a>
+            <form action="edit-interval-sales" id="updatesalesform" method="post">
+              @csrf
+
+              <input type="hidden"  name="id" id="i1" >
+              <input type="hidden"  name="branch" id="i2" >
+              <input type="hidden"  name="date" id="i3" >
+
+              <input type="hidden"  name="oldsales" id="i4" >
+
+              <input type="hidden"  name="user" id="i5" >
+
+              <div class="form-group">
+              <label for="">User</label>
+              <input type="text" class="form-control" id="i6" disabled >
+             </div>
+
+
+            
+              <div class="form-group">
+              <label for="">Interval</label>
+              <input type="text" name="slot" class="form-control" id="i7" disabled>
+             </div>
+
+
+             <div class="form-group">
+              <label for="">Sales</label>
+              <input type="number" name="sales" class="form-control" id="i8" >
+             </div>
+
+             <h4 class="text-center">
+
+            
+        
+              <a href="#" class="btn btn-primary" id="updatesalesbtn">Submit</a>
+            </h4>
+
+
+            </form>
+          </div>
+          <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+      </div>
+      <!-- /.blank modal -->
+      </section>
+
+
+
+
+
+
+
+      
+<section>
+<!--Blank Modal-->
+  <div class="modal fade card-info" id="unuploadeddata-modal">
+        <div class="modal-dialog  ">
+          <div class="modal-content">
+            <div class="modal-body " style="background-color:#e6e6e6k">
+         
+            <a href="#" >CLOUD DATA  MWK<span id="cloudamount"></span></a>
+            <a href="#" style="float:right;font-weight:bold"  data-dismiss="modal" aria-label="Close" >
+            
+           <i class="fa fa-window-close"></i>
+          </a>
+          <br>
+            <div class="tableFixHead">
+            <table class="table table-sm "  style="margin-top:-5px"  id="cloudTable">
+              <thead class="" style="background-color:silver" >
+                <tr>
+                  <th class=" " style="background-color:silver">Transid</th>
+                  <th class=" text-center" style="background-color:silver">Product</th>
+                  <th class=" text-center" style="background-color:silver">Unit</th>
+                  <th class=" text-center" style="background-color:silver">Price</th>
+                  <th class=" text-center" style="background-color:silver">Qty</th>
+                  <th class=" text-center" style="background-color:silver">Total</th>
+                </tr>
+              </thead>
+              <tbody id="cloudbody">
+
+
+
+
+              </tbody>
+             </table>
+            </div>
+          </div>
+          <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+      </div>
+      <!-- /.blank modal -->
+      </section>
+
+
+
+
+      
+      
+<section>
+<!--Blank Modal-->
+  <div class="modal fade card-info" id="recentsales-modal">
+        <div class="modal-dialog  ">
+          <div class="modal-content">
+            <div class="modal-body " style="">
+            <a href="#" > Total customers served today {{$customersToday}}</a>
+            <a href="#" style="float:right;font-weight:bold"  data-dismiss="modal" aria-label="Close" >
+                      
+            <i class="fa fa-window-close"></i>
+            </a>
+            
+
+            
+            <div class="tableFixHead">
+            <i> <span style="color:gray">Recently sold items</span> <span>[Last 30]</span></i>
+            <table class="table table-sm "  style="margin-top:-5px"  id="cloudTable">
+              <thead class=""  style="background-color:silver" >
+                <tr>
+                  <th class=" " style="background-color:silver">Product</th>
+                  <th class=" text-center" style="background-color:silver">Unit</th>
+                  <th class=" text-center" style="background-color:silver">Price</th>
+                  <th class=" text-center" style="background-color:silver">Qty</th>
+                  <th class=" text-center" style="background-color:silver">Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                <?php
+                $rsales = DB::table('retailsales')->where('branch',$userbranch)->where('date',$date)->orderBy('id','desc')->limit(30)->get();
+                ?>
+                @foreach($rsales as $r)
+                 <tr>
+                  <td>{{$r->product}}</td>
+                  <td style="text-align:center">{{$r->unit}}</td>
+                  <td style="text-align:center">@convert($r->price)</td>
+                  <td style="text-align:center">@convert2($r->quantity)</td>
+                  <td style="text-align:center">@convert($r->quantity*$r->price)</td>
+                 </tr>
+                 @endforeach
+              </tbody>
+             </table>
+            </div>
+          </div>
+          <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+      </div>
+      <!-- /.blank modal -->
+      </section>
+
+
+<section>
+<div class="modal" tabindex="-1" role="dialog" id="calculator-modal" >
+  <div class="modal-dialog" role="document" >
+    <div class="modal-content">
+    
+      <div class="modal-body calculator " style="background-color: 	 #e6e6e6">
+
+      <h4 class="modal-title" style="padding-bottom:15px">
+        <a href="#" style="font-weight:bold">CALCULATOR</a>
+        <a href="#" style="float:right;font-weight:bold" data-dismiss="modal" aria-label="Close"><div class="fa fa-window-close"></div></a>
+      </h4>
+        
+<div class="top bg-primary">
+<!--span class="unit">deg</span> -->
+<section class="screen">
+  <div class="input" style="color:#e6e6e6;font-size:40px"></div>
+  <div class="result" style="color:#e6e6e6;font-size:30px"></div>
 </section>
+
+</div>
+
+<div class="bottom">
+
+<section class="keys">
+
+  <div class="column">
+    <span data-key="7">7</span>
+    <span data-key="4">4</span>
+    <span data-key="1">1</span>
+    <span data-key=".">.</span>
+  </div>
+
+  <div class="column">
+    <span data-key="8">8</span>
+    <span data-key="5">5</span>
+    <span data-key="2">2</span>
+    <span data-key="0">0</span>
+  </div>
+
+  <div class="column">
+    <span data-key="9">9</span>
+    <span data-key="6">6</span>
+    <span data-key="3">3</span>
+    <span class="equals-to" data-key="=">=</span>
+  </div>
+</section>
+
+<section class="operators">
+  <span class="delete">del</span>
+  <span data-key="÷">÷</span>
+  <span data-key="x">x</span>
+  <span data-key="-">-</span>
+  <span data-key="+">+</span>
+</section>
+
+</div>
+
+
+
+
+  
+      </div>
+     
+    </div>
+  </div>
+</div>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+ 
+
+
+
+
 
 
 <!-- jQuery -->
@@ -572,55 +924,232 @@ $products = DB::table('retailbaseproducts')->whereIn('supplier',$supplierArray)-
 <script src="Admin320/plugins/sweetalert2/sweetalert2.min.js"></script>
 <script src="Admin320/plugins/toastr/toastr.min.js"></script>
 
+
+<script> 
+
+
+function currentTime3() {
+  let date = new Date(); 
+  let hh = date.getHours();
+  let mm = date.getMinutes();
+  let ss = date.getSeconds();
+  let session = "AM";
+
+  if(hh == 0){
+      hh = 12;
+  }
+  if(hh > 12){
+      hh = hh - 12;
+      session = "PM";
+   }
+
+   hh = (hh < 10) ? "0" + hh : hh;
+   mm = (mm < 10) ? "0" + mm : mm;
+   ss = (ss < 10) ? "0" + ss : ss;
+    
+   let time = hh + ":" + mm + ":" + ss + " " + session;
+
+   var x = document.getElementsByClassName('carttime');
+
+    for(i = 0; i < x.length; i++) {
+      x[i].value = time;
+    }
+
+
+  let t = setTimeout(function(){ currentTime3() }, 1000);
+}
+currentTime3();
+
+
+</script>
+
+
+
 <script>
- var Toast = Swal.mixin({
+  var Toast = Swal.mixin({
       toast: true,
       position: 'top-end',
       showConfirmButton: false,
       timer: 12000
     });
+    
+
+
 var  cartArray = [];
 var receiptArray = [];
  
+ 
+
+
 </script>
 
 
 <script>
 
-$('body').on('change', '.sale-data', function (){ 
-    var productid = $(this).attr('productid'); 
-    var product = $(this).attr('product'); 
-    var unit = $(this).attr('unit'); 
-    var price = $(this).attr('price'); 
-    var branch = $(this).attr('branch'); 
-    var date = $(this).attr('date'); 
-    var inputid = $(this).attr('inputid'); 
-    var quantity = document.getElementById(inputid).value; 
-    var deleteid = generateUniqueId();
 
-    var cartRow = { 
-        Productid:productid, 
-        Product:product, 
-        Unit:unit, 
-        Price:price, 
-        Branch:branch, 
-        Date:date, 
-        Quantity:quantity, 
-        Deleteid : deleteid
-    } 
+$('body').on('change', '.sale-data', function () {
 
-    if(!isNaN(quantity) && quantity > 0){
-        cartArray.push(cartRow); 
-        localStorage.cartData=JSON.stringify(cartArray) 
-        var btn = '<a href="#" style="color:red" onclick="removeCartItem('+deleteid+')">X</a>';
-        var dprice = numberToCurrency (price); 
-        prepareTableCell(product,unit,dprice,quantity,btn,deleteid) 
-        document.getElementById(inputid).value =" " 
-    } else{ 
-        toastr.error('An error occured, Quantity must be a number greater than 0' ); 
-        document.getElementById(inputid).value =" " 
-    } 
-}) 
+var checkproduct = 0;
+
+
+
+var timeid = $(this).attr('id8');
+var inputid = $(this).attr('id11');
+var productid = $(this).attr('id1');
+var product   = $(this).attr('id2');
+var unit   = $(this).attr('id3');
+var price   = $(this).attr('id4');
+var stock   = $(this).attr('id5');
+var transid= document.getElementById("transidInput").value;
+var date = $(this).attr('id7');
+var time = document.getElementById(timeid).value;
+var user = $(this).attr('id9');
+var branch = $(this).attr('id10');
+var quantity = document.getElementById(inputid).value;
+var total = quantity*price;
+
+
+
+var cartRow = {
+  Productid:productid,
+  Product:product,
+  Unit:unit,
+  Price:price,
+  Stock:stock,
+  Transid:transid, 
+  Date:date,
+  Time:time,
+  User:user,
+  Branch:branch,
+  Quantity:quantity,
+  Total:total,
+}  
+
+
+
+if((Number(quantity)>0) && (Number(quantity)<=Number(stock))){
+
+
+if(localStorage.cartData){
+      checkingData =JSON.parse(localStorage.cartData);
+      for(var i=0;i<checkingData.length;i++){ 
+      var checkp = checkingData[i].Product; 
+      if(checkp==product){
+          checkproduct = 1 + checkproduct; 
+      }
+  }
+
+//<checkproduct>
+if(checkproduct>0){
+
+ toastr.error('An error occurred ' +product+ ' is already added to cart table' );
+ document.getElementById(inputid).value=" ";
+
+}
+else{
+    cartArray.push(cartRow);
+    localStorage.cartData=JSON.stringify(cartArray)
+    var btn = '<a href="#" style="color:red" onclick="removeCartItem('+productid+')">X</a>';
+    var dtotal = numberToCurrency (total);
+    var dprice = numberToCurrency (price);
+    var qtyinput = '<input type="updatecart" style="color:blue;text-align:center;background:transparent;border:none;width:100px"  class="update-cart"  id1="'+productid+'"  id3="'+quantity+'"   id2="'+stock+'"   value="'+quantity+'">'
+    prepareTableCell(product,unit,dprice,qtyinput,dtotal,btn,productid);
+    document.getElementById(inputid).value=1;
+    $('#amountPaid').val("") 
+    $('#change').val("") 
+    cartTable =JSON.parse(localStorage.cartData);
+    cartTotal=0; 
+    for(var i=0;i<cartTable.length;i++){
+        var price = cartTable[i].Price;
+        var quantity = cartTable[i].Quantity;
+
+        var cartTotal = price*quantity + cartTotal;
+
+        var cartDisplayNum = numberToCurrency (cartTotal);
+
+        document.getElementById("cartTotal1").innerHTML = cartDisplayNum;
+        document.getElementById("cartTotal2").value = cartTotal;
+
+      }  
+    $('#mobile-table').hide();
+    $('#mobile-search').val('');
+    document.getElementById('mobile-search').focus();
+}
+//</checkproduct>
+
+
+}
+//<product exits>
+else{
+  cartArray.push(cartRow);
+  localStorage.cartData=JSON.stringify(cartArray)
+  var btn = '<a href="#" style="color:red" onclick="removeCartItem('+productid+')">X</a>';
+  var dtotal = numberToCurrency (total);
+  var dprice = numberToCurrency (price);
+ var qtyinput = '<input type="updatecart" style="color:blue;text-align:center;background:transparent;border:none;width:100px"  class="update-cart" id3="'+quantity+'" id1="'+productid+'"    id2="'+stock+'"   value="'+quantity+'">'
+ prepareTableCell(product,unit,dprice,qtyinput,dtotal,btn,productid);
+ document.getElementById(inputid).value=1;
+  $('#amountPaid').val("") 
+  $('#change').val("") 
+  cartTable =JSON.parse(localStorage.cartData);
+  cartTotal=0; 
+  for(var i=0;i<cartTable.length;i++){
+      var price = cartTable[i].Price;
+      var quantity = cartTable[i].Quantity;
+
+      var cartTotal = price*quantity + cartTotal;
+
+      var cartDisplayNum = numberToCurrency (cartTotal);
+
+      document.getElementById("cartTotal1").innerHTML = cartDisplayNum;
+      document.getElementById("cartTotal2").value = cartTotal;
+    }  
+   $('#mobile-table').hide();
+   $('#mobile-search').val('');
+   document.getElementById('mobile-search').focus();
+}
+//</product exits>
+}
+
+
+else{
+  toastr.error('An error occurred quantity for  ' +product+ ' Must be greater than 0 and must be less than or equal to '+ stock );
+  document.getElementById(inputid).value=" ";
+}
+
+})
+</script>
+
+
+
+
+<script>
+$(document).ready( function () {
+ var table = $("#mobile-table").DataTable({
+          "paging": false,
+          "bInfo" : false,
+          "ordering":false,
+  dom: 'lrtip'
+  })
+  $('#mobile-table').hide();
+  $('#mobile-search').keyup( function() {
+    var value = document.getElementById('mobile-search').value;
+    if (value.length<2) {
+      $('#mobile-table').hide();
+    }else{
+      $('#mobile-table').show();
+     table.search($(this).val()).draw();
+    }
+  } );
+} );
+
+
+$(document).ready(function () {
+    $('#mobile-search').click(function (){
+      $('#mobile-search').val('');
+      $('#mobile-table').hide();
+    });
+})
 
 var numberToCurrency = function (input_val, fixed = false, blur = false) {
     if(!input_val) {
@@ -679,7 +1208,8 @@ var numberToCurrency = function (input_val, fixed = false, blur = false) {
 };
 
 
-function prepareTableCell(product,unit,price,quantity,btn,rownum){
+
+function prepareTableCell(product,unit,price,quantity,total,btn,rownum){
 var table = document.getElementById('cartTable').getElementsByTagName('tbody')[0];
 
 var row  = table.insertRow(0);
@@ -688,44 +1218,53 @@ cell2 = row.insertCell(1)
 cell3 = row.insertCell(2)
 cell4 = row.insertCell(3)
 cell5 = row.insertCell(4)
+cell6 = row.insertCell(5)
 
 cell1.innerHTML = product;
 cell2.innerHTML = unit;
 cell3.innerHTML = price;
 cell4.innerHTML = quantity;
-cell5.innerHTML = btn;
-
+cell5.innerHTML = total;
+cell6.innerHTML = btn;
 row.id= "r"+rownum;
  
 cell2.style.textAlign = "center";
 cell3.style.textAlign = "center";
 cell4.style.textAlign = "center";
 cell5.style.textAlign = "center";
-
-for (var i = 0; i < 5; i++) {
-    var cell = row.cells[i];
-   
-    cell.style.borderBottom = "1px solid  #b3b3b3";
-}
-
+cell6.style.textAlign = "center";
 
 }
-
 
 function displayCartData(){
 if(localStorage.cartData){
 
   cartArray =JSON.parse(localStorage.cartData);
 
+  var cartTotal = 0;
+
   for(var i=0;i<cartArray.length;i++){
-    var productid = cartArray[i].Productid;
+
     var product = cartArray[i].Product;
     var unit = cartArray[i].Unit;
     var price = cartArray[i].Price;
-    var quantity = cartArray[i].Quantity; 
-    var deleteid = cartArray[i].Deleteid; 
-    var btn = '<a href="#" style="color:red" onclick="removeCartItem('+deleteid+')">X</a>';
-     prepareTableCell(product,unit,price,quantity,btn,deleteid)
+    var total = cartArray[i].Total;
+    var quantity = cartArray[i].Quantity;
+    var productid = cartArray[i].Productid;
+    var stock = cartArray[i].Stock;
+    var qtyinput = '<input type="updatecart" style="color:blue;text-align:center;background:transparent;border:none;width:100px"  class="update-cart" id3="'+quantity+'"    id1="'+productid+'"    id2="'+stock+'"   value="'+quantity+'">'
+    var btn = '<a href="#" style="color:red" onclick="removeCartItem('+productid+')">X</a>';
+
+    var cartTotal = price*quantity + cartTotal;
+
+      var cartDisplayNum = numberToCurrency (cartTotal)
+      document.getElementById("cartTotal1").innerHTML = cartDisplayNum;
+      document.getElementById("cartTotal2").value = cartTotal;
+     var dtotal = numberToCurrency(total)
+     var dprice = numberToCurrency(price)
+     if(productid>0){
+     prepareTableCell(product,unit,dprice,qtyinput,dtotal,btn,productid);
+    }
 
   }
 
@@ -734,62 +1273,29 @@ if(localStorage.cartData){
 }
 
 
-</script>
-</script>
-
-<script>
-$(document).ready( function () {
- var table = $("#mobile-table").DataTable({
-          "paging": false,
-          "bInfo" : false,
-          "ordering":false,
-  dom: 'lrtip'
-  })
-  $('#mobile-table').hide();
-  $('#mobile-search').keyup( function() {
-    var value = document.getElementById('mobile-search').value;
-    if (value.length<2) {
-      $('#mobile-table').hide();
-    }else{
-      $('#mobile-table').show();
-     table.search($(this).val()).draw();
-    }
-  } );
-} );
-
-
-$(document).ready(function () {
-    $('#mobile-search').click(function (){
-      $('#mobile-search').val('');
-      $('#mobile-table').hide();
-    });
-})
-</script>
-
-
-
-<script>
 function removeCartItem(id){
   var rowid = "r"+id;
   var row = document.getElementById(rowid);
   var rowindex   =  row.rowIndex;
   var  table = document.getElementById("cartTable");
   table.deleteRow(rowindex);
-  var deleteid =id;
+  var productid =id;
   var cartTotal = 0;
 
   var newData = [];
   var oldData = JSON.parse(localStorage.cartData)
 
+
 for (var i = 0; i <oldData.length; i++) {
-if(id != oldData[i].Deleteid){ 
+if(id != oldData[i].Productid){ 
   newData.push(oldData[i]);
  }}
+
 
 localStorage.cartData =  JSON.stringify(newData);
 
 for (var i = 0; i < cartArray.length; i++) {
-if(deteteid == cartArray[i].Productid ){ 
+if(productid == cartArray[i].Productid ){ 
 
    cartArray[i].Productid=0
    cartArray[i].Product=0
@@ -800,109 +1306,720 @@ if(deteteid == cartArray[i].Productid ){
  }
 }
 
+ 
+
+cartTable =JSON.parse(localStorage.cartData)
+
+
+if(cartTable.length>0){
+
+for(var i=0;i<cartTable.length;i++){
+
+var price = cartTable[i].Price;
+var quantity = cartTable[i].Quantity;
+
+cartTotal = price*quantity + cartTotal;
+      
+var cartDisplayNum = numberToCurrency (cartTotal);
+document.getElementById("cartTotal1").innerHTML = cartDisplayNum;
+document.getElementById("cartTotal2").value = cartTotal;
+$('#amountPaid').val("") ;
+$('#change').val("") ;
+document.getElementById('mobile-search').focus();
+
+}  
+
+}
+else{
+
+  document.getElementById("cartTotal1").innerHTML = 0;
+  document.getElementById("cartTotal2").value = 0;
+  $('#amountPaid').val("") ;
+  $('#change').val("");
+  document.getElementById('mobile-search').focus();;
+   }
+}
+
+
+
+function removeCommas(x){
+return x.split(',').join('');
+}
+$("#amountPaid").on({
+keyup: function() {
+     var  amountPaid  = $(this).val();
+     $(this).val(numberToCurrency(amountPaid));
+     var cartTotal   = Number($('#cartTotal2').val());  
+     var change = removeCommas(amountPaid)-cartTotal;
+if(amountPaid == ""){
+
+$('#change').val(" ");
+
+ }       
+else{
+  if(change!=""){
+    $('#change').val(numberToCurrency(change));
+  }
+  else{
+    $('#change').val(" ");
+  }
+  }
+},
+blur: function() { }
+});
+
+
+
+
+$('body').on('change', '.update-cart', function () {
+     var productid = $(this).attr('id1');
+     var quantity  = $(this).attr('id2');
+     var reversequantity  = $(this).attr('id3');
+     var newqty = $(this).val();
+     var rowId ="r"+productid;
+     var  row  = document.getElementById(rowId);
+     var cartTotal=0;
+     var col1 = "cx"+productid;
+     var col2 = "cy"+productid;
+    var cartData = JSON.parse(localStorage.cartData);
+
+     for (var i = 0; i < cartData.length; i++) {
+       if(productid ==cartData[i].Productid){  
+          if((Number(newqty)>0) && (Number(newqty)<=Number(quantity))){
+            for (var y = 0; y < cartArray.length; y++) {
+              if(productid == cartArray[y].Productid){
+                 cartArray[y].Quantity=newqty;
+                  cartArray[y].Total=newqty* cartArray[y].Price;
+                }
+            }
+           cartData[i].Quantity=newqty;
+           cartData[i].Total=newqty* cartData[i].Price;
+           row.deleteCell(4);
+           cell5 = row.insertCell(4)
+           cell5.innerHTML =  numberToCurrency(newqty* cartData[i].Price);
+           cell5.style.textAlign = "center";
+            localStorage.cartData=JSON.stringify(cartData);
+            $(this).attr('id3',newqty);
+            $('#amountPaid').val("") ;
+             $('#change').val("");
+             document.getElementById('mobile-search').focus();
+          
+          
+          
+            }
+          else{
+             toastr.error('An error occurred quantity for '+cartData[i].Product+' must be greater than 0 and must be less than  or equal to '+quantity +' ');
+             $(this).val(reversequantity );
+            }
+       }
+
+     }     
+       cartTable =JSON.parse(localStorage.cartData);
+       for(var i=0;i<cartTable.length;i++){
+           var price = cartTable[i].Price;
+           var quantity = cartTable[i].Quantity;
+           cartTotal = price*quantity + cartTotal; 
+           var cartDisplayNum = numberToCurrency (cartTotal);
+           document.getElementById("cartTotal1").innerHTML = cartDisplayNum;
+          document.getElementById("cartTotal2").value = cartTotal;
+         }  
+
+   })
+
+   function clearCartData(){
+
+
+    var newclouddata  =  [];
+    var  cloudArray =  [];
+  
+
+
+    if(localStorage.cloudData){
+
+      cloudArray = JSON.parse(localStorage.cloudData);
+
+     }
+
+    if(localStorage.cartData){
+
+     newclouddata = JSON.parse(localStorage.cartData);
+
+    }
+
+    for (var i = 0; i <newclouddata.length; i++) {
+
+      if(newclouddata[i].Productid != 0)
+
+      {
+        cloudArray.push(newclouddata[i]);
+        
+        receiptArray.push(newclouddata[i]);
+
+      }
+     
+    }
+
+   
+    
+    localStorage.cloudData=JSON.stringify(cloudArray)
+    localStorage.receiptData=JSON.stringify(receiptArray)
+
+    document.getElementById("cloudItems").innerHTML = JSON.parse(localStorage.cloudData).length;
+
+
+    window.localStorage.removeItem('cartData');
+    
+    cartArray.length=0;
+
+    $("#cartTable").find("tr:gt(0)").remove();
+    document.getElementById("cartTotal1").innerHTML = 0;
+    document.getElementById("cartTotal2").value = 0;
+
+    receiptItems  = JSON.parse(localStorage.receiptData)
+    window.localStorage.removeItem('receiptData');
+    receiptArray.length=0;
+    document.getElementById('transidForm').reset();
+    
+    $("#transDiv").load(" #transDiv  > *",function(){});
+   
+    
+    document.getElementById('mobile-search').focus();
+
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function countCloudData(){
+
+  
+  if(localStorage.cloudData){
+
+    document.getElementById("cloudItems").innerHTML = JSON.parse(localStorage.cloudData).length;
+
+  }
+
+ 
+
 }
 
 function onLoadFunctions(){
   displayCartData();
+  countCloudData();
   document.getElementById('mobile-search').focus();
 }
-</script>
-<script>
 
-$(document).on("click", "#uploadopeingstockBtn", function(e) {
-    var self = $(this);
-    $(this).prop("disabled", true);
-    var data1 = [];
-    if (localStorage.cartData) {
-        data1 = JSON.parse(localStorage.cartData);
-    }
-    data = JSON.stringify(data1);
-    var mergedArray = [];
-    e.preventDefault();
-    $.ajaxSetup({
-        headers: {
-            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-        }
-    });
-    $.ajax({
-        type: "post",
-        url: '/save-retail-openingstock',
-        data: {
-            data: data
-        },
-        timeout: 60000,
-        beforeSend: function() {
-            $('#loading-status').css('display', 'block');
-        },
-        complete: function() {
-            $('#loading-status').css('display', 'none');
-            $("#tbody").load(" #tbody > *", function() {});
-            self.prop("disabled", false);
-        },
-        success: function(response) {
-            if (response.success) {
-                if (response.imported == 0) {
-                    toastr.info('No data available for uploading', 'Validation Information', {
-                        timeOut: 5000,
-                        progressBar: true
-                    });
-                } else {
-                    toastr.success(response.imported + ' Records imported', 'Import successful', {
-                        timeOut: 5000,
-                        progressBar: true
-                    });
-                }
-                // Clear localStorage data
-                localStorage.removeItem('cartData');
-                cartArray.length=0;
-                $("#cartTable").find("tr:gt(0)").remove();
-            } else {
-                toastr.error('Technical error occured contact system developers ', 'Technical Error', {
-                    timeOut: 5000,
-                    progressBar: true
-                });
+
+async function uploadData(){
+const url = '/';
+var data1  = [];
+document.getElementById("uploaddatabtn").disabled = true;
+document.getElementById("cloudItems").style.color = "red";
+document.getElementById("cloudItems").innerHTML = "Loading....";
+
+if(localStorage.cloudData){
+  data1 = JSON.parse(localStorage.cloudData);
+}
+data = JSON.stringify(data1);
+var mergedArray = [];
+await fetch(url,{mode:"no-cors"}).then(response => {
+        $.ajax({
+          headers: {
+               'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+              },
+            type:"POST",
+            url: '/upload-sales',
+            data: {data:data},
+          
+            success:function(rdata) {
+            if(rdata.length>0){
+              rdata.forEach( row => {
+                for(var i = 0; i < row.length; i++) {
+                    mergedArray.push(row[i]);
+                  }
+               });
+            window.localStorage.removeItem('cloudData');
+            localStorage.cloudData=JSON.stringify(mergedArray);
+            document.getElementById("cloudItems").innerHTML = JSON.parse(localStorage.cloudData).length;
+            document.getElementById("cloudItems").style.color = "white";
+            document.getElementById("uploaddatabtn").disabled = false;
+          }else{
+              window.localStorage.removeItem('cloudData');
+              document.getElementById("cloudItems").innerHTML = "";
+              document.getElementById('mobile-search').focus();
+              toastr.success('All data uploaded successifully');
+              document.getElementById("uploaddatabtn").disabled = false;
+              document.getElementById("cloudItems").style.color = "white";
+
+            }
+            },
+
+          error:function(jqXHR, textStatus, errorThrown) {
+          if(textStatus === 'timeout')
+            {   
+                toastr.error('It is taking longer to submit the data check your internet connection and try again');
+                document.getElementById("cloudItems").innerHTML = "";
+                document.getElementById("uploaddatabtn").disabled = false;
+                document.getElementById("cloudItems").style.color = "white";
+                form.reset();
+            }
+            else{
+              toastr.error('No data available for uploading'); 
+              document.getElementById("cloudItems").innerHTML = "";
+              document.getElementById("uploaddatabtn").disabled = false;
+              document.getElementById("cloudItems").style.color = "white";
+              form.reset();
             }
         },
-        error: function(xhr, status, error) {
-            if (status === 'timeout') {
-                toastr.error('The request took too long to process. Please try again.', 'Timeout Error', {
-                    timeOut: 5000,
-                    progressBar: true
-                });
-            } else if (status === 'error' && xhr.status === 0) {
-                toastr.error(' Please check your internet connection and try again', ' Connection Error', {
-                    timeOut: 5000,
-                    progressBar: true
-                });
-            } else if (xhr.status === 500) {
-                toastr.error('Server error occurred. Contact system administrator.', 'Server Error', {
-                    timeOut: 5000,
-                    progressBar: true
-                });
-            } else {
-                toastr.error('Unspecified error occurred. Please refresh the page and try again.', 'Unspecified', {
-                    timeOut: 5000,
-                    progressBar: true
-                });
-            }
-        }
-    });
-})
+       timeout: 180000 //3 minutes
+          
+        });
+
+  }).catch(err => {
+    toastr.error('An error occured request was not sent to the server, make sure you are connected to the internet');
+    document.getElementById("uploaddatabtn").disabled = false;
+    document.getElementById("cloudItems").innerHTML = JSON.parse(localStorage.cloudData).length;
+    document.getElementById("cloudItems").style.color = "white";
+    
+  });
+};
 
 
-function generateUniqueId() {
-    var timestamp = Math.floor(Date.now() / 1000);
-    var randomNum = Math.floor(Math.random() * 1000000);
-    var uniqueId = (timestamp * 1000000) + randomNum;
-    return uniqueId.toString().padStart(10, '0');
+
+
+
+function prepareCloudTable(transid,product,unit,price,quantity,total){
+
+var table = document.getElementById('cloudTable').getElementsByTagName('tbody')[0];
+
+var row  = table.insertRow();
+cell1 = row.insertCell(0)
+cell2 = row.insertCell(1)
+cell3 = row.insertCell(2)
+cell4 = row.insertCell(3)
+cell5 = row.insertCell(4)
+cell6 = row.insertCell(5)
+
+
+cell1.innerHTML = transid;
+cell2.innerHTML = product;
+cell3.innerHTML = unit;
+cell4.innerHTML = price;
+cell5.innerHTML = quantity;
+cell6.innerHTML = total;
+
+
+ 
+cell2.style.textAlign = "center";
+cell3.style.textAlign = "center";
+cell4.style.textAlign = "center";
+cell5.style.textAlign = "center";
+cell6.style.textAlign = "center";
+
+
 }
 
 
+function displayCloudTotal(){
+  document.getElementById("cloudamount").innerHTML = "0";
+  cdTotal =0;
+  if(localStorage.cloudData){
+   cdArray  =JSON.parse(localStorage.cloudData);
+    for(var i=0;i<cdArray.length;i++){
+        var price =  cdArray[i].Price;
+        var quantity =   cdArray[i].Quantity;
+        cdTotal = price*quantity + cdTotal; 
+        var cartDisplayNum = numberToCurrency (cdTotal);
+        document.getElementById("cloudamount").innerHTML = cartDisplayNum;
+      }  
+ }
+
+}
+
+
+
+function displayCloudData(){
+$("#cloudbody").empty();
+if(localStorage.cloudData){
+const cloudArray1 =JSON.parse(localStorage.cloudData);
+const cloudArray =[];
+
+for(let i = cloudArray1.length - 1; i >= 0; i--) {
+  const valueAtIndex = cloudArray1[i]
+  cloudArray.push(valueAtIndex)
+}
+  for(var i=0;i<cloudArray.length;i++){
+    var transid = cloudArray[i].Transid;
+    var product = cloudArray[i].Product;
+    var unit = cloudArray[i].Unit;
+    var price = cloudArray[i].Price;
+    var total = cloudArray[i].Total;
+    var quantity = cloudArray[i].Quantity;
+    var productid = cloudArray[i].Productid;
+    var stock = cloudArray[i].Stock;
+     var dtotal = numberToCurrency(total)
+     var dprice = numberToCurrency(price)
+
+     if(productid>0){
+     prepareCloudTable(transid,product,unit,dprice,quantity,dtotal);
+    }
+  }
+
+}
+
+}
+
+
+
+  $('body').on('click', '#actions', function () { $("#actions-modal").modal("show"); });
+
+  
+
+$('body').on('click', '.editsalesbtn', function () {
+      $('#i1').val($(this).attr('id1'));
+      $('#i2').val($(this).attr('id2'));
+      $('#i3').val($(this).attr('id3'));
+      $('#i4').val($(this).attr('id4'));
+      $('#i5').val($(this).attr('id5'));
+      $('#i6').val($(this).attr('id6'));
+      $('#i7').val($(this).attr('id7'));
+      $('#i8').val($(this).attr('id8'));
+
+      $('#editsales-modal').modal('show');
+   });
+   
+
+   $('body').on('click', '#calculatorbtn', function () { $("#calculator-modal").modal("show"); });
+ 
+  
+
+  $('body').on('click', '#salesbtn', function () { $("#sales-modal").modal("show"); });
+
+  $('body').on('click', '#closesalesinterval', function () { $("#sales-modal").modal("hide"); });
+  $('body').on('click', '#addsalesinterval', function () { $("#salesinterval-modal").modal("show"); });
+
+  $('body').on('click', '#closesalesinterval2', function () { $("#salesinterval-modal").modal("hide"); });
+  $('body').on('click', '#closesalesinterval3', function () { $("#editsales-modal").modal("hide"); });
+
+  $('body').on('click', '#recentsalesbtn', function () { $("#recentsales-modal").modal("show"); })
+
+ 
+  $('body').on('click', '#unuploadeddatabtn', function () {
+
+      displayCloudData();
+      displayCloudTotal();
+
+     $("#unuploadeddata-modal").modal("show");
+    
+    });
+
+
+    
+$(document).on("click", "#submitsalesbtn", function(e) {
+e.preventDefault(); 
+$.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+           }
+       });
+       
+var form = document.getElementById('submitsalesform');
+var sales = document.getElementById('entersales').value;
+
+
+
+if(sales >=0 ){
+
+  var cloud =0;
+  if(localStorage.cloudData){
+    cloud = JSON.parse(localStorage.cloudData).length
+  }
+
+if(cloud<1){
+$.ajax({
+    type:"post",
+    url: '/insert-interval-sales',
+    data: $(form).serialize(),
+    
+    success:function(data) {
+
+      if(data==1){
+       
+      toastr.error('Data no subimited make sure that interval is unique');
+        
+      }
+
+    
+      if(data==3){
+       
+       toastr.error('Data no subimited sales should be greater than or equal to O');
+         
+       }
+     
+
+      if(data==2){
+
+        toastr.success('Data submited successifully');
+
+        $("#tbody2").load(" #tbody2  > *",function(){});
+
+        
+        $("#submitsalesform").load(" #submitsalesform  > *",function(){});
+        document.getElementById('mobile-search').focus();
+
+        $("#salesinterval-modal").modal("hide");
+
+        form.reset();
+      
+         
+       }
+        
+       
+     
+
+    },
+    error:function() {
+ 
+     
+       toastr.error('An error occured make sure you are connected to the internet and you enter sales');
+         
+  
+    }
+})}
+
+else{
+
+  toastr.error('You should upload cloud data before entering interval sales');
+}
+
+
+}
+else{
+  toastr.error('Data not submited sales can not be less than 0');
+
+}
+
+});
+
+
+
+
+
+    
+$(document).on("click", "#updatesalesbtn", function(e) {
+e.preventDefault(); 
+$.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+           }
+       });
+       
+var form2 = document.getElementById('updatesalesform');
+var sales2 = document.getElementById('i8').value;
+
+
+
+if(sales2 >=0 ){
+$.ajax({
+    type:"post",
+    url: '/edit-interval-sales',
+    data: $(form2).serialize(),
+    
+    success:function(data) {
+
+      if(data==1){
+       
+      toastr.error('An error occured no data change detected');
+        
+      }
+     
+    
+      if(data==2){
+
+        toastr.success('Data updateted successifully');
+
+        $("#tbody2").load(" #tbody2  > *",function(){});
+
+        $("#editsales-modal").modal("hide");
+        document.getElementById('mobile-search').focus();
+
+        form2.reset();
+      
+         
+       }
+        
+       
+     
+
+    },
+    error:function() {
+ 
+     
+       toastr.error('An error occured make sure you are connected to the internet');
+         
+  
+    }
+})}
+else{
+  toastr.error('Data not submited sales can not be less than 0');
+
+}
+
+});
+
+
+
+
+</script>
+
+<script>
+  "use strict";
+
+const input = document.querySelector(".input");
+const result = document.querySelector(".result");
+const deleteBtn = document.querySelector(".delete");
+const keys = document.querySelectorAll(".bottom span");
+
+let operation = "";
+let answer;
+let decimalAdded = false;
+
+const operators = ["+", "-", "x", "÷"];
+
+function handleKeyPress (e) {
+  const key = e.target.dataset.key;
+  const lastChar = operation[operation.length - 1];
+
+  if (key === "=") {
+    return;
+  }
+
+  if (key === "." && decimalAdded) {
+    return;
+  }
+
+  if (operators.indexOf(key) !== -1) {
+    decimalAdded = false;
+  }
+
+  if (operation.length === 0 && key === "-") {
+    operation += key;
+    input.innerHTML = operation;
+    return;
+  }
+
+  if (operation.length === 0 && operators.indexOf(key) !== -1) {
+    input.innerHTML = operation;
+    return;
+  }
+
+  if (operators.indexOf(lastChar) !== -1 && operators.indexOf(key) !== -1) {
+    operation = operation.replace(/.$/, key);
+    input.innerHTML = operation;
+    return;
+  }
+
+  if (key) {
+    if (key === ".") decimalAdded = true;
+    operation += key;
+    input.innerHTML = operation;
+    return;
+  }
+
+}
+
+function evaluate(e) {
+  const key = e.target.dataset.key;
+  const lastChar = operation[operation.length - 1];
+
+  if (key === "=" && operators.indexOf(lastChar) !== -1) {
+    operation = operation.slice(0, -1);
+  }
+
+  if (operation.length === 0) {
+    answer = "";
+    result.innerHTML = answer;
+    return;
+  }
+
+  try {
+
+    if (operation[0] === "0" && operation[1] !== "." && operation.length > 1) {
+      operation = operation.slice(1);
+    }
+
+    const final = operation.replace(/x/g, "*").replace(/÷/g, "/");
+    answer = +(eval(final)).toFixed(5);
+
+    if (key === "=") {
+      decimalAdded = false;
+      operation = `${answer}`;
+      answer = "";
+      input.innerHTML = operation;
+      result.innerHTML = answer;
+      return;
+    }
+
+    result.innerHTML = answer;
+
+  } catch (e) {
+    if (key === "=") {
+      decimalAdded = false;
+      input.innerHTML = `<span class="error">${operation}</span>`;
+      result.innerHTML = `<span class="error">Bad Expression</span>`;
+    }
+    console.log(e);
+  }
+
+}
+
+function clearInput (e) {
+
+  if (e.ctrlKey) {
+    operation = "";
+    answer = "";
+    input.innerHTML = operation;
+    result.innerHTML = answer;
+    return;
+  }
+
+  operation = operation.slice(0, -1);
+  input.innerHTML = operation;
+
+}
+
+deleteBtn.addEventListener("click", clearInput);
+keys.forEach(key => {
+  key.addEventListener("click", handleKeyPress);
+  key.addEventListener("click", evaluate);
+});
+
 </script>
 
 
 
-
+</script>
 <!--js toastr notification-->
 <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js"></script>
@@ -930,7 +2047,7 @@ function generateUniqueId() {
 </script>
 <!--js toastr notification--> 
 
+
 </body>
 </html>
- @endsection
-
+@endsection

@@ -274,18 +274,18 @@
 
        <div class="form-group">
        <label  style="margin-bottom:5px">Company Name</label>
-       <input type="text"  name="appname" placeholder="App Name" value="{{$appName}}" class="name-group">
+       <input type="text" class="form-control" name="appname" placeholder="App Name" value="{{$appName}}" class="name-group">
        </div>
 
        <div class="form-group">
        <label  style="margin-bottom:5px">Website</label>
-       <input type="text" name="applink" placeholder="App Link"  value="{{$appLink}}" class="name-group">
+       <input type="text" class="form-control" name="applink" placeholder="App Link"  value="{{$appLink}}" class="name-group">
        </div>
 
 
         <div class="form-group">
         <label for="" style="margin-bottom:5px">Title</label>
-        <input type="text" name="apptitle" value="{{$appTitle}}" placeholder="App title">
+        <input type="text" class="form-control" name="apptitle" value="{{$appTitle}}" placeholder="App title">
         </div>
 
 
@@ -317,18 +317,18 @@
        @csrf  
        <div class="form-group">
        <label for="" style="margin-bottom:5px">Contact</label>
-       <input type="text" name="appcontact" placeholder="App Contact"  value="{{$appContact}}" class="name-group">
+       <input type="text" class="form-control" name="appcontact" placeholder="App Contact"  value="{{$appContact}}" class="name-group">
        </div>
 
        <div class="form-group">
        <label for="" style="margin-bottom:5px">Address</label>
-       <input type="text"  name="appaddress" placeholder="App Address" value="{{$appAddress}}" class="name-group">
+       <input type="text" class="form-control"  name="appaddress" placeholder="App Address" value="{{$appAddress}}" class="name-group">
        </div>
 
 
         <div class="form-group">
         <label for="" style="margin-bottom:5px">Email</label>
-        <input type="text" name="appemail" value="{{$appEmail}}" placeholder="App email">
+        <input type="text" class="form-control" name="appemail" value="{{$appEmail}}" placeholder="App email">
         </div>
 
 

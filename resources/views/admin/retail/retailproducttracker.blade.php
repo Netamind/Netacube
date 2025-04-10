@@ -529,6 +529,7 @@ $('#logs-table').DataTable({
 })
 
 </script>
+
 <script>
 $(document).ready( function () {
  var table = $("#mobile-table").DataTable({
@@ -548,6 +549,7 @@ $(document).ready( function () {
     }
   } );
 } );
+
 $('body').on('click', '#cancelsearch', function () {
   $('#mobile-search').val('');
   $('#mobile-table').hide();

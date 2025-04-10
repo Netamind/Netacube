@@ -229,6 +229,7 @@
     $disaplaydatey = Carbon::createFromFormat('Y-m-d', $date)->format('d F Y');
     $branchName = '';
     $categoryName = '';
+
   
     $categoryId = DB::table('branches')->where('id',$branchId)->value('category');
     $sectorName = DB::table('branches')->where('id',$branchId)->value('sector');
@@ -260,49 +261,66 @@
     <input type="checkBox" id="selectAll">
     
     <!-- Branch selection dropdown -->
-    <select onchange="selectBranch(this.value)" style="background-color:white;border:none;color:blue;padding-left:-20px">
+    <select style="background-color:white;border:none;color:blue;padding-left:-20px;font-size:17px" onchange="submitBranchId(this.value)">
         <option hidden>{{$branchName}}</option>
-        <?php $getbra = DB::table('branches')->get(); ?>
-        @foreach($getbra as $bras)
-            <option value="{{$bras->id}}">{{$bras->branch}} </option>
+        <?php
+        $branches = DB::table('branches')->where('sector','Retail')->get();
+        ?>
+        @foreach($branches as $branch)
+        <option value="{{$branch->id}}">{{$branch->branch}}</option>
         @endforeach
     </select>
+          
+
+
     
-    <!-- Hidden form for branch selection -->
-    <form action="select-branch" method="post" style="display:none" id="braform">
+    <a href="#" class="" id="dateBtn" style="float:right;font-size:17px">
+    <i class="fa fa-edit" ></i> {{$disaplaydatey}}
+     </a>
+
+
+      <script> 
+          function submitBranchId(value) {
+              document.getElementById('branchId').value = value;
+              document.getElementById('branchForm').submit();
+          }
+      </script>
+      <form action="select-rbranch" method="post" id="branchForm">
         @csrf
-        <input type="text" name="id" id="bra">
-    </form>
+        <input type="hidden" name="branch" id="branchId">
+      </form>
+
+
+
     
-    <!-- Script for branch selection -->
-    <script>
-        function selectBranch(id){
-            document.getElementById('bra').value = id;
-            document.getElementById('braform').submit();
-        }
-    </script>
     
-    <!-- Action links -->
-    <a href="#" style="float:right" id="reversebtn">
-        <i class="fas fa-exchange-alt"></i> Reverse
-    </a>
-    <a href="#" style="float:right;margin-right:10px" id="changedatebtn">
-        <i class="fa fa-edit"></i> Change date
-    </a>
-    <a href="#" style="float:right;margin-right:10px">
-        <i class="fa fa-check-double"></i>
-        <span id="checkcount" style="font-weight:bold">0</span>
-    </a>
 </div>
-1005041976
 
 <div class="card-body">
+    <div>
+         
+          <a href="#" class="btn" disabled style="margin-left:-10px;font-size:17px">
+            With selected (<span id="checkcount">0</span>) :
+          </a>
 
-<div class="table-wrapper" >
-<table id="roles-table" class="table-striped-column table table-sm table-striped table-fixed-first-column table-fixed-header" >
-<tbody>
-<thead class="table-dark" >
-        <tr>
+          <a href="#" class="btn text-warning" id="reversebtn">
+            <i class="fa fa-undo"></i> Reverse
+          </a>
+          
+          <a href="#" class="btn text-primary"  id="changedatebtn">
+            <i class="fa fa-calendar"></i> Change date
+          </a>
+
+          <a href="#" class="btn text-primary" style="float:right" id="infobtn">
+            <i class="fa fa-info-circle"></i>Details
+          </a>
+
+        </div>
+<hr>
+<div class="table-wrapper">
+  <table id="roles-table" class="table-striped-column table table-sm table-striped table-fixed-first-column table-fixed-header">
+    <thead class="table-dark">
+      <tr>
         <th class="table-dark">Product</th>
         <th style="text-align:center">Unit</th>
         <th style="text-align:center">Qty</th>
@@ -311,47 +329,41 @@
         <th style="text-align:center">Total</th>
         <th style="text-align:center">Transid[20]</th>
         <th style="text-align:center">Time</th>
-        
-        </tr>
-        </thead>
-        <tbody id="tbody">
-        @foreach($products  as $d)
-        <?php
-        $row  = "r".$d->id;
-        ?>
-        <tr id="{{$row}}" >
-            <td> 
+      </tr>
+    </thead>
+    <tbody id="tbody">
+      @foreach($products as $d)
+        <?php $row = "r".$d->id; ?>
+        <tr id="{{$row}}">
+          <td>
             <input type="checkbox" class="selectItems" data-id="{{$d->id}}">
-            <a href="#" class="editdatabtn" style="color:black"
-            id1 = "{{$d->id}}"
-            id2 = "{{$d->product}}"
-            id3 = "{{$d->unit}}"
-            id4 = "{{$d->price}}"
-            id5 = "{{$d->quantity}}"
-            id6 = "{{$d->date}}"
-            id7 = "{{$row}}"
-            id8 = "{{$d->quantity}}"
-            id9 = "{{$d->productid}}"
-            id10 = "{{$braid}}"
-            >
-            {{$d->product}}
-        
+            <a href="#" class="editdatabtn" style="color:black" 
+               id1 = "{{$d->id}}" 
+               id2 = "{{$d->product}}" 
+               id3 = "{{$d->unit}}" 
+               id4 = "{{$d->price}}" 
+               id5 = "{{$d->quantity}}" 
+               id6 = "{{$d->date}}" 
+               id7 = "{{$row}}" 
+               id8 = "{{$d->quantity}}" 
+               id9 = "{{$d->productid}}" 
+               id10 = "{{$branchId}}" >
+              {{$d->product}}
             </a>
-            </td>
-            <td style="text-align:center">{{$d->unit}}</td>
-            <td style="text-align:center">@convert2($d->quantity)</td>
-            <td style="text-align:center">@convert2($d->rquantity)</td>
-            <td style="text-align:center">@convert($d->price)</td>
-            <td style="text-align:center">@convert($d->quantity*$d->price)</td>
-            <td style="text-align:center">{{$d->transid}}</td>
-            <td style="text-align:center">{{$d->time}}</td>
+          </td>
+          <td style="text-align:center">{{$d->unit}}</td>
+          <td style="text-align:center">@convert2($d->quantity)</td>
+          <td style="text-align:center">@convert2($d->rquantity)</td>
+          <td style="text-align:center">@convert($d->price)</td>
+          <td style="text-align:center">@convert($d->quantity*$d->price)</td>
+          <td style="text-align:center">{{$d->transid}}</td>
+          <td style="text-align:center">{{$d->time}}</td>
         </tr>
-        @endforeach
-    
-        
-</tbody>
-</table>
+      @endforeach
+    </tbody>
+  </table>
 </div>
+
 
 
 </div>
@@ -360,24 +372,300 @@
 
 
 
-<section decription="Modal for app data info">
-<div class="modal fade-scale" tabindex="-1" role="dialog" id="newDataModal" data-backdrop="static">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Important Notice: Adding New Roles</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-      As an administrator, you do not have the authority to create new roles within the system. The available roles are pre-defined and managed by our development team. If you identify a need for an additional role, please reach out to our development team. We will be happy to assist you in adding the necessary role to the system.
-      <br> <br>
+
+<section description="Modal for changing interval">
+  <div class="modal fade-scale" tabindex="-1" role="dialog" id="dateModal" data-bs-backdrop="static">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Change date</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form action="select-rdate" method="post" id="date-form">
+            @csrf
+            <div class="form-group">
+              <label for="">Change date</label>
+              <input type="date" name="date" id="selected-date" class="form-control" value="{{$date}}">
+            
+              <button class="btn btn-primary" style="margin-top:15px;float:right">Submit</button>
+           
+            
+            </div>
+           
+          </form>
+        </div>
       </div>
     </div>
   </div>
-</div>
 </section>
-</div>
-</div>
+
+
+
+      
+<section>
+<!--Edit Modal-->
+  <div class="modal fade " id="editdata-modal">
+        <div class="modal-dialog ">
+          <div class="modal-content">
+            <div class="modal-header ">
+              Edit system sales
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="font-size:12px"></button>
+            </div>
+            <div class="modal-body">
+
+            <form action="edit-system-sales-retail" method="post" id="updatedataform">
+                @csrf
+
+                <input type="hidden" name="id" id="i1">
+                <div class="row">
+
+                  <div class="col-md-12">
+                    <label for="">Product </label>
+                    <input type="text" name="product" class="form-control" id="i2" readonly>
+                  </div>
+
+                  <div class="col-md-12">
+                    <label for="">Unit </label>
+                    <input type="text" name="unit" class="form-control" id="i3" readonly>
+                  </div>
+                  
+                  <div class="col-md-12">
+                    <label for="">Price </label>
+                    <input type="text" name="price" class="form-control" id="i4" autocomplete="off">
+                  </div>
+
+                
+                  <div class="col-md-12">
+                    <label for="">Quantity </label>
+                    <input type="text" name="quantity" class="form-control" id="i5" autocomplete="off">
+                  </div>
+
+                  
+                 
+                  <div class="col-md-12">
+                    <label for="">Date </label>
+                    <input type="date" name="date" class="form-control" id="i6">
+                  </div>
+
+                  
+
+                 
+                  <input type="hidden"  class="form-control" id="i7">
+                
+
+                  
+                 
+      
+                 
+                    <input type="hidden" name="oldquantity"  class="form-control" id="i8">
+                    
+                 
+                    <input type="hidden" name="productid"  class="form-control" id="i9">
+                
+
+                 
+                    <input type="hidden" name="branch"  class="form-control" id="i10">
+                
+
+                
+                
+
+
+
+        
+                
+        
+              
+          
+            </div>
+
+        <br>
+            <div class="card-footer">
+         
+                <button class="btn btn-primary" style="float:right" id="updatedatabtn">Submit</button>
+               </div>
+            </form>
+
+          </div>
+          <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+      </div>
+      <!-- /.Edit modal -->
+      </section>
+
+
+          
+
+
+        
+      
+<section>
+<!--Edit Modal-->
+  <div class="modal fade card-primary" id="reverse-modal">
+        <div class="modal-dialog ">
+          <div class="modal-content">
+            <div class="modal-header">
+                Reverse selected items
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="font-size:12px"></button>
+            </div>
+            <div class="modal-body">
+
+         
+
+                    <div class="col-12">
+                      <label for="yourPassword" class="form-label">Enter password to reverse selected items</label>
+                      <div class="input-group has-validation">
+                     <input type="password"   name="password" class="form-control nofocus" placeholder="Enter password"  required="" id="id_password"  autocomplete="off" readonly   onfocus="this.removeAttribute('readonly');">
+                    <!-- <span class="input-group-text" id="inputGroupPrepend">
+                     <i class="far fa-eye"   id="togglePassword"></i>
+                    </span>-->
+                   </div>
+                    </div> 
+
+              
+
+                    <button class="btn btn-primary" style="margin-top:20px;float:right" onclick="reverseData()" id="reversedata">Submit</button>
+
+                
+              
+                   
+            </div>
+          </div>
+          <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+      </div>
+      <!-- /.Edit modal -->
+      </section>
+
+            
+<section>
+<!--Edit Modal-->
+  <div class="modal fade card-primary" id="changedate-modal">
+        <div class="modal-dialog ">
+          <div class="modal-content">
+            <div class="modal-header">
+              Change date for selected items
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="font-size:12px"></button>
+            </div>
+            <div class="modal-body">
+
+         
+            
+                    <div class="col-12">
+                      <label for="id_date" class="form-label">Enter date</label>
+                     <input type="date"   name="date" class="form-control "  required="" id="id_date"  value={{$date}} >
+                    </div> 
+                    <br>
+
+                    <div class="col-12">
+                      <label for="yourPassword2" class="form-label">Enter password </label>
+                      <div class="input-group has-validation">
+                     <input type="password"   name="password" class="form-control nofocus" placeholder="Enter password"  required="" id="id_password2"  autocomplete="off" readonly   onfocus="this.removeAttribute('readonly');">
+                     <span class="input-group-text" id="inputGroupPrepend2" style="display:none">
+                     <i class="far fa-eye"   id="togglePassword2"></i>
+                    </span>
+                   </div>
+                    </div> 
+
+               
+
+                    <button class="btn btn-primary" style="margin-top:20px;float:right" onclick="changeDate()" id="changedata">Submit</button>
+
+                
+                
+                   
+            </div>
+          </div>
+          <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+      </div>
+      <!-- /.Edit modal -->
+      </section>
+
+
+      
+      
+<section>
+<!--Edit Modal-->
+  <div class="modal fade card-primary" id="info-modal">
+        <div class="modal-dialog ">
+          <div class="modal-content">
+            <div class="modal-header ">
+              {{$branchName}} |  {{$disaplaydatey}} 
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="font-size:12px"></button>
+            </div>
+            <?php
+            $ssales = DB::table('retailsales')->where('branch',$branchId)->where('date',$date)->sum(DB::raw('quantity * price'));
+            $msales = DB::table('retailmanualsales')->where('branch',$branchId)->where('date',$date)->value('sales'); 
+            ?>
+            <div class="modal-body">
+            <table class="table table-sm">
+                <thead>
+                    <?php
+                    $intervals = DB::table('intervalsales')->where('branch',$branchId)->where('date',$date)->orderBy('id','asc')->pluck('slot');
+                    ?>
+                    <tr>
+                        <th>Interval</th>
+                        <th style="text-align:center">User</th>
+                        <th style="text-align:center">System</th>
+                        <th style="text-align:center">Cash</th>
+                        <th style="text-align:center">Diff</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($intervals as $interval)
+                    <tr>
+                        <td>{{$interval}}</td>
+                        <?php
+                        $users = DB::table('retailsales')->where('branch',$branchId)->where('date',$date)->where('slot',$interval)->distinct()->pluck('user');
+      
+                        $sys = DB::table('retailsales')->where('branch',$branchId)->where('date',$date)->where('slot',$interval)->sum(DB::raw('quantity * price'));
+                        $mns = DB::table('intervalsales')->where('branch',$branchId)->where('date',$date)->where('slot',$interval)->value('sales');
+                
+                        $userid =   DB::table('intervalsales')->where('branch',$branchId)->where('date',$date)->where('slot',$interval)->value('user');
+                        $username = DB::table('users')->where('id', $userid)->value('username')
+                        ?>
+                        <td style="text-align:center">
+                            <span title="<?php foreach($users as $user){ $sysuser = DB::table('users')->where('id',$user)->value('username'); echo $sysuser; } ?>">{{$username}}</span>
+                        </td>
+                        <td style="text-align:center">@convert($sys)</td>
+                        <td style="text-align:center">@convert($mns)</td>
+                        <td style="text-align:center">@convert($mns-$sys)</td>
+                    </tr>
+                    @endforeach
+                    <tr>
+                      <td></td>
+                      <td style="text-align:center;font-weight:bold">Grand Total</td>
+                       <td style="text-align:center;font-weight:bold">@convert($ssales ) </td>
+                      <td style="text-align:center;font-weight:bold"> @convert($msales)</td>
+                      <td style="text-align:center;font-weight:bold">@convert($msales-$ssales)</td>
+                    </tr>
+                </tbody>
+            </table>
+         
+          
+
+           
+            </div>
+          </div>
+          <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+      </div>
+      <!-- /.Edit modal -->
+      </section>
+
+
+
+
+
+     
+
+
 
 
 
@@ -400,7 +688,9 @@ $(document).ready(function() {
     $('#newDataModal').modal('show');
   });
 
-
+  $('#dateBtn').click(function() {
+    $('#dateModal').modal('show');
+  });
 
  
 $('#roles-table').DataTable({ 
@@ -409,6 +699,7 @@ $('#roles-table').DataTable({
      paging: true,
      pageLength: -1,
      lengthChange: false,
+     order : [],
      buttons: [
 
       {
@@ -453,6 +744,325 @@ $('#roles-table').DataTable({
 })
 
 </script>
+
+<script>
+  
+
+  $('body').on('click', '#infobtn', function () {
+    $('#info-modal').modal('show');
+ });
+
+ 
+ $('body').on('click', '#selectdatebtn', function () {
+    $('#selectdate-modal').modal('show');
+ });
+
+
+
+
+$('body').on('click', '.editdatabtn', function () {
+      $('#i1').val($(this).attr('id1'));
+      $('#i2').val($(this).attr('id2'));
+      $('#i3').val($(this).attr('id3'));
+      $('#i4').val($(this).attr('id4'));
+      $('#i5').val($(this).attr('id5'));
+      $('#i6').val($(this).attr('id6'));
+      $('#i7').val($(this).attr('id7'));
+      $('#i8').val($(this).attr('id8'));
+      $('#i9').val($(this).attr('id9'));
+      $('#i10').val($(this).attr('id10'));
+      $('#editdata-modal').modal('show');
+   });
+
+
+   
+   
+$(document).on("click", "#updatedatabtn", function(e) {
+  var row = document.getElementById('i7').value;
+e.preventDefault(); 
+$.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+           }
+       });
+var form = document.getElementById('updatedataform');
+
+$.ajax({
+    type:"post",
+    url: '/edit-system-sales-retail',
+    data: $(form).serialize(),
+    
+    success:function(data) {
+     
+    
+      if(data==-1){
+    
+        $("#"+row).load(" "+"#"+row+ ">"+ "*",function(){});
+       
+       toastr.success('Data updated successifully');
+
+       $('#editdata-modal').modal('hide');
+         
+       }else{
+
+        toastr.error('Maximum quantity for this product should be' +'' +data);
+
+       }
+        
+
+       
+
+
+       
+       
+       
+     
+
+    },
+    error:function() {
+ 
+     
+  
+       toastr.error('Server error occured make sure you are connected to the internet');
+         
+       
+    
+    }
+});
+
+});
+
+
+
+   var checkcount =0;
+
+   
+   $('#selectAll').on('click', function(e) {
+         if($(this).is(':checked',true))  
+         {
+            $(".selectItems").prop('checked', true); 
+            $(".selectItems:checked").each(function() {  
+              
+              checkcount++;
+            });  
+
+            
+           
+         } else {  
+           
+            $(".selectItems").prop('checked',false); 
+            
+          
+              checkcount=0
+           
+         }
+         document.getElementById("checkcount").innerHTML = checkcount;
+    
+        });
+
+
+        $('.selectItems').on('click', function(e) {
+
+          checkcount2 = 0;
+
+           $(".selectItems:checked").each(function() {  
+              
+              checkcount2++;
+
+            });   
+
+         document.getElementById("checkcount").innerHTML = checkcount2;
+    
+        });
+
+      
+      
+    
+
+     
+     $('#reversebtn').on('click', function(e) {
+
+      var selected = document.getElementById("checkcount").innerHTML;
+
+      if(selected==0){
+      
+        toastr.error('You should select atleast one item to reverse');
+      }
+      else if(selected<=50){
+
+        $('#reverse-modal').modal('show');
+
+      }
+      else{
+        toastr.error('You can not reverse more than 50 items at once');
+      }
+
+    });
+
+
+$('#changedatebtn').on('click', function(e) {
+var selected1 = document.getElementById("checkcount").innerHTML;
+
+if(selected1==0){
+
+  toastr.error('You should select atleast one item to change date');
+}
+else if(selected1<=50){
+
+  $('#changedate-modal').modal('show');
+
+}
+else{
+  toastr.error('You can not change date of more than 50 items at once');
+}
+
+});
+
+async function reverseData(){
+document.getElementById("reversedata").disabled = true;
+document.getElementById("reversedata").style.color = "red";
+document.getElementById("reversedata").innerHTML = "Loading....";
+const url = '';
+var dataArray = []; 
+var epassword = document.getElementById("id_password").value;
+  $(".selectItems:checked").each(function() {  
+    dataArray.push($(this).attr('data-id'));
+   });  
+   dataArray.push(epassword);
+   data = JSON.stringify(dataArray);
+   await fetch(url,{mode:"no-cors"}).then(response => {
+        $.ajax({
+          headers: {
+               'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+              },
+            type:"POST",
+            url: '/reserve-sold-items',
+            data: {data:data},
+            success:function(data) {
+             if(data==2){
+              document.getElementById("id_password").value="";
+              document.getElementById("reversedata").disabled = false;
+              document.getElementById("reversedata").style.color = "white";
+              document.getElementById("reversedata").innerHTML = "Submit";
+              document.getElementById("checkcount").innerHTML = 0;
+              $('#reverse-modal').modal('hide');
+              $(".selectItems:checked").each(function() {  
+                var id = $(this).attr('data-id')
+                var row = "r"+id;
+                $("#"+row).load(" " + "#"+row + ">" + "* ",function(){});
+              });  
+              $("#selectAll").prop('checked',false); 
+              toastr.success('Data reversed successifully');
+             }
+             if(data == 1){
+              toastr.error('An error occured, password entered is not correct');
+              document.getElementById("reversedata").disabled = false;
+              document.getElementById("reversedata").style.color = "white";
+              document.getElementById("reversedata").innerHTML = "Submit";
+             }
+
+
+            },
+            error:function(data) {
+
+              toastr.error('An error occured, make sure you are connected to internet');
+            }
+        });
+
+  }).catch(err => {
+    toastr.error('An error occured request was not sent to the server, make sure you are connected to the internet');
+  });
+};
+
+
+
+
+async function changeDate(){
+document.getElementById("changedata").disabled = true;
+document.getElementById("changedata").style.color = "red";
+document.getElementById("changedata").innerHTML = "Loading....";
+const url = '';
+var dataArray = []; 
+var epassword = document.getElementById("id_password2").value;
+var edate = document.getElementById("id_date").value;
+ dataArray.push(edate);
+  $(".selectItems:checked").each(function() {  
+    dataArray.push($(this).attr('data-id'));
+   });  
+   dataArray.push(epassword);
+   data = JSON.stringify(dataArray);
+   await fetch(url,{mode:"no-cors"}).then(response => {
+        $.ajax({
+          headers: {
+               'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+              },
+            type:"POST",
+            url: '/rselected-items-change-date',
+            data: {data:data},
+            success:function(data) {
+
+             console.log(data);
+            
+              if(data==2){
+              document.getElementById("id_password2").value="";
+              document.getElementById("changedata").disabled = false;
+              document.getElementById("changedata").style.color = "white";
+              document.getElementById("changedata").innerHTML = "Submit";
+              document.getElementById("checkcount").innerHTML = 0;
+              $('#changedate-modal').modal('hide');
+              $(".selectItems:checked").each(function() {  
+                var id = $(this).attr('data-id')
+                var row = "r"+id;
+                $("#"+row).load(" " + "#"+row + ">" + "* ",function(){});
+              });  
+              $("#selectAll").prop('checked',false); 
+              toastr.success('Date changed successifully');
+             }
+
+
+             if(data == 1){
+              toastr.error('An error occured, password entered is not correct');
+              document.getElementById("changedata").disabled = false;
+              document.getElementById("changedata").style.color = "white";
+              document.getElementById("changedata").innerHTML = "Submit";
+             }
+
+
+            },
+            error:function(data) {
+              consolole.log(data)
+            
+
+              //toastr.error('An error occured, make sure you are connected to internet');
+            }
+        });
+
+  }).catch(err => {
+    toastr.error('An error occured request was not sent to the server, make sure you are connected to the internet');
+  });
+};
+
+  const togglePassword = document.querySelector('#togglePassword');
+  const password = document.querySelector('#id_password');
+  togglePassword.addEventListener('click', function (e) {
+    const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+    password.setAttribute('type', type);
+    this.classList.toggle('fa-eye-slash');
+});
+    
+
+
+
+const togglePassword2 = document.querySelector('#togglePassword2');
+  const password2 = document.querySelector('#id_password2');
+  togglePassword2.addEventListener('click', function (e) {
+    const type = password2.getAttribute('type') === 'password' ? 'text' : 'password';
+    password2.setAttribute('type', type);
+    this.classList.toggle('fa-eye-slash');
+});
+   
+</script>
+
 <!--js toastr notification-->
 <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js"></script>

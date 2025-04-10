@@ -456,13 +456,13 @@ $branches = DB::table('branches')->where('sector','Retail')->get();
           <td style="text-align:center">{{$log->description}} <span style="color:#b3b3b3" >{{$log->time}} by {{$log->username}}</span> </td>
           <td style="text-align:center">
           <a href="#" class="editDataBtnClass" 
-            editId ="{{$d->id}}"
+            editId ="{{$log->id}}"
             editRow="{{$editrow}}"
             editproduct="{{$logProduct}}" 
             > 
             <i class="fa fa-edit text-primary fa-2x" ></i>
             </a>
-            <a href="#" class="deleteDataBtnClass" deleteLabel="{{$logProduct}}"  deleteId="{{$d->id}}" deleteRow="{{$editrow}}">
+            <a href="#" class="deleteDataBtnClass" deleteLabel="{{$logProduct}}"  deleteId="{{$log->id}}" deleteRow="{{$editrow}}">
               <i class="fa fa-trash text-danger fa-2x"></i>
             </a>
           </td>

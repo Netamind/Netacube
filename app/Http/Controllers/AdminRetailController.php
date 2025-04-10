@@ -66,8 +66,13 @@ public function adminretailsystemsales(){
     }
     
 
+    public function  adminretailactioncenter(){
 
+        return view('admin.retail.retailactioncenter');
+        
+    }
 
+   
 
   public function  insertretailbaseproduct(request $request){
     $data = array();
@@ -589,7 +594,7 @@ public function submitretailopeningstocktobranch()
 
     $data = DB::table('retailnewstocktaking')
         ->where('branchid', $branchId)
-        ->where('date', $date)
+         ->where('date', $date)
         ->where('status', 'Pending')
         ->get();
 
@@ -657,7 +662,374 @@ public function submitretailopeningstocktobranch()
 }
 
 
+public function editsystemsalesretail(request $request){
 
+    
+    $stabilizedqty = 0;
+    $salesData = array();
+    $productsData = array();
+  
+
+    $price = $request->price;
+    $quantity = $request->quantity;
+    $date = $request->date;
+
+    $currentstock = DB::table('retailbranchproducts')->where('id',$request->productid)->where('branch',$request->branch)->value("quantity");
+
+    $stabilizedqty = $currentstock + $request->oldquantity;
+
+    $newqty =  $stabilizedqty - $request->quantity;
+
+    $productsData['quantity'] = $newqty;
+
+
+
+    $salesData['price']=$price;
+    $salesData['quantity']=$quantity;
+    $salesData['date']=$date;
+    $salesData['rquantity']=$newqty;
+
+ 
+   if($newqty>=0){
+
+        DB::table('retailsales')->where('id',$request->id)->update($salesData);
+
+        DB::table('retailbranchproducts')->where('id',$request->productid)->where('branch',$request->branch)->update($productsData);
+        if($quantity == 0){
+         DB::table('retailsales')->where('id',$request->id)->delete();
+        }
+     
+      return json_encode(-1);
+    }else{
+
+       return json_encode($stabilizedqty);
+       
+    }
+   
+
+
+
+  
+
+}
+
+public function reservesolditems(request $request){
+    $data = json_decode($request->data, true);
+    $password =  end($data);
+    $hashedPassword=DB::table('users')->where('id',Auth::user()->id)->value('password');
+    $branch = Cookie::get('rbranch') ?? "0";
+    $date = Cookie::get('rdate') ?? "0";
+    $dataSales = array();
+    $productid=0;
+if(Hash::check($password, $hashedPassword)) {
+    for($i=0;$i<count($data)-1;$i++){
+        $productid = DB::table('retailsales')->where('id',$data[$i])->value('productid');
+        $oldqty = DB::table('retailsales')->where('id',$data[$i])->value('quantity');
+        $sysqty = DB::table('retailbranchproducts')->where('branch',$branch)->where('id',$productid)->value('quantity'); 
+        $dataSales['quantity'] = $oldqty+$sysqty;
+        DB::table('retailbranchproducts')->where('branch',$branch)->where('id',$productid)->update($dataSales);
+        DB::table('retailsales')->where('id',$data[$i])->delete();
+    }
+    return 2;
+    }
+    else{
+      return 1;
+    }
+  
+}
+
+
+public function rselecteditemschangedate(request $request){
+    $data = json_decode($request->data, true);
+    $password =  end($data);
+    $date = $data[0];
+    $hashedPassword=DB::table('users')->where('id',Auth::user()->id)->value('password');
+
+
+
+    $dateData = Array();
+    $dateData['date'] = $date;
+
+
+    if(Hash::check($password, $hashedPassword)) {
+        for($i=0;$i<count($data)-1;$i++){
+            $oldqty = DB::table('retailsales')->where('id',$data[$i])->update($dateData); 
+        }
+        return 2;
+        }
+        else{
+          return 1;
+        }
+}
+
+public function insertretaildeliverynote(Request $request)
+{
+    $data = array();
+    $data['date'] = $request->date;
+    $data['branchid'] = $request->branchid;
+    $data['productid'] = $request->productid;
+    $data['productname'] = $request->productname;
+    $data['unit'] = $request->unit;
+    $data['price'] = $request->price;
+    $data['quantity'] = $request->quantity;
+
+    $checkproduct = DB::table('retaildeliverynotes')
+        ->where('date', $request->date)
+        ->where('branchid', $request->branchid)
+        ->where('productid', $request->productid)
+        ->first();
+
+    if ($checkproduct) {
+        if ($checkproduct->added_to_branch == 'Yes') {
+            // insert new record with status 'no'
+            DB::table('retaildeliverynotes')->insert([
+                'date' => $request->date,
+                'branchid' => $request->branchid,
+                'productid' => $request->productid,
+                'productname' => $request->productname,
+                'unit' => $request->unit,
+                'price' => $request->price,
+                'quantity' => $request->quantity,
+                'added_to_branch' => 'No'
+            ]);
+
+            return response()->json([
+                'success' => 'New delivery note created successfully',
+                'status' => 201
+            ]);
+        } else {
+            // update existing record with new quantity and status 'no'
+            DB::table('retaildeliverynotes')
+                ->where('date', $request->date)
+                ->where('branchid', $request->branchid)
+                ->where('productid', $request->productid)
+                ->update([
+                    'quantity' =>  $request->quantity,
+                    'added_to_branch' => 'No'
+                ]);
+
+            return response()->json([
+                'success' => 'Existing delivery note updated successfully',
+                'status' => 202
+            ]);
+        }
+    } else {
+        // insert new record with status 'no'
+        DB::table('retaildeliverynotes')->insert([
+            'date' => $request->date,
+            'branchid' => $request->branchid,
+            'productid' => $request->productid,
+            'productname' => $request->productname,
+            'unit' => $request->unit,
+            'price' => $request->price,
+            'quantity' => $request->quantity,
+            'added_to_branch' => 'No'
+        ]);
+
+        return response()->json([
+            'success' => 'New delivery note created successfully',
+            'status' => 200
+        ]);
+    }
+}
+
+
+ 
+
+
+public function retailaddproducttobranches(Request $request)
+{
+    // Get the date and product ID from the request
+    $date = Cookie::get('rdate') ?? "0";
+    $productId = Cookie::get('rproduct') ?? "0";
+
+    // Get the delivery notes where date matches, product ID matches, and status is 'no'
+    $deliveryNotes = DB::table('retaildeliverynotes')
+        ->where('date', $date)
+        ->where('productid', $productId)
+        ->where('added_to_branch', 'No')
+        ->get();
+
+    // Check if there are delivery notes to process
+    if ($deliveryNotes->isNotEmpty()) {
+        // Loop through each delivery note
+        foreach ($deliveryNotes as $deliveryNote) {
+            // Get the branch ID and quantity
+            $branchId = $deliveryNote->branchid;
+            $quantity = $deliveryNote->quantity;
+
+            // Check if there's a delivery note with status 'yes' for the same product
+            $existingDeliveryNote = DB::table('retaildeliverynotes')
+                ->where('date', $date)
+                ->where('branchid', $branchId)
+                ->where('productid', $productId)
+                ->where('added_to_branch', 'Yes')
+                ->first();
+
+            try {
+                DB::transaction(function () use ($branchId, $productId, $quantity, $deliveryNote, $existingDeliveryNote) {
+                    // Check if the product exists in the retail branch products table
+                    $existingBranchProduct = DB::table('retailbranchproducts')
+                        ->where('branch', $branchId)
+                        ->where('product', $productId)
+                        ->first();
+
+                    if ($existingBranchProduct) {
+                        // Update existing product quantity
+                        DB::table('retailbranchproducts')
+                            ->where('branch', $branchId)
+                            ->where('product', $productId)
+                            ->increment('quantity', $quantity);
+                    } else {
+                        // Insert new product
+                        DB::table('retailbranchproducts')
+                            ->insert([
+                                'branch' => $branchId,
+                                'product' => $productId,
+                                'quantity' => $quantity,
+                            ]);
+                    }
+
+                    // Check if there's a delivery note with status 'yes' for the same product
+                    if ($existingDeliveryNote) {
+                        DB::table('retaildeliverynotes')
+                            ->where('id', $existingDeliveryNote->id)
+                            ->increment('quantity', $quantity);
+                        DB::table('retaildeliverynotes')
+                            ->where('id', $deliveryNote->id)
+                            ->delete();
+                    } else {
+                        // If there's no existing delivery note with status 'yes', update the status of the current delivery note to 'yes'
+                        DB::table('retaildeliverynotes')
+                            ->where('id', $deliveryNote->id)
+                            ->update(['added_to_branch' => 'Yes']);
+                    }
+                });
+            } catch (\Exception $e) {
+                // Return error response
+                return response()->json(['error' => 'Failed to process delivery note: ' . $e->getMessage()], 500);
+            }
+        }
+
+        // Return success response
+        return response()->json(['success' => 'Delivery notes processed successfully']);
+    } else {
+        // Return response if no delivery notes were processed
+        return response()->json(['success' => 'No delivery notes to process']);
+    }
+}
+public function retailcanceldistributedproduct()
+{
+    // Get the date and product ID from the cookies
+    $date = Cookie::get('rdate') ?? "0";
+    $productId = Cookie::get('rproduct') ?? "0";
+
+    try {
+        // Check if there are any delivery notes to delete
+        $deliveryNotes = DB::table('retaildeliverynotes')
+            ->where('date', $date)
+            ->where('productid', $productId)
+            ->where('added_to_branch', 'No')
+            ->exists();
+
+        if ($deliveryNotes) {
+            // Delete from retaildeliverynotes where date and product ID match and status is 'No'
+            DB::table('retaildeliverynotes')
+                ->where('date', $date)
+                ->where('productid', $productId)
+                ->where('added_to_branch', 'No')
+                ->delete();
+
+            // Return success response
+            return response()->json(['success' => 'Delivery notes cancelled successfully']);
+        } else {
+            // Return message if no delivery notes were found
+            return response()->json(['info' => 'No delivery notes to cancel']);
+        }
+    } catch (\Exception $e) {
+        // Return error response if delete operation fails
+        return response()->json(['error' => 'Failed to cancel delivery notes'], 500);
+    }
+}
+
+
+public function retailpricechange(Request $request)
+{
+    // Get the old retail price
+    $oldRetailPrice = DB::table('retailbaseproducts')
+        ->where('id', $request->id)
+        ->value('sellingprice');
+
+    // Get the date from the cookie
+    $date = Cookie::get('rdate') ?? "0";
+
+    // Prepare the base data for update
+    $baseData = [
+        'product' => $request->product,
+        'unit' => $request->unit,
+        'sellingprice' => $request->price,
+    ];
+
+    // Update the retail base product
+    $updateBaseData = DB::table('retailbaseproducts')
+        ->where('id', $request->id)
+        ->update($baseData);
+
+    // Prepare the delivery note data for update
+    $dnoteData = [
+        'productid' => $request->id,
+        'unit' => $request->unit,
+        'price' => $request->price,
+    ];
+
+    // Update the delivery notes
+    DB::table('retaildeliverynotes')
+        ->where('productid', $request->id)
+        ->where('date', $date)
+        ->update($dnoteData);
+
+    // Check if the retail price has changed
+    if ($oldRetailPrice != $request->price) {
+        // Prepare the price change data
+        $priceChangeData = [
+            'date' => $date,
+            'productid' => $request->id,
+            'unit' => $request->unit,
+            'oldprice' => $oldRetailPrice,
+            'newprice' => $request->price,
+        ];
+
+        // Prepare the price change data for update
+        $priceChangeData2 = [
+            'newprice' => $request->price,
+            'unit' => $request->unit,
+        ];
+
+        // Check if a price change has already been recorded for today
+        $checkPriceChangeToday = DB::table('retailpricechanges')
+            ->where('date', Carbon::today()->toDateString())
+            ->where('productid', $request->id)
+            ->count();
+
+        if ($checkPriceChangeToday > 0) {
+            // Update the existing price change record
+            DB::table('retailpricechanges')
+                ->where('date', Carbon::today()->toDateString())
+                ->where('productid', $request->id)
+                ->update($priceChangeData2);
+
+            return response()->json(['success' => 'Data updated successfully']);
+        } else {
+            // Insert a new price change record
+            DB::table('retailpricechanges')
+                ->insertOrIgnore($priceChangeData);
+
+            return response()->json(['success' => 'Data updated successfully']);
+        }
+    }
+
+    return response()->json(['success' => 'Data updated successfully']);
+}
 
 
 

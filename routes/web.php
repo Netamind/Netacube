@@ -88,12 +88,30 @@ Route::get('admin-retail-product-supplies', 'AdminRetailController@adminretailpr
 Route::get('admin-retail-clients', 'AdminRetailController@adminretailclients');
 Route::get('admin-retail-openingstock', 'AdminRetailController@adminretailopeningstock');
 
+Route::get('admin-retail-action-center', 'AdminRetailController@adminretailactioncenter');
+
+
 Route::post('save-retail-openingstock', 'AdminRetailController@saveretailopeingstock');
 Route::get('admin-retail-openingstock-data', 'AdminRetailController@adminretailopeningstockdata');
 Route::get('submit-retail-openingstock-to-branch', 'AdminRetailController@submitretailopeningstocktobranch');
 
 Route::get('admin-retail-system-sales', 'AdminRetailController@adminretailsystemsales');
 
+
+Route::post('edit-system-sales-retail','AdminRetailController@editsystemsalesretail');
+Route::post('reserve-sold-items','AdminRetailController@reservesolditems');
+Route::post('rselected-items-change-date','AdminRetailController@rselecteditemschangedate');
+
+
+Route::post('insert-retail-deliverynote','AdminRetailController@insertretaildeliverynote');
+
+Route::post('retail-add-product-to-branches','AdminRetailController@retailaddproducttobranches');
+
+Route::post('retail-cancel-distributed-product','AdminRetailController@retailcanceldistributedproduct');
+
+
+
+Route::post('retail-price-change','AdminRetailController@retailpricechange');
 
 /*==========================================Start of Admin Retail Routes=================================================================*/
 

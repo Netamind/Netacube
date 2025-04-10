@@ -113,18 +113,26 @@
 						<div class="menu-title">Retail</div>
 					</a>
 					<ul>
-					 <li><a href="admin-retail-baseproducts"><i class='bx bx-radio-circle'></i>Products</a></li>
+				
+					<li><a href="admin-retail-action-center"><i class='bx bx-radio-circle'></i>Actioncenter</a></li>
+
+					<li><a href="admin-retail-product-supplies"><i class='bx bx-radio-circle'></i>Supplies</a></li>
+
+
+					 <li><a href="admin-retail-system-sales"><i class='bx bx-radio-circle'></i>Systemsales</a></li>
+
 					
 					 <li><a href="admin-retail-branch-products"><i class='bx bx-radio-circle'></i>Inventory</a></li>
 
+
+					 <li><a href="admin-retail-stocktaking"><i class='bx bx-radio-circle'></i>Stocktaking</a></li>
+					
+
+					 <li><a href="admin-retail-baseproducts"><i class='bx bx-radio-circle'></i>Products</a></li>
+
 					 <li><a href="admin-retail-product-tracker"><i class='bx bx-radio-circle'></i>Logs</a></li>
 
-					 <li><a href="admin-retail-product-supplies"><i class='bx bx-radio-circle'></i>Supplies</a></li>
-
 					 <li><a href="admin-retail-openingstock"><i class='bx bx-radio-circle'></i>Opening</a></li>
-
-					 
-					 <li><a href="admin-retail-system-sales"><i class='bx bx-radio-circle'></i>Systemsales</a></li>
 
 					 <li><a href="admin-retail-clients"><i class='bx bx-radio-circle'></i>Clients</a></li>
 

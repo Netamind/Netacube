@@ -26,7 +26,7 @@ class CreateRetaildeliverynotesTable extends Migration
             $table->string('errorstate')->default("Pending");
             $table->string('erroruser')->nullable();
             $table->string('added_to_branch')->default("No");
-            $table->unique(['branch', 'productid','date','added_to_branch']);
+            $table->unique(['branchid', 'productid', 'date', 'added_to_branch'], 'bpda_unique');
         });
     }
 

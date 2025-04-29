@@ -207,9 +207,10 @@
 </div>
 
 <?php
-   
-    $branchId = Cookie::get('rbranch') ?? "NA";
-    $productId = Cookie::get('rproduct') ?? "NA";
+
+   use Carbon\Carbon;
+    $branchId = DB::table('selection')->where('user',Auth::user()->id)->value('rbranch')??0;
+    $productId = DB::table('selection')->where('user',Auth::user()->id)->value('rproduct')??0;
     $branchName = '';
     $categoryName = '';
     $categoryId = DB::table('branches')->where('id',$branchId)->value('category');
@@ -227,11 +228,12 @@
         $branchName = 'Branch not defined';
             
       }
-      $productName = DB::table('retailbaseproducts')->where('id',$productId)->value('product') ?? "NA";
+      $productName = DB::table('retailbaseproducts')->where('id',$productId)->value('product') ?? "Product not defined";
 
-      $startdate = Cookie::get('startdate') ?? "(Start date not defined)";
-      $enddate = Cookie::get('enddate') ?? "(End date not defined)";
+   
+      $startdate = DB::table('selection')->where('user',Auth::user()->id)->value('startdate')??Carbon::today()->toDateString();
 
+      $enddate = DB::table('selection')->where('user',Auth::user()->id)->value('enddate')??Carbon::today()->toDateString();
 
       $title = $branchName." | ".$productName." logs "." from ".$startdate." to ".$enddate;
 
@@ -240,10 +242,10 @@
 <section>
 <div class="card">
 <div class="card-header">
-<h4>
-  
+
+ <div style="margin-bottom:10px">
 <i class="bx bx-calendar" style="font-weight:bold;color:gray;"></i>
-<select name="category" id="" style=";border:none;margin-left:-4px" onchange="submitBranchId(this.value)">
+<select  style=";border:none;margin-left:-4px" onchange="submitBranchId(this.value)">
 <option value="" hidden>{{$branchName}}</option>
 <?php
 $branches = DB::table('branches')->where('sector','Retail')->get();
@@ -252,7 +254,6 @@ $branches = DB::table('branches')->where('sector','Retail')->get();
 <option value="{{$branch->id}}">{{$branch->branch}}</option>
 @endforeach
 </select>
-
 
 <a href="#" class="btn btn-primary" id="intervalBtn" style="float:right">
     <i class="fa fa-edit" style="color:white"></i>Interval
@@ -263,22 +264,25 @@ $branches = DB::table('branches')->where('sector','Retail')->get();
 </a>
 
 
+<a href="admin-retail-product-logs-datewise" class="btn border-secondary" id="productBtn" style="float:right;margin-right:10px">
+    <i class="fa fa-calendar" ></i> Date wise logs <i class="feather icon-arrow-right"></i>
+</a>
+
 <script> 
     function submitBranchId(value) {
         document.getElementById('branchId').value = value;
         document.getElementById('branchForm').submit();
     }
 </script>
-<form action="select-rbranch" method="post" id="branchForm">
+<form action="make-selection" method="post" id="branchForm">
   @csrf
-  <input type="hidden" name="branch" id="branchId">
+  <input type="hidden" name="rbranch" id="branchId">
  </form>
+ </div> 
 
 
 
 
-
-</h4>
 <span style="font-size:16px;">
  Transaction log for <strong>{{$productName}}</strong>  between <strong>{{$startdate}}</strong>  and <strong>{{$enddate}}</strong> .
 </span>
@@ -360,7 +364,7 @@ $history  = DB::table('retailproducthistory')
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <form action="change-date-interval" method="post" id="newIntervalForm">
+        <form action="make-selection" method="post" id="newIntervalForm">
             @csrf
            
             <div class="form-group">
@@ -402,15 +406,15 @@ $history  = DB::table('retailproducthistory')
       <?php
        $data = DB::table('retailbaseproducts')->whereIn('supplier',$supplierArray)->get();
       ?>
-       <label>Search a product you want to select</label>
+       <label>Search and click on product you want to select</label>
     <div class="input-group input-group-button">
-     <input type="text" autocomplete="off" style="width:80%;border:1px solid #8c8c8c;text-align:left;"  id="mobile-search" ><button style="border:1px solid #8c8c8c"  id="cancelsearch" >Cancel</button>      
+     <input type="text" class="form-control" autocomplete="off" style="width:80%;border:1px solid #8c8c8c;text-align:left;"  id="mobile-search" >      
      </div>
       
-      <table class="table-sm table mobile-table custom-strip" style="display:none;font-size:14px" id="mobile-table">
-        <thead class="table-dark">
+      <table class="table-sm table mobile-table table-striped" style="display:none;font-size:14px" id="mobile-table">
+        <thead class="table-light">
         <tr style="border-top:none">
-        <th style="border-top:none;border-bottom:none;font-weight:bold;text-align:center;padding:4px;font-size:16px">Click on product to select</th>
+        <th style="border-top:none;border-bottom:none;font-weight:bold;text-align:center;padding:4px;font-size:16px"></th>
         </tr>
         </thead>
         <tbody >
@@ -418,9 +422,9 @@ $history  = DB::table('retailproducthistory')
         <tr>
         <td style="padding:3px">
            
-        <form action="select-rproduct" method="post" >
+        <form action="make-selection" method="post" >
           @csrf
-          <input type="hidden" name="product" value="{{$d->id}}">
+          <input type="hidden" name="rproduct" value="{{$d->id}}">
           <button style="width:100%;border:none;background:none;font-size:15px">
          {{$d->product}} &nbsp; @convert($d->sellingprice) / {{$d->unit}}
          </button>
@@ -550,7 +554,7 @@ $(document).ready( function () {
   } );
 } );
 
-$('body').on('click', '#cancelsearch', function () {
+$('body').on('click', '#mobile-search', function () {
   $('#mobile-search').val('');
   $('#mobile-table').hide();
 });

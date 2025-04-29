@@ -379,11 +379,17 @@ div::-webkit-scrollbar {
 <div class="variables">
     <?php
     use Carbon\Carbon;
-    $date = Carbon::today()->toDateString();
-    $user = Auth::user()->id;
+    $date = DB::table('selection')->where('user',Auth::user()->id)->value('rfstockdate');
+    $disaplaydate  = "Date not defined";
+    if($date){
+
     $disaplaydate = Carbon::createFromFormat('Y-m-d',$date)->format('d F Y');
+
+    }
+    
+   
      
-    $branchId = Cookie::get('rbranch') ?? "NA";
+    $branchId = DB::table('selection')->where('user',Auth::user()->id)->value('rfstockbranch')??"Branch not defined";
     $branchName = '';
     $categoryName = '';
   
@@ -407,14 +413,13 @@ div::-webkit-scrollbar {
    ?> 
 </div>
 <section>
-<div class="row">
-
-
-
+  
+<div class="row" style="margin-top:-12px">
 <!--Links---->    
 <div class="col-md-12" style="background-color:silver;padding-top:5px">
-<select name="category" id="" style="margin-left:-12px;border:none;background-color:silver" onchange="submitBranchId(this.value)">
-<option value="" hidden>{{$branchName}}</option>
+
+<select class="btn " style=";background-color:silver;margin-bottom:10px;margin-top:5px;margin-right:5px;border: 1px solid #999999" onchange="submitBranchId(this.value)">
+<option value="" hidden>{{$branchName}} (FST)</option>
 <?php
 $branches = DB::table('branches')->where('sector','Retail')->get();
 ?>
@@ -424,27 +429,37 @@ $branches = DB::table('branches')->where('sector','Retail')->get();
 </select>
 
 
-<a href="admin-retail-openingstock" title="" style="font-size:16px;color:black;margin-left:10px;padding-bottom:20px">
-  {{$disaplaydate}}
+
+
+
+<a href="#" id="dateBtn" class="btn" style="margin-bottom:10px;margin-top:5px;border: 1px solid #999999"> 
+    <i class="feather icon-edit"></i> {{$disaplaydate}} 
 </a>
 
 
 
-<a href="admin-retail-openingstock-data" style="float:right"><i class="fa fa-cloud-upload"  style="margin-bottom:-px"></i> Sync</a>
-
-
-<!--<a href="admin-retail-openingstock-data" class="text-info"  title="Go to openingstock data" style="float:right">
-  <i class="bx bx-cloud-upload text-primary" style="font-size:20px;font-weight:bold"></i> Sync
+<a href="admin-retail-full-stocktaking-merged" class="btn" style="float:right;margin-bottom:10px;margin-top:5px;border: 1px solid  #999999">
+Merged data <i class="feather icon-arrow-right"></i>
 </a>
 
-<a href="admin-retail-openingstock-data" class="text-info"  title="Go to openingstock data" style="float:right">
-  <i class="fa fa-inf0-circle  text-primary" style="font-size:20px;font-weight:bold"></i> Sync
-</a>-->
+
+
+<section>
+<script> 
+    function submitBranchId(value) {
+        document.getElementById('branchId').value = value;
+        document.getElementById('branchForm').submit();
+    }
+</script>
+<form action="make-selection" method="post" id="branchForm">
+  @csrf
+  <input type="hidden" name="rfstockbranch" id="branchId">
+ </form>
+</section>
+
 
 </div>
 <!--/Links col-md-12 -->
-
-
 
 
 <!---Left Collumn-->
@@ -452,8 +467,15 @@ $branches = DB::table('branches')->where('sector','Retail')->get();
 <div class="row">
 <!--search input-->
 <div class="col-md-12 bg-primary p-2">
-<div class="input-group " style="margin-top:10px;margin-bottom:13px">      
-<input type="text" class="form-control" id="mobile-search" style="background-color:silver;text-transform: uppercase;font-weight:bold;border:1px solid silver" placeholder="Search product " autocomplete="off">                
+<div class="input-group " style="margin-top:10px;margin-bottom:13px">    
+  <?php
+   $checkdate =DB::table('retailfullstocktakinghistory')->where('branch',$branchId)->where('date',$date)->count();  
+  ?>  
+  @if($checkdate==0)
+<input type="text" class="form-control" id="mobile-search" style="background-color:silver;text-transform: uppercase;font-weight:bold;border:1px solid silver" placeholder="Search products here " autocomplete="off">                
+ @else
+ <input type="text" class="form-control" id="mobile-search2" style="background-color:silver;text-transform: uppercase;font-weight:bold;border:1px solid silver" placeholder="Date closed for stocktaking " autocomplete="off" disabled>                
+ @endif
 </div>
 </div>
 <!--/search input-->
@@ -480,32 +502,34 @@ $products = DB::table('retailbaseproducts')->whereIn('supplier',$supplierArray)-
 @foreach($products as  $product)
 <tr class="trow">
 <td class="tcell">
+ <?php
+     $inputid = $product->id."input";
+     $branchqty = DB::table('retailbranchproducts')->where('branch',$branchId)->where('product',$product->id)->value('quantity');
+     $branchrate = DB::table('retailbranchproducts')->where('branch',$branchId)->where('product',$product->id)->value('rate');
+   ?>
   <span style="text-transform: uppercase;font-family:takoma;font-weight:bold;">
   {{$product->product}}
   </span>
-  <span style="color:gray;font-family:monospace">@convert($product->sellingprice)/{{$product->unit}} </span>
-   <?php
-     $inputid = $product->id."input";
-   ?>
+  <span style="color:gray;font-family:monospace">@convert($product->sellingprice)/{{$product->unit}} &nbsp; [{{$branchqty}}] </span>
+  
+  
 </td>
 <td>
-  <form  action="#"  id="{{$product->id}}"  class="cart-forms">
 
+  <form  action="#"  id="{{$product->id}}"  class="cart-forms">
     <input type="inputbox" id="{{$inputid}}" class="form-control sale-data cart-input submit-data-input" style="text-align:center;border: 1px solid  #999999" name="quantity"  autocomplete="off" min="0"
-  
       productid="{{$product->id}}" 
       product="{{$product->product}}"                    
       unit = "{{$product->unit}}"    
       price="{{$product->sellingprice}}"               
       branch = {{$branchId}}                  
       inputid = "{{$inputid}}"  
-      date = "{{$date}}"       
-    
+      date = "{{$date}}"
+      rate = "{{$branchrate}}"     
     >
-
-
-
 </form>
+
+
 </td>
 
 </tr>
@@ -530,12 +554,17 @@ $products = DB::table('retailbaseproducts')->whereIn('supplier',$supplierArray)-
 <div class="" style="margin-top:17px"> 
 
 
-<a href="admin-retail-openingstock"  style="margin-left:5px;border:2px solid silver;font-weight:bold;color:silver;width:80px" class="btn">
+<a href="#" class="btn"   style="border: 2px solid silver;font-weight:bold;color:silver">
+<i class="fa fa-shopping-cart"></i> | MWK<span  id="cartTotal1" style="color:#f2f2f2;font-weight:bold;font-size:17px"></span>
+<input type="hidden"  id="cartTotal2"  >
+</a>
+
+<a href="retail-full-stocktaking"  style="margin-left:5px;border:2px solid silver;font-weight:bold;color:silver;width:80px" class="btn" title="click here to refresh this page">
  <i class="fa fa-refresh" style="color:#d9d9d9"></i>
 </a>
 
-<a href="#" id="uploadopeingstockBtn"  style="float:right;border:2px solid silver;font-weight:bold;color:silver;width:80px" class="btn">
- <i class="fa fa-angle-right " style="color:#d9d9d9;font-weight:bold;font-size:15px"></i>
+<a href="#" id="mergeDataBtn"  style="float:right;border:2px solid silver;font-weight:bold;color:silver;width:80px" class="btn" title="Click here to merge data">
+ <i class="fa fa-angle-right " style="color:#d9d9d9;font-weight:bold;font-size:15px"></i> 
 </a>
 
 </div>
@@ -569,22 +598,74 @@ $products = DB::table('retailbaseproducts')->whereIn('supplier',$supplierArray)-
 </div>
 </section>
 
-<section>
-<script> 
-    function submitBranchId(value) {
-        document.getElementById('branchId').value = value;
-        document.getElementById('branchForm').submit();
-    }
-</script>
-<form action="select-rbranch" method="post" id="branchForm">
-  @csrf
-  <input type="hidden" name="branch" id="branchId">
- </form>
+
+
+</div>
+</div>
+
+
+
+
+
+<section description="Modal for changing interval">
+  <div class="modal fade-scale" tabindex="-1" role="dialog" id="dateModal" data-bs-backdrop="static">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Change date</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form action="make-selection" method="post" id="date-form">
+            @csrf
+            <div class="form-group">
+              <label for="">Change date</label>
+              <input type="date" name="rfstockdate"  class="form-control" value="{{$date}}">
+            
+              <button class="btn btn-primary" style="margin-top:15px;float:right">Submit</button>
+           
+            </div>
+           
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
 </section>
 
 
-</div>
-</div>
+
+
+
+<section description="Modal for changing interval">
+  <div class="modal fade-scale" tabindex="-1" role="dialog" id="mergeDataModal" data-bs-backdrop="static">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Merge comfirmation</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form action="#" method="post" id="date-form">
+            @csrf
+            <div class="form-group">
+              <label for="">Enter password to comfirm merging data</label>
+            
+              <input type="password" class="form-control" name="password" id="comfirmpassword" placeholder="Enter password" autocomplete="off">
+              
+              
+              <button class="btn btn-primary" id="submitMergeDataBtn" style="margin-top:15px;float:right">Submit</button>
+           
+            
+            </div>
+           
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
 
 
 <!-- jQuery -->
@@ -599,6 +680,54 @@ $products = DB::table('retailbaseproducts')->whereIn('supplier',$supplierArray)-
       showConfirmButton: false,
       timer: 12000
     });
+
+
+
+$('#dateBtn').click(function() {
+    $('#dateModal').modal('show');
+  });
+
+  
+$('#mergeDataBtn').click(function() {
+    $('#mergeDataModal').modal('show');
+  });
+
+
+  $(document).on("click", "#submitMergeDataBtn", function() {  
+    var self = $(this);
+    $(this).prop("disabled", true);
+    $.ajax({
+        beforeSend: function() {
+          $('#loading-status').css('display', 'block');
+        },
+        complete: function() {
+            $('#loading-status').css('display', 'none');
+		        self.prop("disabled", false);
+        },
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        type: "POST",
+        url: '/merge-retail-full-stocktaking',
+        data: { data: JSON.stringify([document.getElementById("comfirmpassword").value, localStorage.cartDataFstock]) },
+        
+        success: function(data) {
+            if (data == 2) {
+        
+                toastr.success('Data merged successfully');
+                localStorage.removeItem('cartDataFstock');
+            }
+            if (data == 1) {
+                toastr.error('An error occurred, password entered is not correct');
+            }
+        },
+        error: function(data) {
+            toastr.error('An error occurred, make sure you are connected to the internet');
+        }
+    });
+});
+
+
 var  cartArray = [];
 var receiptArray = [];
  
@@ -614,6 +743,7 @@ $('body').on('change', '.sale-data', function (){
     var price = $(this).attr('price'); 
     var branch = $(this).attr('branch'); 
     var date = $(this).attr('date'); 
+    var rate = $(this).attr('rate'); 
     var inputid = $(this).attr('inputid'); 
     var quantity = document.getElementById(inputid).value; 
     var deleteid = generateUniqueId();
@@ -625,17 +755,32 @@ $('body').on('change', '.sale-data', function (){
         Price:price, 
         Branch:branch, 
         Date:date, 
+        Rate:rate,
         Quantity:quantity, 
         Deleteid : deleteid
     } 
 
     if(!isNaN(quantity) && quantity > 0){
         cartArray.push(cartRow); 
-        localStorage.cartData=JSON.stringify(cartArray) 
+        localStorage.cartDataFstock=JSON.stringify(cartArray) 
         var btn = '<a href="#" style="color:red" onclick="removeCartItem('+deleteid+')">X</a>';
         var dprice = numberToCurrency (price); 
         prepareTableCell(product,unit,dprice,quantity,btn,deleteid) 
         document.getElementById(inputid).value =" " 
+        cartTable =JSON.parse(localStorage.cartDataFstock);
+        cartTotal=0; 
+        for(var i=0;i<cartTable.length;i++){
+            var price = cartTable[i].Price;
+            var quantity = cartTable[i].Quantity;
+
+            var cartTotal = price*quantity + cartTotal;
+
+            var cartDisplayNum = numberToCurrency (cartTotal);
+
+            document.getElementById("cartTotal1").innerHTML = cartDisplayNum;
+            document.getElementById("cartTotal2").value = cartTotal;
+            }  
+
     } else{ 
         toastr.error('An error occured, Quantity must be a number greater than 0' ); 
         document.getElementById(inputid).value =" " 
@@ -732,9 +877,9 @@ for (var i = 0; i < 5; i++) {
 
 
 function displayCartData(){
-if(localStorage.cartData){
+if(localStorage.cartDataFstock){
 
-  cartArray =JSON.parse(localStorage.cartData);
+  cartArray =JSON.parse(localStorage.cartDataFstock);
 
   for(var i=0;i<cartArray.length;i++){
     var productid = cartArray[i].Productid;
@@ -745,8 +890,21 @@ if(localStorage.cartData){
     var deleteid = cartArray[i].Deleteid; 
     var btn = '<a href="#" style="color:red" onclick="removeCartItem('+deleteid+')">X</a>';
      prepareTableCell(product,unit,price,quantity,btn,deleteid)
-
   }
+
+    cartTable =JSON.parse(localStorage.cartDataFstock);
+    cartTotal=0; 
+    for(var i=0;i<cartTable.length;i++){
+        var price = cartTable[i].Price;
+        var quantity = cartTable[i].Quantity;
+
+        var cartTotal = price*quantity + cartTotal;
+
+        var cartDisplayNum = numberToCurrency (cartTotal);
+
+        document.getElementById("cartTotal1").innerHTML = cartDisplayNum;
+        document.getElementById("cartTotal2").value = cartTotal;
+    }  
 
 }
 
@@ -788,38 +946,43 @@ $(document).ready(function () {
 
 
 <script>
+    
 function removeCartItem(id){
-  var rowid = "r"+id;
-  var row = document.getElementById(rowid);
-  var rowindex   =  row.rowIndex;
-  var  table = document.getElementById("cartTable");
-  table.deleteRow(rowindex);
-  var deleteid =id;
-  var cartTotal = 0;
-
-  var newData = [];
-  var oldData = JSON.parse(localStorage.cartData)
-
-for (var i = 0; i <oldData.length; i++) {
-if(id != oldData[i].Deleteid){ 
-  newData.push(oldData[i]);
- }}
-
-localStorage.cartData =  JSON.stringify(newData);
-
-for (var i = 0; i < cartArray.length; i++) {
-if(deteteid == cartArray[i].Productid ){ 
-
-   cartArray[i].Productid=0
-   cartArray[i].Product=0
-   cartArray[i].Price=0
-   cartArray[i].Quantity=0
-   cartArray[i].Total=0
-
- }
+    var rowid = "r"+id;
+    var row = document.getElementById(rowid);
+    if(row){
+        var rowindex = row.rowIndex;
+        var table = document.getElementById("cartTable");
+        table.deleteRow(rowindex);
+    }
+    var cartTotal = 0;
+    var newData = [];
+    var oldData = JSON.parse(localStorage.cartDataFstock)
+    for (var i = 0; i <oldData.length; i++) {
+        if(id != oldData[i].Deleteid){
+            newData.push(oldData[i]);
+        }
+    }
+    localStorage.cartDataFstock = JSON.stringify(newData);
+    cartArray = newData; 
+    cartTable =JSON.parse(localStorage.cartDataFstock);
+    cartTotal=0;
+    if(cartTable.length > 0){
+        for(var i=0;i<cartTable.length;i++){
+            var price = cartTable[i].Price;
+            var quantity = cartTable[i].Quantity;
+            var cartTotal = price*quantity + cartTotal;
+            var cartDisplayNum = numberToCurrency (cartTotal);
+            document.getElementById("cartTotal1").innerHTML = cartDisplayNum;
+            document.getElementById("cartTotal2").value = cartTotal;
+        }
+    } else {
+        document.getElementById("cartTotal1").innerHTML = "0";
+        document.getElementById("cartTotal2").value = 0;
+    }
 }
 
-}
+
 
 function onLoadFunctions(){
   displayCartData();
@@ -828,88 +991,8 @@ function onLoadFunctions(){
 </script>
 <script>
 
-$(document).on("click", "#uploadopeingstockBtn", function(e) {
-    var self = $(this);
-    $(this).prop("disabled", true);
-    var data1 = [];
-    if (localStorage.cartData) {
-        data1 = JSON.parse(localStorage.cartData);
-    }
-    data = JSON.stringify(data1);
-    var mergedArray = [];
-    e.preventDefault();
-    $.ajaxSetup({
-        headers: {
-            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-        }
-    });
-    $.ajax({
-        type: "post",
-        url: '/save-retail-openingstock',
-        data: {
-            data: data
-        },
-        timeout: 60000,
-        beforeSend: function() {
-            $('#loading-status').css('display', 'block');
-        },
-        complete: function() {
-            $('#loading-status').css('display', 'none');
-            $("#tbody").load(" #tbody > *", function() {});
-            self.prop("disabled", false);
-        },
-        success: function(response) {
-            if (response.success) {
-                if (response.imported == 0) {
-                    toastr.info('No data available for uploading', 'Validation Information', {
-                        timeOut: 5000,
-                        progressBar: true
-                    });
-                } else {
-                    toastr.success(response.imported + ' Records imported', 'Import successful', {
-                        timeOut: 5000,
-                        progressBar: true
-                    });
-                }
-                // Clear localStorage data
-                localStorage.removeItem('cartData');
-                cartArray.length=0;
-                $("#cartTable").find("tr:gt(0)").remove();
-            } else {
-                toastr.error('Technical error occured contact system developers ', 'Technical Error', {
-                    timeOut: 5000,
-                    progressBar: true
-                });
-            }
-        },
-        error: function(xhr, status, error) {
-            if (status === 'timeout') {
-                toastr.error('The request took too long to process. Please try again.', 'Timeout Error', {
-                    timeOut: 5000,
-                    progressBar: true
-                });
-            } else if (status === 'error' && xhr.status === 0) {
-                toastr.error(' Please check your internet connection and try again', ' Connection Error', {
-                    timeOut: 5000,
-                    progressBar: true
-                });
-            } else if (xhr.status === 500) {
-                toastr.error('Server error occurred. Contact system administrator.', 'Server Error', {
-                    timeOut: 5000,
-                    progressBar: true
-                });
-            } else {
-                toastr.error('Unspecified error occurred. Please refresh the page and try again.', 'Unspecified', {
-                    timeOut: 5000,
-                    progressBar: true
-                });
-            }
-        }
-    });
-})
 
-
-function generateUniqueId() {
+ function generateUniqueId() {
     var timestamp = Math.floor(Date.now() / 1000);
     var randomNum = Math.floor(Math.random() * 1000000);
     var uniqueId = (timestamp * 1000000) + randomNum;

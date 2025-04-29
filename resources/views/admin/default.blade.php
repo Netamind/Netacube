@@ -24,23 +24,23 @@ $branchArray = DB::table('branches')->where('sector','Retail')->pluck('id');
 
 			<div class="d-flex justify-content-between  align-items-center">
 		     
-			<button class="btn" style="padding-left: 0px; display: flex; align-items: center;">
-             <i class="fa fa-bar-chart text-primary" style="font-weight:bold;font-size:15px"></i>
+			<button class="btn mb-0" style="padding-left: 0px; display: flex; align-items: center;">
+             <i class="fa fa-bar-chart text-primary" style="font-weight:bold;font-size:20px"></i>
              <span>Sales</span>
              </button>
 
 			
-				<ul class="nav nav-pills mb-3" role="tablist">
+				<ul class="nav nav-pills mb-2" role="tablist">
 					<li class="nav-item" role="presentation">
-					<a class="nav-link active bg-primary" style="padding:2px;marigin-right:10px" data-bs-toggle="pill" href="#primary-pills-today" role="tab" aria-selected="true">
+					<a class="nav-link active bg-primary" style="padding:3px;" data-bs-toggle="pill" href="#primary-pills-today" role="tab" aria-selected="true">
 						<div class="d-flex align-items-center">
 						<div class="tab-icon"><i class='bx bx-calendar-alt font-18 me-1'></i> </div>
 						<div class="tab-title">Today</div>
 						</div>
 					</a>
-					</li>
+					</li>&nbsp;
 					<li class="nav-item" role="presentation">
-					<a class="nav-link" style="padding:2px" data-bs-toggle="pill" href="#primary-pills-yesterday" role="tab" aria-selected="false">
+					<a class="nav-link" style="padding:3px" data-bs-toggle="pill" href="#primary-pills-yesterday" role="tab" aria-selected="false">
 						<div class="d-flex align-items-center">
 						<div class="tab-icon"><i class='bx bx-calendar-minus font-18 me-1'></i> </div>
 						<div class="tab-title">Yesterday</div>
@@ -83,7 +83,7 @@ $branchArray = DB::table('branches')->where('sector','Retail')->pluck('id');
                  
           <div style="margin-top:-10px;">
 		  <a href="#" style="font-size:15px" >
-			<span style="color:black;font-size:15px">Live sales | </span> 
+			<span style="color:black;font-size:15px">Today | </span> 
 			<span style="color:gray;font-weight:bold;font-size:15px">MWK</span><span style="color:gray;font-weight:bold;font-size:15px">@convert($todaysSales)</span>
 		  </a>
 
@@ -92,7 +92,7 @@ $branchArray = DB::table('branches')->where('sector','Retail')->pluck('id');
 		  </div>
         
 
-		<table class="table table-sm today"  id="ztable" >
+		<table class="table table-sm table-borderless"  id="ztable" >
 			<thead>
 				<tr>
 				<th class="bg-primary">#</th>
@@ -187,9 +187,9 @@ $branchArray = DB::table('branches')->where('sector','Retail')->pluck('id');
 
 				<td style="text-align:center">
 				@if($totalsales>0)
-				<a href="#"  class="zbtn" id1="{{$todayssalesmodal}}">@convert($totalsales)</a>
+				<a href="#"  class="zbtn text-dark" id1="{{$todayssalesmodal}}">@convert($totalsales)</a>
 				@else
-				<a href="#" class="zbtn" id1="{{$todayssalesmodal}}">-</a>
+				<a href="#" class="zbtn text-dark" id1="{{$todayssalesmodal}}">0</a>
 				@endif
 				</td>
 				
@@ -207,9 +207,10 @@ $branchArray = DB::table('branches')->where('sector','Retail')->pluck('id');
             ?>
                  
 	    <div style="margin-top:-10px;">
-		  <a href="#" style="font-size:15px" >
-			<i class="feather icon-shopping-cart"></i>
-			 Yesterdays sales | <span>MWK</span><span>@convert($totalsYesterday)</span>
+
+		<a href="#" style="font-size:15px" >
+			<span style="color:black;font-size:15px">Yesterday | </span> 
+			<span style="color:gray;font-weight:bold;font-size:15px">MWK</span><span style="color:gray;font-weight:bold;font-size:15px">@convert($totalsYesterday)</span>
 		  </a>
 
 			<a href="#" style="float:right;margin-right:2px" > <i class="bx bx-cog"></i> </a>
@@ -217,7 +218,7 @@ $branchArray = DB::table('branches')->where('sector','Retail')->pluck('id');
 		  </div>
 		
      
-	<table class="table table-sm "  id="ztable2" style="margin-top:10px" >
+	<table class="table table-sm table-borderless"  id="ztable2" style="margin-top:10px" >
           <thead>
             <tr>
               <th class="bg-primary">#</th>
@@ -376,24 +377,21 @@ $branchArray = DB::table('branches')->where('sector','Retail')->pluck('id');
 
 			
 		?>
-			<div class="col bg-primary text-white">
+			<div class="col  ">
 			<div class="p-2">
-			<h5 class="mb-0" style="font-size:13px"><span>MWK</span><span>@convert($thisMonthSales)</span></h5>
-			<small class="mb-0"> {{$thisMonthName}}</small>		
+			<small class="mb-0 text-primary" style="font-size:15px">  {{$thisMonthName}} | <span>MWK</span>@convert($thisMonthSales) </small>	
 			</div>
 			</div>
 
-			<div class="col bg-success text-white">
+			<div class="col">
 			<div class="p-2">
-			<h5 class="mb-0" style="font-size:13px"><span>MWK</span><span>@convert($lastMonthSales)</span></h5>
-			<small class="mb-0">{{$lastMonthName}}</small>	
+			<small class="mb-0 text-success" style="font-size:15px">  {{$lastMonthName}} | <span>MWK</span>@convert($lastMonthSales) </small>	
 			</div>
 			</div>
 
-			<div class="col bg-danger text-white">
+			<div class="col">
 			<div class="p-2">
-			<h5 class="mb-0" style="font-size:13px"><span>MWK</span><span>@convert($lastMonthMinusOneSales)</span></h5>
-			<small class="mb-0">{{$lastMonthMinusOneName}}</small>	
+			<small class="mb-0 text-danger " style="font-size:15px">  {{$lastMonthMinusOneName}} | <span>MWK</span>@convert($lastMonthMinusOneSales) </small>		
 			</div>
 			</div>
 

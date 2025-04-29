@@ -247,7 +247,7 @@
 
 				</ul>
 	<div class="tab-content" id="pills-tabContent">
-  <div class="tab-pane fade show active" id="primary-pills-profile" role="tabpanel">
+  <div class="tab-pane fade show active "  id="primary-pills-profile" role="tabpanel">
     <?php $employeeId = Auth::user()->employeeid; $name = "" ?>
     @if( $employeeId > 0)
         <?php 
@@ -263,8 +263,8 @@
         ?>
         <p style="font-size:16px">Contact system administrator if some information is not correct</p>
         <div class="row">
-            <div class="col-md-6">
-                <table class="table">
+            <div class="col-md-6 border">
+                <table class="table table-borderless">
                     <tbody>
                         <tr>
                             <th scope="row"> Name</th>
@@ -291,9 +291,9 @@
                     </tbody>
                 </table>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-6 border">
                 <div class="table-responsive">
-                    <table class="table">
+                    <table class="table table-borderless">
                         <tbody>
                             <tr>
                                 <th scope="row"> Date started working</th>

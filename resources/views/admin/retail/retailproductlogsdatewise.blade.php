@@ -195,7 +195,6 @@
 </head>
 <body>
 
-
 <!--start page wrapper -->
 <div class="page-wrapper">
 <div class="page-content">
@@ -205,45 +204,76 @@
   <div class="waves"></div>
 </div>
 
-
-
 <section>
 <div class="card">
 <div class="card-header">
-
-
-<?php
-   
-    $branchId = Cookie::get('rbranch') ?? "NA";
-    $date = Cookie::get('rdate') ?? "Date not defined";
-    $branchName = '';
-    $categoryName = '';
-  
-    $categoryId = DB::table('branches')->where('id',$branchId)->value('category');
-    $sectorName = DB::table('branches')->where('id',$branchId)->value('sector');
-
-
-    if(is_numeric($branchId)){
-       
-      $branchName = DB::table('branches')->where('id',$branchId)->value('branch');
-      $categoryName = DB::table('businesscategories')->where('id',$categoryId)->value('category');
-      
-      }
-      else{
-  
-        $branchName = 'Branch not defined';
-            
-      }
-
-      $openingstock = DB::table('retailnewstocktaking')->where('branchid',$branchId)->where('date',$date)->sum(DB::raw('quantity*price'));
-
-
-      $title= $branchName." | Openingstock ".$date." | MWK".$openingstock;
-  ?>
-
 <h4>
-<i class="feather icon-home"></i>
-<select name="category" id="" style=";border:none;margin-left:-4px" onchange="submitBranchId(this.value)">
+<?php
+   use Carbon\Carbon;
+   $branchId = DB::table('selection')->where('user',Auth::user()->id)->value('rbranch')??0;
+   $productId = DB::table('selection')->where('user',Auth::user()->id)->value('rproduct')??0;
+   $date = DB::table('selection')->where('user',Auth::user()->id)->value('rdate')??Carbon::today()->toDateString();
+
+   
+
+   $branchName = '';
+   $categoryName = '';
+   $categoryId = DB::table('branches')->where('id',$branchId)->value('category');
+   if(is_numeric($branchId)){ 
+     $branchName = DB::table('branches')->where('id',$branchId)->value('branch');
+     $categoryName = DB::table('businesscategories')->where('id',$categoryId)->value('category'); 
+     }
+     else{
+       $branchName = 'Branch not defined';   
+     }
+    
+    
+
+      $data = DB::table('retaildeliverynotes')->where('branchid',$branchId)->where('date',$date)->get();
+      $data2 = DB::table('retailproducthistory')->where('branchid',$branchId)->where('date',$date)->get();
+      $dnotevalue = 0;
+      foreach ($data as $row) {
+        $dnotevalue += $row->quantity * $row->price;
+      }
+    
+
+      $dvalue = is_numeric($dnotevalue) ? $dnotevalue : 0; 
+      $dvalue = number_format($dvalue, 0); 
+
+     $title1 = $branchName." Deliverynote ".$date." (MWK".$dvalue.")";
+     $title2 = $branchName." | Product logs (".$date.")";
+
+     $lossvalue =0;
+     $addedvalue =0;
+
+     $losshistory=DB::table('retailproducthistory')
+                ->where('branchid',$branchId)
+                ->where('date',$date)
+                ->where('qtyadded','<',0)->get();
+     $addedhistory=DB::table('retailproducthistory')
+                ->where('branchid',$branchId)
+                ->where('date',$date)
+                ->where('qtyadded','>',0)->get();
+
+
+      foreach ($losshistory as $row) {
+        $price = DB::table('retailbaseproducts')->where('id', $row->productid)->value('sellingprice');
+        $lossvalue += $row->qtyadded * $price;
+      }
+      
+      foreach ($addedhistory as $row) {
+        $price = DB::table('retailbaseproducts')->where('id', $row->productid)->value('sellingprice');
+        $addedvalue += $row->qtyadded * $price;
+      }
+
+
+
+
+ ?>
+
+  
+<i class="bx bx-calendar" style="font-weight:bold;color:gray;"></i>
+<select  id="" style=";border:none;margin-left:-4px" onchange="submitBranchId(this.value)">
 <option value="" hidden>{{$branchName}}</option>
 <?php
 $branches = DB::table('branches')->where('sector','Retail')->get();
@@ -252,31 +282,17 @@ $branches = DB::table('branches')->where('sector','Retail')->get();
 <option value="{{$branch->id}}">{{$branch->branch}}</option>
 @endforeach
 </select>
-   
+
+
+<a href="#" class="btn btn-primary" id="dateBtn" style="float:right">
+    <i class="fa fa-edit" style="color:white"></i>Date
+</a>
 
 
 
-
-
-<a href="#" class="btn btn-primary"  id="submitOpeningstockToBranchBtn"   style="float:right;margin-right:10px" title="Submit opening stock to branch">
-    <i class="fa fa-check"></i>Submit
-</a> 
-
-
-<a href="#" class="btn btn-primary"  id="dateBtn"   style="float:right;margin-right:10px" title="Change date">
-    <i class="feather icon-edit"></i> Date
-</a> 
-
-
-
-<!--<a href="#" class="btn btn-primary"  id="infoBtn"   style="float:right;margin-right:10px" title="Read details">
-    <i class="fa fa-info-circle"></i> 
-</a> -->
-
-
-
-
- 
+<a href="admin-retail-product-logs" class="btn btn-primary" id="dateBtn" style="float:right;margin-right:10px">
+    <i class="feather icon-arrow-left" style="color:white"></i>Back
+</a>
 
 <script> 
     function submitBranchId(value) {
@@ -284,275 +300,152 @@ $branches = DB::table('branches')->where('sector','Retail')->get();
         document.getElementById('branchForm').submit();
     }
 </script>
-<form action="select-rbranch" method="post" id="branchForm">
+<form action="make-selection" method="post" id="branchForm">
   @csrf
-  <input type="hidden" name="branch" id="branchId">
+  <input type="hidden" name="rbranch" id="branchId">
  </form>
 
 
 </h4>
-<span style="font-size:14px;">
-Manage retail opening stock  | <strong> {{$date}}</strong> | MWK<strong>@convert($openingstock)</strong>
-</span>
-
-
+<span style="font-size:15px">Product transaction logs  <strong>[ {{$date}} ]</strong> </span>
 </div>
+<div class="card-body">
 
-<div class="card-body" >
+      <div>
+          <a href="#" class="btn" style="margin-left:-10px" disabled>
+            <i>Loss value : @convert($lossvalue)</i>
+          </a>
+          <a href="#" class="btn" disabled>
+            <i>Added value : @convert($addedvalue)</i>
+          </a>
 
-<div class="table-wrapper">
-<table id="openingstockdata-table" class=" table table-striped-column  table-sm table-striped table-fixed-first-column table-fixed-header" >
-<thead class="table-dark">
-<tr>
-<th class="table-dark">
-<input type="checkbox" class="selectall"> Product</th>
-<th style="text-align:center">Unit</th>
-<th style="text-align:center">Price</th>
-<th style="text-align:center">Quantity</th>
-<th style="text-align:center">Action</th>
-</tr>
-</thead>
-<?php
-$data = DB::table('retailnewstocktaking')->where('branchid', $branchId)->where('date', $date)->orderBy('status', 'asc')->get();
-?>
-<tbody id="tbody">
-@foreach($data as $d)
-<?php
- $editrow = "editrow".$d->id;
- ?>
-<tr id="{{$editrow}}">
-   <td ><input type="checkbox" name="select" class="select"> {{$d->product}}</td>
-   <td style="text-align:center">{{$d->unit}}</td>
-   <td style="text-align:center">@convert($d->price)</td>
-   <td style="text-align:center">{{$d->quantity}}</td>
-	 <td style="text-align:center">
-    @if($d->status=="Pending")
-	 <a href="#" class="editDataBtnClass" 
-    editId ="{{$d->id}}"
-    editRow="{{$editrow}}"
-    editproductid="{{$d->productid}}" 
-    editproduct="{{$d->product}}" 
-    editunit="{{$d->unit}}" 
-    editprice="{{$d->price}}"
-    editquantity="{{$d->quantity}}" 
-    editstatus="{{$d->status}}"
-    > 
-    <i class="fa fa-edit text-primary fa-2x" ></i>
-    </a>
-		<a href="#" class="deleteDataBtnClass" deleteLabel="{{$d->product}}"  deleteId="{{$d->id}}" deleteRow="{{$editrow}}">
-      <i class="fa fa-trash text-danger fa-2x"></i>
-    </a>
+          <a href="#" class="btn" disabled>
+            <i>With selected :</i>
+          </a>
 
-    @else
-    <a href="#">
-    <i class="fa fa-ban  fa-2x" style="color: #ccc"></i>
-    </a>
-    @endif
-	</td>
-</tr>
-@endforeach
-</tbody>
-</table>
-</div>
-</div>
-</section>
-
-</div>
-</div>
-
-      
-
-<section>
-<!-- Modal -->
-<div class="sweet-modal-container ">
-  <div class="modal fade sweet-modal " id="deleteDataModal" tabindex="-1" role="dialog" aria-labelledby="sweet-modal-label" aria-hidden="true" data-backdrop="static">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-      <div class="modal-content">
-        <div class="modal-body text-center" >
-          <i class="feather icon-alert-circle text-warning" style="font-size:50px"></i>
-		<h4 style="paddin-top:10px;padding-bottom:10px">Are you sure you want to delete <span id="displayDeleteItem"></span> ?</h4>
-		   <h5>You won't be able to revert this!</h5>
-		   <form action="delete-wholesale-branch-product" method="post" id="deleteForm">
-			@csrf
-			<input type="hidden" id="deleteInputId" name="id">
-			<input type="hidden" id="deleteInputRow">
-		   </form>
-		<a href="#" class="btn btn-primary deleteDataBtn" style="margin-top:25px;margin-bottom:10px">Yes, Delete it</a>
-		<a href="#" class="btn btn-warning keepDataBtn" style="margin-top:25px;margin-bottom:10px" >No, Keep it</a>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-</section>
-
-
-
-<section decription="Modal for app data info">
-<div class="modal fade-scale" tabindex="-1" role="dialog" id="editDataModal" data-backdrop="static">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header bg-primary">
-        <h5 class="modal-title">Edit product</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-		<form action="#" method="post"   id="editDataForm">
-			@csrf
-      <input type="hidden" id="editId" name="id">
-      <input type="hidden" id="editRow">
-
-      
-		<div class="row">
-
-			<div class="form-group col-md-6">
-				<label for="#">Product Name</label>
-				<input type="text"name="product" class="form-control" id="editproduct" readonly>
-			</div>
-
-
-
-
-
-			<div class="form-group col-md-6">
-				<label for="#">Unit</label>
-				<input type="text" name="unit" class="form-control" id="editunit" readonly>
-			</div>
-
-
-
-			<div class="form-group col-md-6">
-				<label for="#">Price</label>
-				<input type="number" name="orderprice" class="form-control" id="editprice" readonly>
-			</div>
-
-      
-
-      
-      
-			<div class="form-group col-md-6">
-				<label for="#">Quantity</label>
-				<input type="number" name="quantity" class="form-control" id="editquantity">
-			</div>
-
-
-      
-      
-			<div class="form-group col-md-6">
-				<label for="#">Batch Number</label>
-				<input type="text" name="batchnumber" class="form-control" id="editbatchnumber">
-			</div>
-
-      
-			<div class="form-group col-md-6">
-				<label for="#">Expiry Date</label>
-				<input type="date" name="expirydate" class="form-control" id="editexpirydate">
-			</div>
-
-
-      
-      
-			<div class="form-group col-md-6">
-				<label for="#">Status</label>
-			  <select name="status" class="form-control" id="edtitstatus">
-          <option value="Active">Active (Able to sale)</option>
-          <option value="Locked">Locked (Not able to sale)</option>
-        </select>
-			</div>
-
-
-
-      
-			<div class="form-group col-md-6">
-				<label for="#">Shelf Number</label>
-				<input type="text" name="shelfnumber" class="form-control" id="editshelfnumber">
-			</div>
-
-      <div class=" foem-group col-md-12">
-        <label for="#">Decription (For qty change)</label>
-        <textarea class="form-control" name="description" id="#">NA</textarea>
-      </div>
-
-
-
-        <div class="col-md-12" style="margin-top:10px">   
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            <button class="btn btn-primary" style="float:right" id="submitEditDataBtn">Submit</button>
+          <a href="#" class="btn text-warning">
+            <i class="fa fa-undo"></i> Reverse
+          </a>
+          
+          <a href="#" class="btn text-danger">
+            <i class="fa fa-trash"></i> Delete
+          </a>
         </div>
 
 
+        <div class="table-wrapper">
+        <table id="retaillogs-table" class="table table-striped-column  table-sm table-striped table-fixed-first-column table-fixed-header" >
+        <thead class="table-dark">
+        <tr>
+        <th class="table-dark">
+        <input type="checkbox" class="selectall">Product</th>
+        <th style="text-align:center">QtyBefore(QB)</th>
+        <th style="text-align:center">QtyAfrer(QA)</th>
+        <th style="text-align:center">Diff(QA-QB)</th>
+        <th style="text-align:center">Description</th>
+        <th style="text-align:center">Action</th>
+        </tr>
+        </thead>
+        <tbody id="tbody">
+        @foreach($data2 as $log)
+        <?php
+        $editrow = "editrowlogs".$log->id;
+        ?>
+        <tr id="{{$editrow}}">
+          <td ><input type="checkbox" name="select" class="select">
+            <?php
+            $logProduct =DB::table('retailbaseproducts')->where('id',$log->productid)->value('product');
+            $logUnit =DB::table('retailbaseproducts')->where('id',$log->productid)->value('unit');
+            $logPrice =DB::table('retailbaseproducts')->where('id',$log->productid)->value('sellingprice');
+            ?>
+            {{$logProduct}} <span style="color:	 #b3b3b3">[ @convert($logPrice) | {{$logUnit}} ]</span> 
+            </td>
+          <td style="text-align:center">{{$log->qtybefore}}</td>
+          <td style="text-align:center">{{$log->qtyafter}}</td>
+          <td style="text-align:center">{{$log->qtyadded}}</td>
+          <td style="text-align:center">{{$log->description}} <span style="color:#b3b3b3" >{{$log->time}} by {{$log->username}}</span> </td>
+          <td style="text-align:center">
+          <a href="#" class="editDataBtnClass" 
+            editId ="{{$log->id}}"
+            editRow="{{$editrow}}"
+            editproduct="{{$logProduct}}" 
+            > 
+            <i class="fa fa-edit text-primary fa-2x" ></i>
+            </a>
+            <a href="#" class="deleteDataBtnClass" deleteLabel="{{$logProduct}}"  deleteId="{{$log->id}}" deleteRow="{{$editrow}}">
+              <i class="fa fa-trash text-danger fa-2x"></i>
+            </a>
+          </td>
+        </tr>
+        @endforeach
+        </tbody>
+        </table>
+        </div>
+                        
+       
 
+<!-------------- end tabs ---------------------->
 
-
-		</form>
-
-      </div>
-    </div>
-  </div>
+</div>
+</div>
 </div>
 </section>
+</div>
+</div>
 
-
-
-
-<section description="Modal for changing date">
-  <div class="modal fade-scale" tabindex="-1" role="dialog" id="dateModal" data-backdrop="static">
+<section description="Modal for changing interval">
+  <div class="modal fade-scale" tabindex="-1" role="dialog" id="dateModal" data-bs-backdrop="static">
     <div class="modal-dialog" role="document">
       <div class="modal-content">
-        <div class="modal-header ">
+        <div class="modal-header">
           <h5 class="modal-title">Change date</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <form action="select-rdate" method="post" id="date-form">
+          <form action="make-selection" method="post" id="date-form">
             @csrf
             <div class="form-group">
               <label for="">Select custom date</label>
-              <input type="date" name="date" id="selected-date" class="form-control" value="{{$date}}">
-              
-              <br>
+              <input type="date" name="rdate" id="selected-date" class="form-control" value="{{$date}}">
+              <button class="btn btn-primary" style="margin-top:15px;float:right">Submit</button>
+              <br> <br> <br>
+            
             </div>
-       
-        </div>
-        <div class="modal-footer">
-
-        <button class="btn btn-primary" style="margin-top:10px;float:right">Submit</button>
-        </div>
-
-        </form>
-      </div>
-    </div>
-  </div>
-</section>
-
-
-
-
-
-<section description="Modal for changing date">
-  <div class="modal fade-scale" tabindex="-1" role="dialog" id="infoModal" data-backdrop="static">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header bg-primary">
-          <h5 class="modal-title">Important notice</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        <div class="modal-body">
-         
+            </form>
+            <div class="form-group">
+              <label for="">Predefined dates: (Within last 124 days)</label>
+              <hr>
+              <div class="scrollable-container" style="overflow-x: auto; white-space: nowrap;">
+                <?php
+                  $dates2 = DB::table('retailproducthistory')
+                    ->where('branchid', $branchId)
+                    ->where('date', '>=', Carbon::today()->subDays(124))
+                    ->distinct()
+                    ->pluck('date');
+                ?>
+                @foreach($dates2 as $date)
+                <form action="make-selection" method="post">
+                @csrf
+                <input type="date" name="rdate"  class="form-control" value="{{$date}}">
+                  <button class="btn btn-sm btn-secondary predefined-date" style="margin:5px">{{ $date }}</button>
+                  </form>
+                @endforeach
+              </div>
+              
+            </div>
         </div>
       </div>
     </div>
   </div>
 </section>
 
-
-
-
-
+<script>
+  $('.predefined-date').click(function() {
+    var selectedDate = $(this).text();
+    $('#selected-date').val(selectedDate);
+    $('#date-form').submit();
+  });
+</script>
 
 
 
@@ -563,6 +456,16 @@ $data = DB::table('retailnewstocktaking')->where('branchid', $branchId)->where('
 <script src="Admin320/plugins/sweetalert2/sweetalert2.min.js"></script>
 <script src="Admin320/plugins/toastr/toastr.min.js"></script>
 <script>
+  $('#toggle-predefined-dates').click(function() {
+    $('#predefined-dates-container').toggle();
+  });
+
+  $('.btn-secondary').click(function() {
+    var selectedDate = $(this).text();
+    $('input[name="date"]').val(selectedDate);
+  });
+</script>
+<script>
  var Toast = Swal.mixin({
       toast: true,
       position: 'top-end',
@@ -572,22 +475,15 @@ $data = DB::table('retailnewstocktaking')->where('branchid', $branchId)->where('
 $(document).ready(function() {
 
 
- 
- $('#dateBtn').click(function() {
+
+
+  $('#dateBtn').click(function() {
     $('#dateModal').modal('show');
   });
 
 
-  $('#infoBtn').click(function() {
-    $('#infoModal').modal('show');
-  });
-
-
-
   
-
-  
-$('#openingstockdata-table').DataTable({ 
+$('#retailsupplies-table').DataTable({ 
      dom: 'Bfrtip', 
      autoWidth:false,
      paging: true,
@@ -595,7 +491,7 @@ $('#openingstockdata-table').DataTable({
 
       {
       extend: 'copy',
-      title: @json($title),
+      title: @json($title1),
       exportOptions: {
         columns: ':visible:not(:last-child)'
       }
@@ -603,7 +499,7 @@ $('#openingstockdata-table').DataTable({
 
      {
       extend: 'excel',
-      title: @json($title),
+      title: @json($title1),
       exportOptions: {
         columns: ':visible:not(:last-child)'
       }
@@ -611,7 +507,7 @@ $('#openingstockdata-table').DataTable({
     
     {
       extend: 'pdf',
-      title: @json($title),
+      title: @json($title1),
       exportOptions: {
       columns: ':visible:not(:last-child)'
       },
@@ -629,7 +525,62 @@ $('#openingstockdata-table').DataTable({
 
     },{
       extend: 'print',
-      title: @json($title),
+      title: @json($title1),
+      exportOptions: {
+        columns: ':visible:not(:last-child)'
+      }
+    },
+  
+  ]
+ }); 
+
+ 
+  
+$('#retaillogs-table').DataTable({ 
+     dom: 'Bfrtip', 
+     autoWidth:false,
+     paging: true,
+     pageLength: -1,
+     lengthChange: false,
+     buttons: [
+
+      {
+      extend: 'copy',
+      title: @json($title2),
+      exportOptions: {
+        columns: ':visible:not(:last-child)'
+      }
+    },
+
+     {
+      extend: 'excel',
+      title: @json($title2),
+      exportOptions: {
+        columns: ':visible:not(:last-child)'
+      }
+    },
+    
+    {
+      extend: 'pdf',
+      title: @json($title2),
+      exportOptions: {
+      columns: ':visible:not(:last-child)'
+      },
+      customize: function (doc) {
+        doc.content[1].table.widths = Array(doc.content[1].table.body[0].length + 1).join('*').split('');
+        doc.content[1].table.body.forEach(function(row, i) {
+          row[0].alignment = 'left'; 
+          for (var j = 1; j < row.length; j++) {
+            row[j].alignment = 'center'; 
+          }
+       
+        });
+      },
+     
+
+    },{
+      extend: 'print',
+      title: @json($title2),
       exportOptions: {
         columns: ':visible:not(:last-child)'
       }
@@ -639,87 +590,69 @@ $('#openingstockdata-table').DataTable({
  }); 
 
 
- $(document).on("click", "#submitOpeningstockToBranchBtn", function(e) {
-    var self = $(this);
-    $(this).prop("disabled", true);
-    e.preventDefault();
-    $.ajaxSetup({
-        headers: {
-            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-        }
-    });
-    $.ajax({
-        type: "GET",
-        url: '/submit-retail-openingstock-to-branch',
-        timeout: 60000,
-        beforeSend: function() {
+
+
+
+  $('body').on('click', '.insertDataBtn', function(e) {
+      var self = $(this);
+      var formid = $(this).attr('form');
+      var row =  $(this).attr('row');
+      $(this).prop("disabled", true);
+      var form = document.getElementById(formid);
+
+      e.preventDefault(); 
+      
+      $.ajaxSetup({
+          headers: {
+              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+          }
+      });
+      $.ajax({
+        type:"post",
+         url: '/insert-wholesale-branch-product',
+         data: $(form).serialize(),
+          timeout: 60000,
+          beforeSend: function() {
             $('#loading-status').css('display', 'block');
-        },
-        complete: function() {
+          },
+          complete: function() {
             $('#loading-status').css('display', 'none');
+            $("#tbody").load(" #tbody  > *",function(){});
+            form.reset();
             self.prop("disabled", false);
-        },
-        success: function(response) {
-            if (response.success) {
-                if (response.imported > 0) {
-                    toastr.success(response.imported + ' Records imported', 'Import successful', {
-                        timeOut: 5000,
-                        progressBar: true
-                    });
-                    $("#tbody").load(" #tbody > *", function() {});
-                } else {
-                    toastr.info('No data available for uploading', 'Validation Information', {
-                        timeOut: 5000,
-                        progressBar: true
-                    });
-                }
-            } else {
-                if (response.isEmpty) {
-                    toastr.info('No pending stock data found', 'Validation Information', {
-                        timeOut: 5000,
-                        progressBar: true
-                    });
-                } else if (response.errors.length > 0) {
-                  console.log(response.errors)
-                    toastr.error('Error importing ' + response.errors.length + ' records', 'Import Error', {
-                        timeOut: 5000,
-                        progressBar: true
-                    });
-                } else {
-                    toastr.error('Technical error occurred. Contact system developers', 'Technical Error', {
-                        timeOut: 5000,
-                        progressBar: true
-                    });
-                }
+           },
+          success: function(data) {
+            if(data.status===201){
+              toastr.success(data.success,'Success',{ timeOut : 5000 ,	progressBar: true});
+            }else if(data.status===422){
+              toastr.error(data.error,'Error',{ timeOut : 5000 , 	progressBar: true})  
+            }else{
+              toastr.info('Success!','Success',{ timeOut : 5000 , 	progressBar: true}); 
             }
-        },
+            self.css('color','red')
+          },
         error: function(xhr, status, error) {
-            if (status === 'timeout') {
-                toastr.error('The request took too long to process. Please try again.', 'Timeout Error', {
-                    timeOut: 5000,
-                    progressBar: true
-                });
-            } else if (status === 'error' && xhr.status === 0) {
-                toastr.error('Please check your internet connection and try again', 'Connection Error', {
-                    timeOut: 5000,
-                    progressBar: true
-                });
-            } else if (xhr.status === 500) {
-                toastr.error('Server error occurred. Contact system administrator.', 'Server Error', {
-                    timeOut: 5000,
-                    progressBar: true
-                });
-            } else {
-                toastr.error('Unspecified error occurred. Please refresh the page and try again.', 'Unspecified', {
-                    timeOut: 5000,
-                    progressBar: true
-                });
-            }
-        }
-    });
-})
+        if (xhr.status === 0 && xhr.readyState === 0) {
+            toastr.error('Timeout check your internet connect and try again','Timeout Error',{ timeOut : 5000 , 	progressBar: true})  
+          } else if (xhr.status === 422) {
+              var errorPassage = '';
+              var errors = xhr.responseJSON.errors;
+              $.each(errors, function(key, value) { errorPassage += value + '\n'});
+              toastr.error(errorPassage, 'Validation Errors', {timeOut: 5000, 	progressBar: true});
+          } else if (xhr.status === 500) {
+              var errorMessage = xhr.responseText;
+              toastr.error('Internal server error occured try again later', 'Server Error', {timeOut: 5000 , 	progressBar: true});
+          } else {
+          toastr.error('Unspecified error occured try again later', 'Unspecified Error',{timeOut: 5000 ,	progressBar: true});
+         }   
+         form.reset();
+          }  
+        });
+      });
 
 
+
+	  
 
       $('#tbody').on('click', '.deleteDataBtnClass', function() {
       $('#deleteInputId').val($(this).attr('deleteId'));  
@@ -754,7 +687,7 @@ $('#openingstockdata-table').DataTable({
   });
   $.ajax({
       type:"post",
-      url: '/delete-retail-branch-product',     
+      url: '/delete-wholesale-branch-product',     
 	  data: $(form).serialize(),
 	  beforeSend: function() {
         $('#loading-status').css('display', 'block');
@@ -843,7 +776,7 @@ $(document).on("click", "#submitEditDataBtn", function(e) {
       });
       $.ajax({
         type:"post",
-         url: '/update-retail-branch-product',
+         url: '/update-wholesale-branch-product',
          data: $(form).serialize(),
           timeout: 60000,
           beforeSend: function() {

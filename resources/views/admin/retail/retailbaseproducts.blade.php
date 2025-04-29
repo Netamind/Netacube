@@ -209,7 +209,8 @@
 <section>
 <div class="card">
 <div class="card-header">
-<h4> <i class="feather icon-list"></i> Retail Products 
+<h4> 
+Retail Products
 <a href="#" class="btn btn-primary" id="uploadCsvBtn"style="float:right"> <i class="feather icon-plus-circle" style="color:white"></i> New</a>
 
 <a href="#" class="btn btn-primary"  id="newDataBtn"   style="float:right;margin-right:10px"><i class="fa fa-cloud-upload" style="color:white"></i> CSV</a> 
@@ -217,12 +218,11 @@
 <span style="font-size:14px;">
 Manage Retail base products. Note that a product must be created here before it can be added to a retail branch.
 </span>
-<hr style="margin-bottom:5px">
 
 <?php
    
-    $catId =  DB::table('session')->where('user',Auth::user()->id)->value('rcategory');
-    $supId = Cookie::get('rsupplier') ?? "NA";
+   $catId =  DB::table('selection')->where('user',Auth::user()->id)->value('rcategory')??"NA";
+   $supId =DB::table('selection')->where('user',Auth::user()->id)->value('rsupplier')??"0";
     $categoryName = '';
     $supplierName = '';
     $supplierArray = array();
@@ -260,8 +260,8 @@ Manage Retail base products. Note that a product must be created here before it 
       }
 
   ?>
-
-<select name="category" id="" style=";border:none;margin-left:-4px" onchange="submitCategoryId(this.value)">
+<div style="margin-top:5px">
+<select name="category" class="btn border" style=";border:none;margin-left:-4px;margin-right:10px" onchange="submitCategoryId(this.value)">
 <option value="" hidden>Category : {{$categoryName }}</option>
 <?php
 $categories = DB::table('businesscategories')->get();
@@ -271,9 +271,8 @@ $categories = DB::table('businesscategories')->get();
 @endforeach
 </select>
 
-| &nbsp;
 
-<select name="supplier" id="" style=";border:none;margin-left:-4px" onchange="submitSupplierId(this.value)">
+<select name="supplier" class="btn border" style=";border:none;margin-left:-4px" onchange="submitSupplierId(this.value)">
     <option value="" hidden>Supplier : {{$supplierName}}</option>
     <?php
     $suppliers = DB::table('suppliers')->where('sector','Retail')->where('category',$catId)->get();
@@ -283,6 +282,7 @@ $categories = DB::table('businesscategories')->get();
     @endforeach
     <option value="0">All</option>
 </select>
+</div>
 
 
 <!--<a href="#" class="btn" style="float:right; display: flex; align-items: center;margin-top:-10px;background-color: #f2f2f2;"> 
@@ -301,14 +301,14 @@ $categories = DB::table('businesscategories')->get();
         document.getElementById('supplierForm').submit();
     }
 </script>
-<form action="select-rcategory" method="post" id="categoryForm">
+<form action="make-selection" method="post" id="categoryForm">
   @csrf
-  <input type="hidden" name="category" id="categoryId">
+  <input type="hidden" name="rcategory" id="categoryId">
  </form>
 
-<form action="select-rsupplier" method="post" id="supplierForm">
+<form action="make-selection" method="post" id="supplierForm">
 @csrf
-<input type="hidden" name="supplier" id="supplierId">
+<input type="hidden" name="rsupplier" id="supplierId">
 </form>
 
 

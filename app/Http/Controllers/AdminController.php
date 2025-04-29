@@ -228,7 +228,6 @@ $validator = $request->validate([
 
    if($validator){
 
-
     $logoToDelete = DB::table('appdata')->value('applogo');
 
     $deletePath = public_path('/appdata/images/'. $logoToDelete);
@@ -476,7 +475,12 @@ $validator = $request->validate([
     'started_on' => 'required',
 ], $messages);
 if($validator){
+
+  $checkEmail = DB::table('users')->where('email',$request->email)->count();
+  if($checkEmail==0){
+
   $insertData = DB::table('employees')->insert($data);
+
   if($insertData){
     return response()->json(['success' => 'Data submitted succesifully','status'=>201]);
   }
@@ -484,6 +488,12 @@ if($validator){
 
     return response()->json(['error' => 'An error occured try again later','status'=>422]);
   } 
+
+  }else{
+
+    return response()->json(['error' => 'There is a user who is already assigned the email, enter a different email and try again','status'=>422]);
+  }
+
 }else{
   return  back()->withErrors($validator)->withInput();
 }

@@ -220,14 +220,15 @@
 <section>
 <div class="card">
 <div class="card-header">
-
-<div class="card-header">
-    <?php 
+<?php 
     use Carbon\Carbon; 
-    $branchId = Cookie::get('rbranch') ?? "NA";
-    $date = Cookie::get('rdate') ?? "Date not defined";
+    $branchId = DB::table('selection')->where('user',Auth::user()->id)->value('rbranch')??0;
+
+    $date = DB::table('selection')->where('user',Auth::user()->id)->value('rdate')??Carbon::today()->toDateString();
+
     $disaplaydatey = Carbon::createFromFormat('Y-m-d', $date)->format('d F Y');
     $branchName = '';
+
     $categoryName = '';
 
   
@@ -249,16 +250,23 @@
   
    
   
-        $title= $branchName." | System sales ".$date;
+        $title= $branchName." System sales [". $disaplaydatey."]";
 
     
     
     // Retrieve products for the current branch and date
     $products = DB::table('retailsales')->where('branch',  $branchId )->where('date',   $date )->orderBy('id', 'asc')->get(); 
-    ?>
+   
+    $transids = DB::table('retailsales')
+    ->where('branch', $branchId)
+    ->where('date', $date)
+    ->distinct('transid')
+    ->count('transid');
+   ?>
     
-    <!-- Select all checkbox -->
-    <input type="checkBox" id="selectAll">
+
+<div class="row">
+    <div class="col-md-12">
     
     <!-- Branch selection dropdown -->
     <select style="background-color:white;border:none;color:blue;padding-left:-20px;font-size:17px" onchange="submitBranchId(this.value)">
@@ -285,40 +293,44 @@
               document.getElementById('branchForm').submit();
           }
       </script>
-      <form action="select-rbranch" method="post" id="branchForm">
+      <form action="make-selection" method="post" id="branchForm">
         @csrf
-        <input type="hidden" name="branch" id="branchId">
+        <input type="hidden" name="rbranch" id="branchId">
       </form>
 
 
 
-    
-    
+
+    </div>
+    </div>
+
+
+
 </div>
-
 <div class="card-body">
-    <div>
-         
-          <a href="#" class="btn" disabled style="margin-left:-10px;font-size:17px">
-            With selected (<span id="checkcount">0</span>) :
-          </a>
+        <div>  
 
-          <a href="#" class="btn text-warning" id="reversebtn">
-            <i class="fa fa-undo"></i> Reverse
-          </a>
-          
-          <a href="#" class="btn text-primary"  id="changedatebtn">
-            <i class="fa fa-calendar"></i> Change date
-          </a>
+        <input type="checkbox" id="selectAll">
+        <span>With selected (<span id="checkcount">0</span>) :</span>
 
-          <a href="#" class="btn text-primary" style="float:right" id="infobtn">
-            <i class="fa fa-info-circle"></i>Details
-          </a>
 
+        <a href="#" class="btn text-warning" id="reversebtn">
+        <i class="fa fa-undo"></i> Reverse
+        </a>
+
+        <a href="#" class="btn text-primary"  id="changedatebtn">
+        <i class="fa fa-calendar"></i> Change date
+        </a>
+
+        <a href="#" class="btn text-primary" style="float:right" id="infobtn">
+        <i class="fa fa-info-circle"></i>Details
+        </a>
         </div>
-<hr>
+
+
+        
 <div class="table-wrapper">
-  <table id="roles-table" class="table-striped-column table table-sm table-striped table-fixed-first-column table-fixed-header">
+  <table id="systemsales-table" class="table-striped-column table table-sm table-striped table-fixed-first-column table-fixed-header">
     <thead class="table-dark">
       <tr>
         <th class="table-dark">Product</th>
@@ -327,7 +339,7 @@
         <th style="text-align:center">rQty</th>
         <th style="text-align:center">Price</th>
         <th style="text-align:center">Total</th>
-        <th style="text-align:center">Transid[20]</th>
+        <th style="text-align:center">Transid[{{$transids}}]</th>
         <th style="text-align:center">Time</th>
       </tr>
     </thead>
@@ -366,6 +378,11 @@
 
 
 
+
+
+
+
+
 </div>
 </div>
 </section>
@@ -382,11 +399,11 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <form action="select-rdate" method="post" id="date-form">
+          <form action="make-selection" method="post" id="date-form">
             @csrf
             <div class="form-group">
               <label for="">Change date</label>
-              <input type="date" name="date" id="selected-date" class="form-control" value="{{$date}}">
+              <input type="date" name="rdate" class="form-control" value="{{$date}}">
             
               <button class="btn btn-primary" style="margin-top:15px;float:right">Submit</button>
            
@@ -660,16 +677,6 @@
       </section>
 
 
-
-
-
-     
-
-
-
-
-
-
 <!-- jQuery -->
 <script src="Admin320/plugins/jquery/jquery.min.js"></script>
 <script src="Admin320/plugins/sweetalert2/sweetalert2.min.js"></script>
@@ -693,7 +700,7 @@ $(document).ready(function() {
   });
 
  
-$('#roles-table').DataTable({ 
+$('#systemsales-table').DataTable({ 
      dom: 'Bfrtip', 
      autoWidth:false,
      paging: true,
@@ -704,19 +711,19 @@ $('#roles-table').DataTable({
 
       {
       extend: 'copy',
-      title: 'Roles',
+      title: @json($title),
       
     },
 
      {
       extend: 'excel',
-      title: 'Roles',
+      title: @json($title),
      
     },
     
     {
       extend: 'pdf',
-      title: 'Roles',
+      title: @json($title),
      
       customize: function (doc) {
         doc.content[1].table.widths = Array(doc.content[1].table.body[0].length + 1).join('*').split('');
@@ -732,7 +739,7 @@ $('#roles-table').DataTable({
 
     },{
       extend: 'print',
-      title: 'Roles',
+      title: @json($title),
     },
   
   ]
@@ -1089,7 +1096,6 @@ const togglePassword2 = document.querySelector('#togglePassword2');
   @endif
 </script>
 <!--js toastr notification--> 
-
 </body>
 </html>
  @endsection

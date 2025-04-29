@@ -5,13 +5,205 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <style>
+.spinner {
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-top: 4px solid #f35800; /* orange color */
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+.loading-status {
+  top: 0;
+  left: 0;
+  width: 110%;
+  height: 8px;
+  background-color: #f7f7f7;
+  z-index: 1000;
+  overflow: hidden;
+}
+.waves {
+  position: absolute;
+  top: 0;
+  left: -10%;
+  width: 110%;
+  height: 7px;
+  background-image: repeating-linear-gradient(120deg, #007bff, #007bff 10px, #000 10px, #000 20px);
+  border-radius: 0;
+  animation: move 2.5s linear infinite;
+}
+
+@keyframes move {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 40px 0;
+  }
+}
+
+
+.sweet-modal-container .sweet-modal .modal-content {
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background-color: #fff;
+  transform: scale(0.5);
+  opacity: 0;
+  transition: transform 0.3s, opacity 0.3s;
+}
+
+.sweet-modal-container .sweet-modal .modal-header {
+  border-bottom: none;
+  padding: 1.5rem;
+}
+
+.sweet-modal-container .sweet-modal .modal-title {
+  font-weight: 600;
+  font-size: 1.25rem;
+}
+
+.sweet-modal-container .sweet-modal .modal-body {
+  padding: 1.5rem;
+}
+
+.sweet-modal-container .sweet-modal .modal-footer {
+  border-top: none;
+  padding: 1.5rem;
+  justify-content: flex-end;
+}
+
+.sweet-modal-container .sweet-modal .modal-footer .btn {
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  border-radius: 5px;
+}
+
+.sweet-modal-container .sweet-modal .modal-footer .btn-secondary {
+  background-color: #f7f7f7;
+  color: #666;
+  border: 1px solid #ddd;
+}
+
+.sweet-modal-container .sweet-modal .modal-footer .btn-primary {
+  background-color: #4CAF50;
+  color: #fff;
+  border: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.sweet-modal-container .sweet-modal.show {
+  opacity: 1;
+}
+
+.sweet-modal-container .sweet-modal.show .modal-content {
+  transform: scale(1);
+  opacity: 1;
+}
+
+.sweet-modal-container .sweet-modal.show .modal-content {
+  animation: bounce 0.5s;
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+.table-wrapper {
+  overflow-x: auto;
+}
+
+
+.table-fixed-first-column {
+  border-collapse: collapse;
+  width: 100%;
+  
+}
+
+.table-fixed-first-column th:first-child {
+  position: sticky !important;
+  top: 0 !important;
+  left: 0 !important;
+  z-index: 2 !important;
+
+  box-shadow: 2px 0px 2px rgba(0, 0, 0, 0.1); 
+}
+
+
+.table-fixed-first-column td:first-child {
+  position: sticky !important;
+  left: 0 !important;
+  z-index: 1 !important;
+  background-color:white;
+  box-shadow: 2px 0px 2px rgba(0, 0, 0, 0.1); 
+}
+
+
+
+
+.table-striped-column td:nth-child(1) { /* Change 2 to the column number you want to stripe */
+  background-color:#F7F7F7;
+}
+
+.table-striped-column tr:nth-child(odd) td:nth-child(1) {
+  background-color: #e6e6e6;
+}
+
+
+.dataTables_wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+   
+}
+
+.dataTables_filter, .dt-buttons {
+    margin-bottom: 10px;
+    overflow-x: hidden;
+    position: sticky;
+    left:0;
+    right: 0;
+    
+}
+
+@media (max-width: 767px) {
+    .dataTables_wrapper {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
+    }
+}
+	</style>
+
+ 
+ 
 </head>
 <body>
 
 <!--start page wrapper -->
 <div class="page-wrapper">
 <div class="page-content">
+
+<div class="loading-status" id="loading-status" style="display:none">
+  <div class="waves"></div>
+</div>
 
 
 		
@@ -55,155 +247,110 @@
 
 				</ul>
 	<div class="tab-content" id="pills-tabContent">
-	<div class="tab-pane fade show active" id="primary-pills-profile" role="tabpanel">
-		<?php
-		$employeeId = Auth::user()->employeeid;
-		$name = ""
-
-		?>
-		@if( $employeeId > 0)
-		<?php
-		$name = DB::table('employees')->where('id',$employeeId)->value('name');
-		$phone = DB::table('employees')->where('id',$employeeId)->value('phone');
-		$email = DB::table('employees')->where('id',$employeeId)->value('email');
-		$dob = DB::table('employees')->where('id',$employeeId)->value('dob');
-		$idtype = DB::table('employees')->where('id',$employeeId)->value('idtype');
-		$idnumber = DB::table('employees')->where('id',$employeeId)->value('idnumber');
-		$status = DB::table('employees')->where('id',$employeeId)->value('status');
-
-		$startedon = DB::table('employees')->where('id',$employeeId)->value('started_on');
-		$registeredon = DB::table('employees')->where('id',$employeeId)->value('registered_on');
-
-		?>
-		<p style="font-size:16px">Contact system administrator if some information is not correct</p>
-
-
-		<div class="row">
-		<div class="col-md-6">
-		<table class="table">
-		<tbody>
-		<tr>
-		<th scope="row">
-		Name</th>
-		<td>{{$name}}
-		</td>
-		</tr>
-		<tr>
-		<th scope="row">
-		Phone Number</th>
-		<td>{{$phone}}</td>
-		</tr>
-		<tr>
-		<th scope="row">
-		Email</th>
-		<td>{{$email}}</td>
-		</tr>
-		<tr>
-
-		<th scope="row">
-		Date of birth</th>
-		<td>{{$dob}}</td>
-		</tr>
-
-
-		<th scope="row">
-		ID Type</th>
-		<td>{{$idtype}}</td>
-		</tr>
-
-
-		<th scope="row">
-		ID Number</th>
-		<td>{{$idnumber}}</td>
-		</tr>
-
-
-		</tbody>
-		</table>
-
-		</div>
-
-		<div class="col-md-6">
-
-
-		<div class="table-responsive">
-		<table class="table">
-		<tbody>
-
-		<tr>
-		<th scope="row">
-		Date started working</th>
-		<td>{{$startedon}}
-		</td>
-		</tr>
-
-
-		<tr>
-		<th scope="row">
-		Position</th>
-		<td>NA
-		</td>
-		</tr>
-
-
-
-		<tr>
-		<th scope="row">
-		Status </th>
-		<td>
-		@if($status==1)
-		Active
-		@else
-		Inactve
-		@endif
-		</td>
-		</tr>
-
-
-		<tr>
-		<th scope="row">
-		Branch</th>
-		<td>
-		<?php
-		$branchid = DB::table('userbranch')->where('employeeid',$employeeId)->value('branchid');
-		$branchName = DB::table('branches')->where('id',$branchid)->value('branch')
-		?>
-		@if($branchid)
-		{{$branchName}}
-		@else
-		Not set
-		@endif
-		</td>
-		</tr>
-
-
-
-		<tr>
-		<th scope="row">
-		Role</th>
-		<td>
-		<?php 
-		$role = Auth::user()->role;
-		?>
-		@if($role)
-		{{$role}}
-		@else
-		Not set
-		@endif
-
-		</td>
-		</tr>
-
-		</tbody>
-		</table>
-		</div>
-		</div>
-
-		@else
-		<p style="font-size:16px">To view more details you have to be added as employee</p>
-		@endif
+  <div class="tab-pane fade show active "  id="primary-pills-profile" role="tabpanel">
+    <?php $employeeId = Auth::user()->employeeid; $name = "" ?>
+    @if( $employeeId > 0)
+        <?php 
+            $name = DB::table('employees')->where('id',$employeeId)->value('name'); 
+            $phone = DB::table('employees')->where('id',$employeeId)->value('phone'); 
+            $email = DB::table('employees')->where('id',$employeeId)->value('email'); 
+            $dob = DB::table('employees')->where('id',$employeeId)->value('dob'); 
+            $idtype = DB::table('employees')->where('id',$employeeId)->value('idtype'); 
+            $idnumber = DB::table('employees')->where('id',$employeeId)->value('idnumber'); 
+            $status = DB::table('employees')->where('id',$employeeId)->value('status'); 
+            $startedon = DB::table('employees')->where('id',$employeeId)->value('started_on'); 
+            $registeredon = DB::table('employees')->where('id',$employeeId)->value('registered_on'); 
+        ?>
+        <p style="font-size:16px">Contact system administrator if some information is not correct</p>
+        <div class="row">
+            <div class="col-md-6 border">
+                <table class="table table-borderless">
+                    <tbody>
+                        <tr>
+                            <th scope="row"> Name</th>
+                            <td>{{$name}} </td>
+                        </tr>
+                        <tr>
+                            <th scope="row"> Phone Number</th>
+                            <td>{{$phone}}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row"> Email</th>
+                            <td>{{$email}}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row"> Date of birth</th>
+                            <td>{{$dob}}</td>
+                        </tr>
+                        <th scope="row"> ID Type</th>
+                        <td>{{$idtype}}</td>
+                        </tr>
+                        <th scope="row"> ID Number</th>
+                        <td>{{$idnumber}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-md-6 border">
+                <div class="table-responsive">
+                    <table class="table table-borderless">
+                        <tbody>
+                            <tr>
+                                <th scope="row"> Date started working</th>
+                                <td>{{$startedon}} </td>
+                            </tr>
+                            <tr>
+                                <th scope="row"> Position</th>
+                                <td>NA </td>
+                            </tr>
+                            <tr>
+                                <th scope="row"> Status </th>
+                                <td> 
+                                    @if($status==1) 
+                                        Active 
+                                    @else 
+                                        Inactve 
+                                    @endif 
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row"> Branch</th>
+                                <td> 
+                                    <?php 
+                                        $branchid = DB::table('userbranch')->where('employeeid',$employeeId)->value('branchid'); 
+                                        $branchName = DB::table('branches')->where('id',$branchid)->value('branch') 
+                                    ?>
+                                    @if($branchid) 
+                                        {{$branchName}} 
+                                    @else 
+                                        Not set 
+                                    @endif 
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row"> Role</th>
+                                <td> 
+                                    <?php $role = Auth::user()->role; ?>
+                                    @if($role) 
+                                        {{$role}} 
+                                    @else 
+                                        Not set 
+                                    @endif 
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    @else
+        <p style="font-size:16px">To view more details you have to be added as employee</p>
+    @endif
 </div>
 
+
+
+    
 <div class="tab-pane fade" id="primary-pills-leaves" role="tabpanel">
 	<p>Leaves</p>
 </div>

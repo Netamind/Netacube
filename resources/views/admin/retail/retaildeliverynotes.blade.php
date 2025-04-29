@@ -228,35 +228,23 @@
 
 
 
-     <?php
+<?php
+use Carbon\Carbon; 
+$date = DB::table('selection')->where('user',Auth::user()->id)->value('rdate')??Carbon::today()->toDateString();
+$disaplaydatey = Carbon::createFromFormat('Y-m-d', $date)->format('d F Y');
+$value = 0;
+$getproducts=DB::table('retaildeliverynotes')->where('date',$date)->get();
 
-    use Carbon\Carbon; 
+foreach($getproducts as $getproduct){
 
-
-    $date = DB::table('selection')->where('user',Auth::user()->id)->value('rdate')??Carbon::today()->toDateString();
-
-    $disaplaydatey = Carbon::createFromFormat('Y-m-d', $date)->format('d F Y');
-
-    $supplierArray = DB::table('suppliers')->where('sector','Retail')->pluck('id');
-
-    $productId  = DB::table('selection')->where('user',Auth::user()->id)->value('rproduct')??"0";
-    
-    $data = DB::table('retailbaseproducts')->whereIn('supplier',$supplierArray)->get();
+  $value = ($getproduct->quantity *  $getproduct->price) +  $value;
 
 
-    $product = (object) (DB::table('retailbaseproducts')->where('id', $productId)->first() ?? [
-      'id' => '',
-      'product' => 'Product not defined',
-      'sellingprice' => '0',
-      'unit' => 'na',
-  ]);
+}
+
   
 
-
-    
-
    ?>
-
 
 <section>
 <div class="card">
@@ -264,8 +252,9 @@
 
 <div class="row">
 
-<div class="col-12 col-md-7">
-<a href="admin-retail-action-center" class="btn btn-primary"  style="margin-top:5px">
+<div class="col-md-12">
+
+<a href="admin-retail-action-center" class="btn border-secondary "  style="margin-top:5px">
   <i class="bx bx-cog"></i> 
   Actioncenter
 </a>
@@ -274,49 +263,20 @@
   {{$disaplaydatey }}
 </a>
 
-<a href="admin-retail-deliverynotes" class="btn border-secondary" style="margin-top:5px">
-  <i class="bx bx-file"></i>
-  Deliverynotes
-</a>
 
 <a href="admin-retail-price-changes" class="btn border-secondary" style="margin-top:5px">
 <i class="bx bx-repeat"></i>
   Pricechanges 
 </a>
 
+
+
+<a href="admin-retail-deliverynotes" class="btn btn-primary" style="margin-top:5px;float:right">
+  <i class="bx bx-file"></i>
+  Deliverynotes
+</a>
 </div>
 
-<div class="col-12 col-md-5" style="position: relative;">
-
-<input type="text" class="form-control border-primary" placeholder="search products here" style="margin-top:5px"   id="mobile-search">
-  
-
-<table class="table-sm table mobile-table table-borderless table-striped" style="display:none;font-size:14px" id="mobile-table">
-        <thead>
-        <tr style="border-top:none">
-        <th></th>
-        </tr>
-        </thead>
-        <tbody  class="border-primary">
-        @foreach($data as  $d)
-        <tr>
-        <td style="padding:3px">
-           
-        <form action="make-selection" method="post" >
-          @csrf
-          <input type="hidden" name="rproduct" value="{{$d->id}}">
-          <button style="width:100%;border:none;background:none;font-size:15px">
-            {{$d->product}} &nbsp; @convert($d->sellingprice) / {{$d->unit}}
-         </button>
-         </form> 
-        </td>
-        </tr>
-        @endforeach
-        </tbody>
-    </table>
-      
-        
-</div>
 
 
 </div>
@@ -324,7 +284,6 @@
 
 <script>
 const navLinks = document.querySelectorAll('.nav-link');
-
 navLinks.forEach(link => {
     link.addEventListener('click', () => {
     navLinks.forEach(otherLink => {
@@ -339,74 +298,71 @@ navLinks.forEach(link => {
 </div>
 <div class="card-body">
 
-
-
 <div class="row">
 
 <div class="col-md-12">
-
-<a href="#" class="btn" id="editDataBtnId" 
-editid = "{{$product->id}}"
-editproduct = "{{$product->product}}"
-editunit ="{{$product->unit}}"
-editprice="{{$product->sellingprice}}"
-> 
-<span id="refreshData"><i class="bx bx-edit"></i> {{$product->product}} [ @convert($product->sellingprice) / {{$product->unit}} ]</span>
-</a>
-<a href="#" style="float:right" class="btn text-danger"><i class="fa fa-warning"></i> Delete</a>
-<a href="#" id="submitDataToBranchesBtn" style="float:right" class="btn text-success" title="This will add distributed quantitites to respective branches"><i class="fa fa-check"></i> Submit</a>
-<a href="#" id="cancelDistributedProductBtn" style="float:right" class="btn text-warning" title="This will delete the distribution"><i class="fa fa-times"></i>Cancel</a>
-<a href="#" id="submitAllDataToBranchesBtn" style="float:right" class="btn text-primary" title="This will add to respective branches all products distributed on {{$date}}"><i class="fa fa-check"></i> Submit (ALL)</a>
-
+<a href="#"  class="btn text-primary" title="Value added" style="margin-left:-10px"> <span style="color:black">Deliverynotes [{{$disaplaydatey}}]</span>  <span style="color:gray;font-weight:bold"> MWK</span><span style="color:gray;font-weight:bold">@convert($value)</span></a>
+<a href="#" id="submitAllDataToBranchesBtn" style="float:right" class="btn text-primary" title="This will add to respective branches all products distributed on {{$date}}"><i class="fa fa-check"></i> SUBMIT (ALL)</a>
 </div>
-
-
-
+<div class="col-md-12">
 <?php
-$branches = DB::table('branches')->where('sector','Retail')->get();
+$branches = DB::table('retaildeliverynotes')->distinct()->pluck('branchid');
 ?>
+<table class="table table-small table-striped" style="margin-top:10px">
+<thead class="table-dark">
+<tr>
+  <th>Branch</th>
+  <th style="text-align:center">Value</th>
+  <th style="text-align:center">Errors</th>
+  <th style="text-align:center">Submit</th>
+  <th style="text-align:center">Action</th>
+</tr>
+</thead>
+<tbody>
 @foreach($branches as $branch)
-<div class="col-6 col-md-3 text-center" style="margin-top:10px" >
-  <?php
-
-  $stock = DB::table('retailbranchproducts')->where('branch',$branch->id)->where('product',$product->id)->value('quantity');
+<?php
+$row= "row".$branch;
+?>
+<tr id="{{$row}}">
+<?php
+$branchName = DB::table('branches')->where('id',$branch)->value('branch');
+$branchvalue=0;
+  $getproducts2=DB::table('retaildeliverynotes')->where('date',$date)->where('branchid',$branch)->get();
+    foreach($getproducts2 as $getproduct){
   
-  $formid= "F".$product->id.$branch->id.$product->id.$branch->id.$branch->id;
-
-  $input ="I".$branch->id.$branch->id.$product->id.$branch->id.$branch->id.$product->id; 
-  $dquantity = DB::table('retaildeliverynotes')->where('date',$date)
-  ->where('branchid',$branch->id)->where('productid',$product->id)
-  ->where('added_to_branch','No')->value('quantity');
-
-  $sdnote = DB::table('retaildeliverynotes')->where('date',$date)
-  ->where('branchid',$branch->id)->where('productid',$product->id)
-  ->where('added_to_branch','Yes')->value('quantity');
-
-  ?>
-<label for="#" >
-   <span style="font-size:15px;font-weight:bold">{{$branch->branch}} </span> <br>
-  <span style="color:gray;font-size:12px">stock  : {{$stock}} | order : 0 | sdnote : {{$sdnote}} </span>
-  <span>  </span> </span>
-</label>
-
-<form action="submit-retail-dnote" id="{{$formid}}" method="post">
- @csrf
- <input type="text" autocomplete="off" name="quantity" class="form-control dnote-input" style="text-align:center;" id1="{{$formid}}"  id2 = "{{$input}}" value="{{$dquantity}}" >                  
-
-    <input type="hidden" name="date" value="{{$date}}">
-    <input type="hidden" name="branchid" value="{{$branch->id}}">
-    <input type="hidden" name="productid" value="{{$product->id}}">
-    <input type="hidden" name="productname" value="{{$product->product}}">
-    <input type="hidden" name="unit" value="{{$product->unit}}">
-    <input type="hidden" name="price" value="{{$product->sellingprice}}">
-
-
- </form>
+        $branchvalue = ($getproduct->quantity *  $getproduct->price) +  $branchvalue;
+    }
+$errors=0;
+$errorReporting=0;
+//$errors = DB::table('dnoteerrors')->where('date',Auth::user()->sdate1)->where('branch',$branch)->count();
+//$errorReporting = DB::table('deliverynote')->where('date',Auth::user()->sdate1)->where('branch',$branch)->where('errors','true')->count();
+$totalProducts = DB::table('retaildeliverynotes')->where('date',$date)->where('branchid',$branch)->count();
+$toSubmit = DB::table('retaildeliverynotes')->where('date',$date)->where('branchid',$branch)->where('added_to_branch','No')->count();
+?>
+<td><a href="retail-deliverynote-pdf?id={{$branch}}" style="color:black">{{$branchName}}</a></td>
+<td style="text-align:center"> @convert($branchvalue)</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">
+<a href="#" class="addProductsToBranchBtn" branch="{{$branch}}" date="{{$date}}" row="{{$row}}">
+<span class="badge bg-primary rounded-pill">
+{{$toSubmit}} / {{$totalProducts}}</span>
+</a> 
+</td>
+<td style="text-align:center">
+<a href="admin-retail-deliverynote-details?branch={{$branch}}&&date={{$date}}"><span class="badge bg-danger rounded-pill"><i class="feather icon-arrow-right"></i></span></a> 
+</td>
+</tr>
+@endforeach
+</tbody>
+</table>
+</div>
 
 </div>
 
 
-@endforeach
+
+
+
 </div>
 </div>
 </div>
@@ -505,49 +461,42 @@ $(document).ready(function() {
     $('#dateModal').modal('show');
   });
 
+  
 
+$(document).on("click", ".addProductsToBranchBtn", function(e) {
 
- $('#editDataBtnId').click(function() {
-
-$('#editid').val($(this).attr('editid'));
-
-$('#editRow').val($(this).attr('editRow'));
-
-$('#editproduct').val($(this).attr('editproduct'));
-
-$('#editunit').val($(this).attr('editunit'));
-
-$('#editprice').val($(this).attr('editprice'));
-
-$('#editoldprice').val($(this).attr('editprice'));
-
-$('#editProductModal').modal('show');
-
-});
-
-});
- 
-$('#submitEditDataBtn').click(function(e) {
     var self = $(this);
+
+    var row = $(this).attr("row");
+
     $(this).prop("disabled", true);
-    $('#editProductModal').modal('hide');
-    var form = document.getElementById("editDataForm");
+
+    var date = $(this).attr("date");
+
+    var branch = $(this).attr("branch");
+
     e.preventDefault();
+
     $.ajaxSetup({
         headers: {
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
         }
     });
+
     $.ajax({
         type: "post",
-        url: '/retail-price-change',
-        data: $(form).serialize(),
+        url: '/retail-add-products-to-specific-branch',
+        data: {
+        branch: branch,
+        date: date
+          },
         timeout: 60000,
         beforeSend: function() {
             $('#loading-status').css('display', 'block');
         },
         complete: function() {
             $('#loading-status').css('display', 'none');
+            $("#"+row).load(" "+"#"+row+ ">"+ "*",function(){});
             self.prop("disabled", false);
         },
         success: function(data) {
@@ -556,7 +505,6 @@ $('#submitEditDataBtn').click(function(e) {
                     timeOut: 5000,
                     progressBar: true
                 });
-             $("#refreshData").html('<i class="bx bx-edit"></i> ' + data.product + ' [ ' + data.price + ' / ' + data.unit + ' ]');
             } else if (data.error) {
                 toastr.error(data.error, 'Error', {
                     timeOut: 5000,
@@ -605,104 +553,6 @@ $('#submitEditDataBtn').click(function(e) {
     });
 });
 
-
-
-  $(document).on("change", ".dnote-input", function(e) {
-    e.preventDefault();
-    $.ajaxSetup({
-        headers: {
-            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-        }
-    });
-
-    var id = $(this).attr("id1");
-    var form = document.getElementById(id);
-
-    $.ajax({
-        type: "post",
-        url: '/insert-retail-deliverynote',
-        data: $(form).serialize(),
-        success: function(response) {
-            if (response.status === 200 || response.status === 201 || response.status === 202) {
-                document.getElementById(id).style.borderBottom = "2px solid blue";
-               // toastr.success(response.success);
-            } else {
-              document.getElementById(id).reset();
-              toastr.error('Failed to update delivery note. Please refresh the page and try again.');
-
-            }
-        },
-        error: function(xhr, status, error) {
-            document.getElementById(id).reset();
-            toastr.error('An error occured');
-        }
-    });
-});
-
-
-$(document).on("click", "#submitDataToBranchesBtn", function(e) {
-    var self = $(this);
-    $(this).prop("disabled", true);
-    e.preventDefault();
-    $.ajaxSetup({
-        headers: {
-            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-        }
-    });
-    $.ajax({
-        type: "post",
-        url: '/retail-add-product-to-branches',
-        timeout: 60000,
-        beforeSend: function() {
-            $('#loading-status').css('display', 'block');
-        },
-        complete: function() {
-            $('#loading-status').css('display', 'none');
-            $("#tbody").load(" #tbody > *", function() {});
-            self.prop("disabled", false);
-        },
-        success: function(data) {
-            if (data.success) {
-                if (data.success === 'Delivery notes processed successfully') {
-                    toastr.success(data.success, 'Success', {
-                        timeOut: 5000,
-                        progressBar: true
-                    });
-                } else if (data.success === 'No delivery notes to process') {
-                    toastr.info(data.success, 'Info', {
-                        timeOut: 5000,
-                        progressBar: true
-                    });
-                }
-            }
-        },
-        error: function(xhr, status, error) {
-            if (xhr.status === 0 && xhr.readyState === 0) {
-                toastr.error('Timeout check your internet connect and try again', 'Timeout Error', {
-                    timeOut: 5000,
-                    progressBar: true
-                });
-            } else if (xhr.status === 500) {
-                if (xhr.responseJSON && xhr.responseJSON.error) {
-                    toastr.error(xhr.responseJSON.error, 'Server Error', {
-                        timeOut: 5000,
-                        progressBar: true
-                    });
-                } else {
-                    toastr.error('Internal Server Error', 'Server Error', {
-                        timeOut: 5000,
-                        progressBar: true
-                    });
-                }
-            } else {
-                toastr.error('Unspecified error occured try again later', 'Unspecified Error', {
-                    timeOut: 5000,
-                    progressBar: true
-                });
-            }
-        }
-    });
-});
 
 
 
@@ -775,98 +625,8 @@ $(document).on("click", "#submitAllDataToBranchesBtn", function(e) {
 
 
 
-
-$(document).on("click", "#cancelDistributedProductBtn", function(e) {
-    var self = $(this);
-    $(this).prop("disabled", true);
-    e.preventDefault();
-    $.ajaxSetup({
-        headers: {
-            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-        }
-    });
-    $.ajax({
-        type: "post",
-        url: '/retail-cancel-distributed-product',
-        timeout: 60000,
-        beforeSend: function() {
-            $('#loading-status').css('display', 'block');
-        },
-        complete: function() {
-            $('#loading-status').css('display', 'none');
-            $("#tbody").load(" #tbody > *", function() {});
-            self.prop("disabled", false);
-        },
-        success: function(data) {
-            if (data.success) {
-                toastr.success(data.success, 'Success', {
-                    timeOut: 5000,
-                    progressBar: true
-                });
-            } else if (data.info) {
-                toastr.info(data.info, 'Info', {
-                    timeOut: 5000,
-                    progressBar: true
-                });
-            }
-        },
-        error: function(xhr, status, error) {
-            if (xhr.status === 0 && xhr.readyState === 0) {
-                toastr.error('Timeout check your internet connect and try again', 'Timeout Error', {
-                    timeOut: 5000,
-                    progressBar: true
-                });
-            } else if (xhr.status === 500) {
-                if (xhr.responseJSON && xhr.responseJSON.error) {
-                    toastr.error(xhr.responseJSON.error, 'Error', {
-                        timeOut: 5000,
-                        progressBar: true
-                    });
-                } else {
-                    toastr.error('Internal Server Error', 'Error', {
-                        timeOut: 5000,
-                        progressBar: true
-                    });
-                }
-            } else {
-                toastr.error('Unspecified error occured try again later', 'Error', {
-                    timeOut: 5000,
-                    progressBar: true
-                });
-            }
-        }
-    });
-});
-
-
-</script>
-
-<script>
-$(document).ready( function () {
- var table = $("#mobile-table").DataTable({
-          "paging": false,
-        "bInfo" : false,
-        "ordering":false,
-  dom: 'lrtip'
-  })
-  $('#mobile-table').hide();
-  $('#mobile-search').keyup( function() {
-    var value = document.getElementById('mobile-search').value;
-    if (value.length<2) {
-      $('#mobile-table').hide();
-    }else{
-      $('#mobile-table').show();
-     table.search($(this).val()).draw();
-    }
-  } );
-} );
-$('body').on('click', '#mobile-search', function () {
-  $('#mobile-search').val('');
-  $('#mobile-table').hide();
 });
 </script>
-
-
 <!--js toastr notification-->
 <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js"></script>

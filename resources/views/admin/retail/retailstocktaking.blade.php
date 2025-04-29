@@ -209,9 +209,9 @@
         <div class="card">
             <div class="card-header">
                 <h4>
-                    <i class="fa fa-balance-scale"></i> Value Added Tax (VAT)
+                    <i class="fa fa-balance-scale"></i> Stocktaking
                     <a href="#" class="btn btn-primary" id="newDataBtn" style="float:right">
-                        <i class="bx bx-info-circle" style="color:white"></i>Info
+                        <i class="bx bx-calendar" style="color:white"></i>History
                     </a>
                 </h4>
             </div>
@@ -221,7 +221,7 @@
                         <a class="nav-link active" data-bs-toggle="pill" href="#primary-pills-statuses" role="tab" aria-selected="true">
                             <div class="d-flex align-items-center">
                                 <div class="tab-icon"><i class='bx bx-check-square font-18 me-1'></i> </div>
-                                <div class="tab-title">Statuses</div>
+                                <div class="tab-title">Partial</div>
                             </div>
                         </a>
                     </li>
@@ -229,56 +229,17 @@
                         <a class="nav-link" data-bs-toggle="pill" href="#primary-pills-configuration" role="tab" aria-selected="false">
                             <div class="d-flex align-items-center">
                                 <div class="tab-icon"><i class='bx bx-cog font-18 me-1'></i> </div>
-                                <div class="tab-title">Configuration</div>
+                                <div class="tab-title">Full</div>
                             </div>
                         </a>
                     </li>
                 </ul>
                 <div class="tab-content" id="pills-tabContent">
                     <div class="tab-pane fade show active" id="primary-pills-statuses" role="tabpanel">
-                        <div class="table-wrapper">
-                            <table id="vat-table" class="table-striped-column table table-sm table-striped table-fixed-first-column table-fixed-header">
-                                <thead class="table-dark">
-                                    <tr>
-                                        <th class="table-dark">Status</th>
-                                        <th style="text-align:center">Code</th>
-                                        <th style="text-align:center">Descriptions</th>
-                                        <th style="text-align:center">Rate (%)</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="tbody">
-                                    <?php $data = DB::table('vat_statuses')->get(); ?>
-                                    @foreach($data as $d)
-                                    <?php $row = "row".$d->id;?>
-                                    <tr id="{{$row}}">
-                                        <td>{{$d->status}}</td>
-                                        <td style="text-align:center">{{$d->code}}</td>
-                                        <td style="text-align:center">{{$d->description}}</td>
-                                        <td style="text-align:center">
-                                            @if($d->rate)
-                                            {{$d->rate}}
-                                            @else
-                                            NA
-                                            @endif
-                                        </td>
-                                    </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
+                        <p>Partial stocktaking assumes that not all products in the shop are counted. When rectifying, only the counted inventory for the selected branch will be deleted and replaced with newly found data. Ensure you count exhaustively for each product. <a href="retail-partial-stocktaking">Click here for partial stocktaking</a></p>
                     </div>
                     <div class="tab-pane fade" id="primary-pills-configuration" role="tabpanel">
-                        <?php 
-                        $status = DB::table('vat_configuration')->value('status'); 
-                        $disabled_text = DB::table('vat_configuration')->value('disabled_text'); 
-                        $enabled_text = DB::table('vat_configuration')->value('enabled_text'); 
-                        ?>
-                        @if($status=="disabled")
-                        {{$disabled_text}}
-                        @else
-                        {{$enabled_text}}
-                        @endif
-                        <br><br>
+                        <p>Full stocktaking assumes that every product is counted. When rectifying, old inventory for the selected branch will be deleted and replaced with newly found data. <a href="retail-full-stocktaking">Click here for full stocktaking</a></p>
                     </div>
                 </div>
             </div>
@@ -291,19 +252,30 @@
 
 
 
+
 <section decription="Modal for app data info">
 <div class="modal fade-scale" tabindex="-1" role="dialog" id="newDataModal" data-backdrop="static">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Important Notice</h5>
+        <h5 class="modal-title">Stocktaking History</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
 
-     Once VAT status is enabled refer to the relevant regulatory authority for information on assigning VAT statuses to products.
-      
-      <br> <br>
+      <div class="row">
+        <div class="col-md-12">
+            <a href="#" class="btn text-primary "><i class="bx bx-calendar"></i> Partial stocktaking history <i class="feather icon-arrow-right"></i></a>
+        </div>
+
+        <div class="col-md-12">
+            <a href="#" class="btn  mt-2 text-danger "><i class="bx bx-calendar"></i> Full stocktaking history <i class="feather icon-arrow-right"></i></a>
+        </div>
+
+      </div>
+
+
+
       </div>
     </div>
   </div>

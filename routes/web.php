@@ -83,12 +83,21 @@ Route::post('update-wholesale-client', 'WholesaleController@updatewholesaleclien
 /*==========================================Start of Admin Retail Routes=================================================================*/
 Route::get('admin-retail-baseproducts', 'AdminRetailController@adminretailbaseproducts');
 Route::get('admin-retail-branch-products', 'AdminRetailController@adminretailbranchproducts');
+
+
 Route::get('admin-retail-product-tracker', 'AdminRetailController@adminretailproducttracker');
+
+Route::get('admin-retail-product-logs', 'AdminRetailController@adminretailproductlogs');
+
+Route::get('admin-retail-product-logs-datewise', 'AdminRetailController@adminretailproductlogsdatewise');
+
 Route::get('admin-retail-product-supplies', 'AdminRetailController@adminretailproductsupplies');
 Route::get('admin-retail-clients', 'AdminRetailController@adminretailclients');
 Route::get('admin-retail-openingstock', 'AdminRetailController@adminretailopeningstock');
 
 Route::get('admin-retail-action-center', 'AdminRetailController@adminretailactioncenter');
+
+Route::get('admin-retail-deliverynote-details', 'AdminRetailController@adminretaildeliverynotedetails');
 
 
 Route::post('save-retail-openingstock', 'AdminRetailController@saveretailopeingstock');
@@ -96,6 +105,10 @@ Route::get('admin-retail-openingstock-data', 'AdminRetailController@adminretailo
 Route::get('submit-retail-openingstock-to-branch', 'AdminRetailController@submitretailopeningstocktobranch');
 
 Route::get('admin-retail-system-sales', 'AdminRetailController@adminretailsystemsales');
+
+Route::get('admin-retail-deliverynotes', 'AdminRetailController@adminretaildeliverynotes');
+
+Route::get('admin-retail-price-changes', 'AdminRetailController@adminretailpricechanges');
 
 
 Route::post('edit-system-sales-retail','AdminRetailController@editsystemsalesretail');
@@ -112,6 +125,42 @@ Route::post('retail-cancel-distributed-product','AdminRetailController@retailcan
 
 
 Route::post('retail-price-change','AdminRetailController@retailpricechange');
+
+Route::post('retail-add-allproducts-to-branches','AdminRetailController@retailaddallproductstobranches');
+
+
+Route::post('retail-add-products-to-specific-branch','AdminRetailController@retailaddproductstospecificbranch');
+
+
+
+
+Route::get('admin-retail-stocktaking','AdminRetailController@adminretailstocktaking');
+
+Route::get('retail-full-stocktaking','AdminRetailController@retailfullstocktaking');
+
+Route::get('admin-retail-full-stocktaking-merged','AdminRetailController@adminretailfullstocktakingmerged');
+
+Route::post('merge-retail-full-stocktaking','AdminRetailController@mergeretailfullstocktaking');
+
+Route::post('delete-retail-full-stocktaking','AdminRetailController@deleteretailfullstocktaking');
+
+Route::post('update-retail-full-stocktaking','AdminRetailController@updateretailfullstocktaking');
+
+Route::get('retail-full-stocktaking-missing-products','AdminRetailController@retailfullstocktakingmissingproducts');
+
+Route::get('retail-full-stocktaking-actions-and-info','AdminRetailController@retailfullstocktakingactionsandinfo');
+
+Route::post('submit-retail-stock-fullrectification','AdminRetailController@submitretailstockfullrectification');
+
+
+
+Route::get('retail-partial-stocktaking','AdminRetailController@retailpartialstocktaking');
+
+Route::post('insert-retail-partial-stocktaking','AdminRetailController@retailinsertretailpartialstocktaking');
+
+Route::post('edit-retail-partial-stocktaking','AdminRetailController@editretailpartialstocktaking');
+
+Route::post('submit-retail-stock-partialrectification','AdminRetailController@submitretailstockpartialrectification');
 
 /*==========================================Start of Admin Retail Routes=================================================================*/
 
@@ -139,21 +188,8 @@ Route::post('update-retail-client', 'AdminRetailController@updateretailclient');
 
 
 /*==========================================Session=================================================================*/
-Route::post('change-date-interval', 'SessionController@changedateinterval');
 
-Route::post('select-category', 'SessionController@selectCategory');
-Route::post('select-supplier', 'SessionController@selectSupplier');
-Route::post('select-branch', 'SessionController@selectBranch');
-Route::post('select-product', 'SessionController@selectproduct');
-Route::post('select-wdate', 'SessionController@selectwdate');
-
-
-Route::post('select-rcategory', 'SessionController@selectrCategory');
-Route::post('select-rsupplier', 'SessionController@selectrSupplier');
-Route::post('select-rbranch', 'SessionController@selectrBranch');
-Route::post('select-rproduct', 'SessionController@selectrproduct');
-Route::post('select-rdate', 'SessionController@selectrdate');
-
+Route::post('make-selection', 'SelectionController@makeselection');
 /*==========================================End Session=================================================================*/
 
 

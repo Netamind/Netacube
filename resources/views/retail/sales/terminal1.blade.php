@@ -683,19 +683,19 @@ $products = DB::table('retailbranchproducts')->where('branch',$userbranch)->get(
                     $interval = "02:00PM-04:00PM"; 
                    }
                    if($countIntervals == 4){
-                    $interval = "04:00PM-05:00PM"; 
+                    $interval = "04:00PM-06:00PM"; 
                    }
   
                    if($countIntervals == 5){
-                    $interval = "05:00PM-07:00PM"; 
+                    $interval = "06:00PM-08:00PM"; 
                    }
 
                    if($countIntervals == 6){
-                    $interval = "07:00PM-09:00PM"; 
+                    $interval = "08:00PM-10:00PM"; 
                    }
 
                    if($countIntervals == 7){
-                    $interval = "09:00PM-12:00AM"; 
+                    $interval = "10:00PM-12:00AM"; 
                    }
                    if($countIntervals > 7){
                     $interval = "12:00AM-07:00AM"; 

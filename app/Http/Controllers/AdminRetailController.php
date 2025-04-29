@@ -6,7 +6,6 @@ use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Cookie;
 use Carbon\Carbon;
 use DB;
 use Auth;
@@ -72,9 +71,78 @@ public function adminretailsystemsales(){
         
     }
 
+    public function     adminretaildeliverynotes(){
+
+        return view('admin.retail.retaildeliverynotes');
+        
+    }
+
+    public function    adminretailpricechanges(){
+
+        return view('admin.retail.retailpricechanges');
+        
+    }
    
 
-  public function  insertretailbaseproduct(request $request){
+    public function     adminretaildeliverynotedetails(){
+
+        return view('admin.retail.retaildeliverynotedetails');
+        
+    }
+   
+
+    public function adminretailproductlogs(){
+     return view('admin.retail.retailproductlogs');
+    }
+   
+   
+    public function adminretailproductlogsdatewise(){
+        return view('admin.retail.retailproductlogsdatewise');
+       }
+
+
+       public function adminretailstocktaking(){
+
+        return view('admin.retail.retailstocktaking');
+
+       }
+      
+
+
+       public function    retailfullstocktaking(){
+
+        return view('admin.retail.retailfullstocktaking');
+
+       }
+      
+    
+
+       public function adminretailfullstocktakingmerged(){
+
+        return view('admin.retail.retailfullstocktakingmerged');
+       }
+
+       public function  retailfullstocktakingmissingproducts(){
+ 
+
+        return view('admin.retail.retailfullstocktakingmissingproducts');
+
+       }
+
+
+       public function retailfullstocktakingactionsandinfo(){
+
+        return view('admin.retail.retailfullstocktakingactionsandinfo');
+       }
+
+       public function retailpartialstocktaking(){
+
+      return view('admin.retail.retailpartialstocktaking');
+
+       }
+
+
+   public function  insertretailbaseproduct(request $request){
     $data = array();
     $data['product'] = $request->product;
     $data['supplier'] = $request->supplier;
@@ -160,6 +228,10 @@ public function adminretailsystemsales(){
 
 public function deleteretailbaseproduct(request $request){
   $id = $request->id;
+
+  $checkinventory = DB::table('retailbranchproducts')->where('product',$request->id);
+
+
   $deleteData = DB::table('retailbaseproducts')->where('id',$id)->delete();  
   if($deleteData){
     return response()->json(['success' => 'Data deleted succesifully','status'=>201]);
@@ -172,7 +244,7 @@ public function deleteretailbaseproduct(request $request){
 public function uploadRetailBaseProductsCsvFile(Request $request)
 {
     $csvData = json_decode($request->data, true);
-    $supplier = Cookie::get('rsupplier') ?? "NA";
+    $supplier = DB::table('selection')->where('user',Auth::user()->id)->value('rsupplier');
     $vat = "EX";
     $chunkSize = 50;
     $chunks = array_chunk($csvData, $chunkSize);
@@ -241,6 +313,8 @@ private function extractNumber($value)
 
 
 
+
+
 public function insertretailbranchproduct(Request $request) {
   $data = array();
   $data['product'] = $request->productid;
@@ -273,6 +347,9 @@ public function insertretailbranchproduct(Request $request) {
           'branch' => 'gt:0',
       ], $messages);
 
+
+
+
 if($validator){
   
   $existingProduct = DB::table('retailbranchproducts')
@@ -280,46 +357,79 @@ if($validator){
       ->where('product', $request->productid)
       ->first();
 
+      $existingDeliveryNote = DB::table('retaildeliverynotes')
+      ->where('branchid', $request->branch)
+      ->where('productid', $request->productid)
+      ->where('added_to_branch', 'Yes')
+      ->whereDate('date', Carbon::today()->toDateString())
+      ->first();
+
   if ($existingProduct) {
       $qtybefore = $existingProduct->quantity;
       $qtyafter = $qtybefore + $request->quantity;
 
-      DB::transaction(function () use ($request, $existingProduct, $dnote, $history, $qtybefore, $qtyafter, $devicedetails, $time) {
-          DB::table('retailbranchproducts')
-              ->where('branch', $request->branch)
-              ->where('product', $request->productid)
-              ->update(['quantity' => $qtyafter]);
-          DB::table('retaildeliverynotes')->insert($dnote);
-          $history['date'] = Carbon::today()->toDateString();
-          $history['branchid'] = $request->branch;
-          $history['productid'] = $request->productid;
-          $history['qtyadded'] = $request->quantity;
-          $history['username'] = Auth::user()->username;
-          $history['devicedetails'] = $devicedetails;
-          $history['qtybefore'] = $qtybefore;
-          $history['qtyafter'] = $qtyafter;
-          $history['description'] = "Directly added (update)";
-          $history['time'] = $time;
-          DB::table('retailproducthistory')->insert($history);
-      });
+DB::transaction(function () use ($request, $existingProduct, $existingDeliveryNote, $dnote, $history, $qtybefore, $qtyafter, $devicedetails, $time) {
+    DB::table('retailbranchproducts')
+        ->where('branch', $request->branch)
+        ->where('product', $request->productid)
+        ->update(['quantity' => $qtyafter]);
+
+    if ($existingDeliveryNote) {
+        DB::table('retaildeliverynotes')
+            ->where('branchid', $request->branch)
+            ->where('productid', $request->productid)
+            ->where('added_to_branch', 'Yes')
+            ->whereDate('date', Carbon::today()->toDateString())
+            ->update([
+                'quantity' => $existingDeliveryNote->quantity + $request->quantity,
+            ]);
+    } else {
+        DB::table('retaildeliverynotes')->insert($dnote);
+    }
+
+    $history['date'] = Carbon::today()->toDateString();
+    $history['branchid'] = $request->branch;
+    $history['productid'] = $request->productid;
+    $history['qtyadded'] = $request->quantity;
+    $history['username'] = Auth::user()->username;
+    $history['devicedetails'] = $devicedetails;
+    $history['qtybefore'] = $qtybefore;
+    $history['qtyafter'] = $qtyafter;
+    $history['description'] = "Directly added (update)";
+    $history['time'] = $time;
+    DB::table('retailproducthistory')->insert($history);
+});
+
   } else {
-      DB::transaction(function () use ($data, $dnote, $history, $request, $devicedetails,$time) {
-          DB::table('retailbranchproducts')->insert($data);
-          DB::table('retaildeliverynotes')->insert($dnote);
-
-          $history['date'] = Carbon::today()->toDateString();
-          $history['branchid'] = $data['branch'];
-          $history['productid'] = $data['product'];
-          $history['qtyadded'] = $data['quantity'];
-          $history['username'] = Auth::user()->username;
-          $history['devicedetails'] = $devicedetails;
-          $history['qtybefore'] = 0;
-          $history['qtyafter'] = $data['quantity'];
-          $history['description'] = "Directly added (insert)";
-          $history['time'] = $time;
-
-          DB::table('retailproducthistory')->insert($history);
-      });
+    DB::transaction(function () use ($data, $dnote, $existingDeliveryNote, $history, $request, $devicedetails, $time) {
+        DB::table('retailbranchproducts')->insert($data);
+    
+        if ($existingDeliveryNote) {
+            DB::table('retaildeliverynotes')
+                ->where('branchid', $request->branch)
+                ->where('productid', $request->productid)
+                ->where('added_to_branch', 'Yes')
+                ->whereDate('date', Carbon::today()->toDateString())
+                ->update([
+                    'quantity' => $existingDeliveryNote->quantity + $request->quantity,
+                ]);
+        } else {
+            DB::table('retaildeliverynotes')->insert($dnote);
+        }
+    
+        $history['date'] = Carbon::today()->toDateString();
+        $history['branchid'] = $data['branch'];
+        $history['productid'] = $data['product'];
+        $history['qtyadded'] = $data['quantity'];
+        $history['username'] = Auth::user()->username;
+        $history['devicedetails'] = $devicedetails;
+        $history['qtybefore'] = 0;
+        $history['qtyafter'] = $data['quantity'];
+        $history['description'] = "Directly added (insert)";
+        $history['time'] = $time;
+        DB::table('retailproducthistory')->insert($history);
+    });
+    
   }
 
   return response()->json(['success' => 'Data submitted successfully', 'status' => 201]);
@@ -334,6 +444,26 @@ else{
 
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 public function deleteretailbranchproduct(Request $request)
 {
@@ -520,147 +650,6 @@ public function updateretailclient(Request $request)
 }
 
 
-public function saveretailopeingstock(Request $request)
-{
-    $csvData = json_decode($request->data, true);
-    $chunkSize = 50;
-    $chunks = array_chunk($csvData, $chunkSize);
-    $imported = 0;
-    $errors = [];
-
-    foreach ($chunks as $chunk) {
-        foreach ($chunk as $row) {
-            if (!empty($row)) {
-                $values = array_values($row);
-                $quantity = 0;
-                if (is_numeric($values[6])) {
-                  $quantity = $values[6];
-              }
-
-                if (!empty($values[0])) {
-                    $stocklist = [
-                        'productid' => $values[0],
-                        'product' => $values[1],
-                        'unit' => $values[2],
-                        'price' => $values[3],
-                        'branchid' => $values[4],
-                        'date' => $values[5],
-                        'quantity' => $quantity,
-                    ];
-
-                    try {
-                        $existingRecord = DB::table('retailnewstocktaking')
-                            ->where('productid', $stocklist['productid'])
-                            ->where('branchid', $stocklist['branchid'])
-                            ->first();
-
-                        if ($existingRecord) {
-                            // Update existing record
-                            DB::table('retailnewstocktaking')
-                                ->where('productid', $values[0])
-                                ->where('branchid', $values[4])
-                                ->update([
-                                    'quantity' => $existingRecord->quantity + $quantity,
-                                ]);
-                        } else {
-                            // Insert new record
-                            DB::table('retailnewstocktaking')->insert($stocklist);
-                        }
-
-                        $imported++;
-                    } catch (\Exception $e) {
-                        $errors[] = "Error importing record: " . $e->getMessage();
-                    }
-                } else {
-                    // Log or handle the case where the product name is empty
-                }
-            }
-        }
-    }
-
-    return response()->json([
-        'message' => 'Processing complete',
-        'success' => count($errors) == 0,
-        'imported' => $imported,
-        'errors' => $errors,
-    ]);
-}
-
-
-public function submitretailopeningstocktobranch()
-{
-    $branchId = Cookie::get('rbranch');
-    $date = Cookie::get('rdate');
-
-    $data = DB::table('retailnewstocktaking')
-        ->where('branchid', $branchId)
-         ->where('date', $date)
-        ->where('status', 'Pending')
-        ->get();
-
-    if ($data->isEmpty()) {
-        return response()->json([
-            'success' => false,
-            'isEmpty' => true,
-            'message' => 'No pending stock data found',
-        ]);
-    }
-
-    $chunkSize = 50;
-    $chunks = array_chunk($data->toArray(), $chunkSize);
-
-    $imported = 0;
-    $errors = [];
-
-    foreach ($chunks as $chunk) {
-        foreach ($chunk as $item) {
-            if (!empty($item)) {
-                try {
-                    DB::transaction(function () use ($branchId, $item) {
-                        $existingProduct = DB::table('retailbranchproducts')
-                            ->where('branch', $branchId)
-                            ->where('product', $item->productid)
-                            ->first();
-
-                        if ($existingProduct) {
-                            // Update existing product quantity
-                            $newQuantity = $existingProduct->quantity + $item->quantity;
-                            DB::table('retailbranchproducts')
-                                ->where('branch', $branchId)
-                                ->where('product', $item->productid)
-                                ->update(['quantity' => $newQuantity]);
-                        } else {
-                            // Insert new product
-                            DB::table('retailbranchproducts')
-                                ->insert([
-                                    'branch' => $branchId,
-                                    'product' => $item->productid,
-                                    'quantity' => $item->quantity,
-                                ]);
-                        }
-
-                        // Update status to Submitted
-                        DB::table('retailnewstocktaking')
-                            ->where('id', $item->id)
-                            ->update(['status' => 'Submitted']);
-                    });
-
-                    $imported++;
-                } catch (\Exception $e) {
-                    $errors[] = "Error importing record: " . $e->getMessage();
-                }
-            }
-        }
-    }
-
-    return response()->json([
-        'success' => count($errors) == 0,
-        'isEmpty' => false,
-        'imported' => $imported,
-        'errors' => $errors,
-    ]);
-}
-
 
 public function editsystemsalesretail(request $request){
 
@@ -717,8 +706,8 @@ public function reservesolditems(request $request){
     $data = json_decode($request->data, true);
     $password =  end($data);
     $hashedPassword=DB::table('users')->where('id',Auth::user()->id)->value('password');
-    $branch = Cookie::get('rbranch') ?? "0";
-    $date = Cookie::get('rdate') ?? "0";
+    $branch = DB::table('selection')->where('user',Auth::user()->id)->value('rbranch')??0;
+    $date = DB::table('selection')->where('user',Auth::user()->id)->value('rdate');
     $dataSales = array();
     $productid=0;
 if(Hash::check($password, $hashedPassword)) {
@@ -839,9 +828,9 @@ public function insertretaildeliverynote(Request $request)
 
 public function retailaddproducttobranches(Request $request)
 {
-    // Get the date and product ID from the request
-    $date = Cookie::get('rdate') ?? "0";
-    $productId = Cookie::get('rproduct') ?? "0";
+
+    $date = DB::table('selection')->where('user',Auth::user()->id)->value('rdate');
+    $productId = DB::table('selection')->where('user',Auth::user()->id)->value('rproduct');
 
     // Get the delivery notes where date matches, product ID matches, and status is 'no'
     $deliveryNotes = DB::table('retaildeliverynotes')
@@ -918,11 +907,81 @@ public function retailaddproducttobranches(Request $request)
         return response()->json(['success' => 'No delivery notes to process']);
     }
 }
+
+
+public function retailaddallproductstobranches(Request $request)
+{
+    // Get the date from the request
+       // Get the date and product ID from the request
+       $date = DB::table('selection')->where('user',Auth::user()->id)->value('rdate');
+     
+
+    // Get the delivery notes where date matches and status is 'no'
+    $deliveryNotes = DB::table('retaildeliverynotes')
+        ->where('date', $date)
+        ->where('added_to_branch', 'No')
+        ->get();
+
+    // Check if there are delivery notes to process
+    if ($deliveryNotes->isNotEmpty()) {
+        // Loop through each delivery note
+        foreach ($deliveryNotes as $deliveryNote) {
+            // Get the branch ID, product ID, and quantity
+            $branchId = $deliveryNote->branchid;
+            $productId = $deliveryNote->productid;
+            $quantity = $deliveryNote->quantity;
+
+            try {
+                DB::transaction(function () use ($branchId, $productId, $quantity, $deliveryNote) {
+                    // Check if the product exists in the retail branch products table
+                    $existingBranchProduct = DB::table('retailbranchproducts')
+                        ->where('branch', $branchId)
+                        ->where('product', $productId)
+                        ->first();
+
+                    if ($existingBranchProduct) {
+                        // Update existing product quantity
+                        DB::table('retailbranchproducts')
+                            ->where('branch', $branchId)
+                            ->where('product', $productId)
+                            ->increment('quantity', $quantity);
+                    } else {
+                        // Insert new product
+                        DB::table('retailbranchproducts')
+                            ->insert([
+                                'branch' => $branchId,
+                                'product' => $productId,
+                                'quantity' => $quantity,
+                            ]);
+                    }
+
+                    // Update the status of the current delivery note to 'yes'
+                    DB::table('retaildeliverynotes')
+                        ->where('id', $deliveryNote->id)
+                        ->update(['added_to_branch' => 'Yes']);
+                });
+            } catch (\Exception $e) {
+                // Return error response
+                return response()->json(['error' => 'Failed to process delivery note: ' . $e->getMessage()], 500);
+            }
+        }
+
+        // Return success response
+        return response()->json(['success' => 'Delivery notes processed successfully']);
+    } else {
+        // Return response if no delivery notes were processed
+        return response()->json(['success' => 'No delivery notes to process']);
+    }
+}
+
+
+
 public function retailcanceldistributedproduct()
 {
     // Get the date and product ID from the cookies
-    $date = Cookie::get('rdate') ?? "0";
-    $productId = Cookie::get('rproduct') ?? "0";
+    // Get the date and product ID from the request
+    $date = DB::table('selection')->where('user',Auth::user()->id)->value('rdate');
+    $productId = DB::table('selection')->where('user',Auth::user()->id)->value('rproduct');
 
     try {
         // Check if there are any delivery notes to delete
@@ -952,16 +1011,21 @@ public function retailcanceldistributedproduct()
     }
 }
 
+public function retailpricechange(Request $request) {
+    // Check if product exists
+    $productExists = DB::table('retailbaseproducts')->where('id', $request->id)->exists();
 
-public function retailpricechange(Request $request)
-{
+    if (!$productExists) {
+        return response()->json(['error' => 'Product not found'], 404);
+    }
+
     // Get the old retail price
     $oldRetailPrice = DB::table('retailbaseproducts')
         ->where('id', $request->id)
         ->value('sellingprice');
 
-    // Get the date from the cookie
-    $date = Cookie::get('rdate') ?? "0";
+    
+    $date = DB::table('selection')->where('user',Auth::user()->id)->value('rdate');
 
     // Prepare the base data for update
     $baseData = [
@@ -975,60 +1039,482 @@ public function retailpricechange(Request $request)
         ->where('id', $request->id)
         ->update($baseData);
 
-    // Prepare the delivery note data for update
-    $dnoteData = [
-        'productid' => $request->id,
-        'unit' => $request->unit,
-        'price' => $request->price,
-    ];
-
-    // Update the delivery notes
-    DB::table('retaildeliverynotes')
-        ->where('productid', $request->id)
-        ->where('date', $date)
-        ->update($dnoteData);
-
-    // Check if the retail price has changed
-    if ($oldRetailPrice != $request->price) {
-        // Prepare the price change data
-        $priceChangeData = [
-            'date' => $date,
+    if ($updateBaseData) {
+        // Prepare the delivery note data for update
+        $dnoteData = [
             'productid' => $request->id,
             'unit' => $request->unit,
-            'oldprice' => $oldRetailPrice,
-            'newprice' => $request->price,
+            'price' => $request->price,
         ];
 
-        // Prepare the price change data for update
-        $priceChangeData2 = [
-            'newprice' => $request->price,
-            'unit' => $request->unit,
-        ];
-
-        // Check if a price change has already been recorded for today
-        $checkPriceChangeToday = DB::table('retailpricechanges')
-            ->where('date', Carbon::today()->toDateString())
+        // Update the delivery notes
+        DB::table('retaildeliverynotes')
             ->where('productid', $request->id)
-            ->count();
+            ->where('date', $date)
+            ->update($dnoteData);
 
-        if ($checkPriceChangeToday > 0) {
-            // Update the existing price change record
-            DB::table('retailpricechanges')
-                ->where('date', Carbon::today()->toDateString())
+        // Check if the retail price has changed
+        if ($oldRetailPrice != $request->price) {
+            // Prepare the price change data
+            $priceChangeData = [
+                'date' => $date,
+                'productid' => $request->id,
+                'unit' => $request->unit,
+                'oldprice' => $oldRetailPrice,
+                'newprice' => $request->price,
+            ];
+
+            // Prepare the price change data for update
+            $priceChangeData2 = [
+                'newprice' => $request->price,
+                'unit' => $request->unit,
+            ];
+
+            // Check if a price change has already been recorded 
+            $checkPriceChangeToday = DB::table('retailpricechanges')
+                ->where('date', $date)
                 ->where('productid', $request->id)
-                ->update($priceChangeData2);
+                ->count();
 
-            return response()->json(['success' => 'Data updated successfully']);
+            if ($checkPriceChangeToday > 0) {
+                // Update the existing price change record
+                DB::table('retailpricechanges')
+                    ->where('date', $date)
+                    ->where('productid', $request->id)
+                    ->update($priceChangeData2);
+            } else {
+                // Insert a new price change record
+                DB::table('retailpricechanges')
+                    ->insertOrIgnore($priceChangeData);
+            }
+        }
+
+        return response()->json([
+            'success' => 'Data updated successfully',
+            'product' => $request->product,
+            'price' => $request->price,
+            'unit' => $request->unit,
+        ]);
+    } else {
+        return response()->json(['error' => 'No updates made'], 400);
+    }
+}
+
+
+public function retailaddproductstospecificbranch(Request $request)
+{
+    // Get the date and branch from the request
+    $date = $request->date;
+    $branch = $request->branch;
+
+    // Get the delivery notes where date and branch match and status is 'no'
+    $deliveryNotes = DB::table('retaildeliverynotes')
+        ->where('date', $date)
+        ->where('branchid', $branch)
+        ->where('added_to_branch', 'No')
+        ->get();
+
+    // Check if there are delivery notes to process
+    if ($deliveryNotes->isNotEmpty()) {
+        // Loop through each delivery note
+        foreach ($deliveryNotes as $deliveryNote) {
+            // Get the product ID and quantity
+            $productId = $deliveryNote->productid;
+            $quantity = $deliveryNote->quantity;
+
+            try {
+                DB::transaction(function () use ($branch, $productId, $quantity, $deliveryNote) {
+                    // Check if the product exists in the retail branch products table
+                    $existingBranchProduct = DB::table('retailbranchproducts')
+                        ->where('branch', $branch)
+                        ->where('product', $productId)
+                        ->first();
+
+                    if ($existingBranchProduct) {
+                        // Update existing product quantity
+                        DB::table('retailbranchproducts')
+                            ->where('branch', $branch)
+                            ->where('product', $productId)
+                            ->increment('quantity', $quantity);
+                    } else {
+                        // Insert new product
+                        DB::table('retailbranchproducts')
+                            ->insert([
+                                'branch' => $branch,
+                                'product' => $productId,
+                                'quantity' => $quantity,
+                            ]);
+                    }
+
+                    // Update the status of the current delivery note to 'yes'
+                    DB::table('retaildeliverynotes')
+                        ->where('id', $deliveryNote->id)
+                        ->update(['added_to_branch' => 'Yes']);
+                });
+            } catch (\Exception $e) {
+                // Return error response
+                return response()->json(['error' => 'Failed to process delivery note: ' . $e->getMessage()], 500);
+            }
+        }
+
+        // Return success response
+        return response()->json(['success' => 'Delivery notes processed successfully']);
+    } else {
+        // Return response if no delivery notes were processed
+        return response()->json(['success' => 'No delivery notes to process']);
+    }
+}
+
+
+
+public function mergeretailfullstocktaking(Request $request)
+{
+    $dataArray = json_decode($request->input('data'), true);
+    $password = $dataArray[0];
+    $productData = json_decode($dataArray[1], true);
+    $hashedPassword = Auth::user()->password;
+    $branch = DB::table('selection')->where('user', Auth::user()->id)->value('rfstockbranch');
+    $date = DB::table('selection')->where('user', Auth::user()->id)->value('rfstockdate');
+
+    if (Hash::check($password, $hashedPassword)) {
+        $maxCounter = DB::table('retailfullstocktaking')->max('counter');
+        $newCounter = $maxCounter ? $maxCounter + 1 : 1;
+
+        foreach ($productData as $data) {
+           
+            $expectedQuantity = DB::table('retailbranchproducts')
+                ->where('branch', $data['Branch'])
+                ->where('product', $data['Productid'])
+                ->value('quantity')??0;
+
+                
+            $rate = DB::table('retailbranchproducts')
+            ->where('branch', $data['Branch'])
+            ->where('product', $data['Productid'])
+            ->value('rate')??1.00;
+
+            $existingData = DB::table('retailfullstocktaking')
+                ->where('date', $date)
+                ->where('branch', $data['Branch'])
+                ->where('productid', $data['Productid'])
+                ->first();
+
+            if ($existingData) {
+                DB::table('retailfullstocktaking')
+                    ->where('date', $date)
+                    ->where('branch', $data['Branch'])
+                    ->where('productid', $data['Productid'])
+                    ->update([
+                        'found' => $existingData->found + $data['Quantity'],
+                        'counter' => $newCounter,
+                    ]);
+            } else {
+                DB::table('retailfullstocktaking')->insert([
+                    'date' => $date,
+                    'branch' => $data['Branch'],
+                    'productid' => $data['Productid'],
+                    'product' => $data['Product'],
+                    'unit' => $data['Unit'],
+                    'price' => $data['Price'],
+                    'expected' => $expectedQuantity,
+                    'found' => $data['Quantity'],
+                    'rate' => $rate,
+                    'counter' => $newCounter,
+                ]);
+            }
+
+            $newCounter++;
+        }
+
+        return response()->json(2);
+    } else {
+        return response()->json(1);
+    }
+}
+
+
+
+public function deleteretailfullstocktaking(request $request){
+
+    $id = $request->id;
+    $deleteData = DB::table('retailfullstocktaking')->where('id',$id)->delete();  
+    if($deleteData){
+      return response()->json(['success' => 'Data deleted succesifully','status'=>201]);
+    }else{
+      return response()->json(['error' => 'An error occured try again later','status'=>422]);
+    }
+}
+
+
+
+
+
+
+
+public function updateretailfullstocktaking(Request $request)
+{
+    $data = array();
+    $data['expected'] = $request->expected;
+    $data['found'] = $request->found;
+
+    $messages = [
+        'expected.required' => 'Expected quantity is required.',
+        'expected.gte' => 'Expected quantity should be greater than or equal to 0.',
+        'found.required' => 'Found quantity is required.',
+        'found.gte' => 'Found quantity should be greater than or equal to 0.',
+    ];
+
+    $validator = Validator::make($request->all(), [
+        'expected' => 'required|gte:0',
+        'found' => 'required|gte:0',
+    ], $messages);
+
+    if ($validator->fails()) {
+        return response()->json(['error' => $validator->messages(), 'status' => 422]);
+    } else {
+        $updateData = DB::table('retailfullstocktaking')->where('id', $request->id)->update($data);
+        if ($updateData) {
+            return response()->json(['success' => 'Data updated successfully', 'status' => 201]);
         } else {
-            // Insert a new price change record
-            DB::table('retailpricechanges')
-                ->insertOrIgnore($priceChangeData);
-
-            return response()->json(['success' => 'Data updated successfully']);
+            return response()->json(['error' => 'An error occurred or no data change detected', 'status' => 422]);
         }
     }
+}
 
-    return response()->json(['success' => 'Data updated successfully']);
+public function submitretailstockfullrectification(Request $request)
+{
+    $countedProducts = DB::table('retailfullstocktaking')
+        ->where('branch', $request->branch)
+        ->where('date', $request->date)
+        ->pluck('productid');
+
+    $missingproducts = DB::table('retailbranchproducts')
+        ->where('branch', $request->branch)
+        ->whereNotIn('product', $countedProducts)
+        ->get();
+
+    $stocktakingdata = DB::table('retailfullstocktaking')
+        ->where('branch', $request->branch)
+        ->where('date', $request->date)
+        ->get();
+
+    $stoktakingHistory = [
+        'date' => $request->date,
+        'branch' => $request->branch,
+        'expected' => $request->expectedvalue,
+        'found' => $request->foundvalue,
+        'missingvalue' => $request->missingvalue,
+    ];
+
+    $hashedPassword = Auth::user()->password;
+    $password = $request->password;
+
+    $messages = [
+        'password.required' => 'Password is required to complete this action',
+    ];
+
+    $validator = $request->validate([
+        'password' => 'required',
+    ], $messages);
+
+    if ($validator) {
+        if (Hash::check($password, $hashedPassword)) {
+            try {
+                DB::transaction(function () use ($request, $missingproducts, $stocktakingdata, $stoktakingHistory) {
+                    $missingDataChunks = $missingproducts->chunk(100);
+                    $stocktakingDataChunks = $stocktakingdata->chunk(100);
+
+                    foreach ($missingDataChunks as $chunk) {
+                        $productIds = $chunk->pluck('product');
+                        $productDetails = DB::table('retailbaseproducts')
+                            ->whereIn('id', $productIds)
+                            ->get()
+                            ->keyBy('id');
+
+                        $missingDataToInsert = [];
+
+                        foreach ($chunk as $missing) {
+                            if (isset($productDetails[$missing->product])) {
+                                $product = $productDetails[$missing->product];
+                                $missingDataToInsert[] = [
+                                    'date' => $request->date,
+                                    'branch' => $request->branch,
+                                    'productid' => $missing->product,
+                                    'product' => $product->product,
+                                    'unit' => $product->unit,
+                                    'price' => $product->sellingprice,
+                                    'quantity' => $missing->quantity,
+                                    'rate' => $missing->rate,
+                                ];
+                            }
+                        }
+
+                        DB::table('retailfullstocktakingmissingproducts')
+                            ->insertOrIgnore($missingDataToInsert);
+                    }
+
+                    DB::table('retailbranchproducts')
+                        ->where('branch', $request->branch)
+                        ->delete();
+
+                    foreach ($stocktakingDataChunks as $chunk) {
+                        $dataToInsert = [];
+
+                        foreach ($chunk as $stock) {
+                            $dataToInsert[] = [
+                                'branch' => $request->branch,
+                                'product' => $stock->productid,
+                                'quantity' => $stock->found,
+                                'rate' => $stock->rate,
+                            ];
+                        }
+
+                        DB::table('retailbranchproducts')
+                            ->insertOrIgnore($dataToInsert);
+                    }
+
+                    DB::table('retailfullstocktakinghistory')
+                        ->insertOrIgnore($stoktakingHistory);
+                });
+
+                return response()->json(['success' => 'Stock rectification completed successfully!', 'status' => 201]);
+            } catch (\Exception $e) {
+                return response()->json(['error' => 'A transaction error occurred during stock rectification: ' . $e->getMessage(), 'status' => 500]);
+            }
+        } else {
+            return response()->json(['error' => 'The password you entered is incorrect', 'status' => 422]);
+        }
+    } else {
+        return response()->json(['error' => 'Validation failed', 'status' => 400]);
+    }
+}
+
+
+
+
+
+
+public function retailinsertretailpartialstocktaking(request $request){
+    $counter1 =   DB::table('retailpartialstocktaking')->where('date',$request->date)->where('branch',$request->branch)->max('counter');
+    
+    $counter =  $counter1 + 1;
+    
+    $data = array();
+
+    $data['date']=$request->date;
+    $data['branch']=$request->branch;
+    $data['product']=$request->product;
+    $data['productid']=$request->productid;
+    $data['unit']=$request->unit;
+    $data['price']=$request->price;
+    $data['expected']=$request->expected;
+    $data['found']=$request->found;
+    $data['counter']=$counter;
+   
+    $checkproduct = DB::table('retailpartialstocktaking')->where('date',$request->date)->where('branch',$request->branch)->where('productid',$request->productid)->count();
+   
+    if($checkproduct>0){
+     $found1 =   DB::table('retailpartialstocktaking')->where('date',$request->date)->where('branch',$request->branch)->where('productid',$request->productid)->value('found');
+     $found2 =  $request->found; 
+     $newfound = $found1+$found2;
+      $datay = array();
+      $datay['expected']=$request->expected;;
+      $datay['found']=$newfound;
+      $datay['counter']=$counter;
+      DB::table('retailpartialstocktaking')->where('date',$request->date)->where('branch',$request->branch)->where('productid',$request->productid)->update($datay);
+    return json_encode(2);
+    }
+    else{
+     DB::table('retailpartialstocktaking')->insertOrIgnore($data);
+     return json_encode(4);
+    }
+
+}
+
+public function editretailpartialstocktaking(request $request){
+    $data = array();
+    $data['expected']=$request->expected;
+    $data['found']=$request->found;
+    $updateData = DB::table('retailpartialstocktaking')->where('id',$request->id)->update($data);
+
+  if($updateData){
+    return json_encode(2);
+  }else{
+    return json_encode(1);
+
+  }
+
+
+}
+
+public function submitretailstockpartialrectification(Request $request)
+{
+    $messages = [
+        'password.required' => 'Password is required to complete this action',
+    ];
+
+    $validator = $request->validate([
+        'password' => 'required',
+    ], $messages);
+
+    $hashedPassword = Auth::user()->password;
+
+    $password = $request->password;
+
+    if ($validator) {
+
+        if (Hash::check($password, $hashedPassword)) {
+            try {
+                DB::transaction(function () use ($request) {
+                    $partialstocktakingdata = DB::table('retailpartialstocktaking')
+                        ->where('branch', $request->branch)
+                        ->where('date', $request->date)
+                        ->get();
+
+                    foreach ($partialstocktakingdata as $stock) {
+                        $existingProduct = DB::table('retailbranchproducts')
+                            ->where('branch', $request->branch)
+                            ->where('product', $stock->productid)
+                            ->first();
+
+                        if ($existingProduct) {
+                            DB::table('retailbranchproducts')
+                                ->where('branch', $request->branch)
+                                ->where('product', $stock->productid)
+                                ->update([
+                                    'quantity' => $stock->found,
+                                ]);
+                        } else {
+                            DB::table('retailbranchproducts')
+                                ->insert([
+                                    'branch' => $request->branch,
+                                    'product' => $stock->productid,
+                                    'quantity' => $stock->found,
+                                ]);
+                        }
+                    }
+
+                    $partialstocktakingHistory = [
+                        'date' => $request->date,
+                        'branch' => $request->branch,
+                        'expected' => $request->expectedvalue,
+                        'found' => $request->foundvalue,
+                    ];
+
+                    DB::table('retailpartialstocktakinghistory')
+                        ->insertOrIgnore($partialstocktakingHistory);
+                });
+
+                return response()->json(['success' => 'Stock rectification completed successfully!', 'status' => 201]);
+            } catch (\Exception $e) {
+                return response()->json(['error' => 'A transaction error occurred during stock rectification: ' . $e->getMessage(), 'status' => 500]);
+            }
+        } else {
+            return response()->json(['error' => 'The password you entered is incorrect', 'status' => 422]);
+        }
+    } else {
+        return response()->json(['error' => 'Validation failed', 'status' => 400]);
+    }
 }
 
 

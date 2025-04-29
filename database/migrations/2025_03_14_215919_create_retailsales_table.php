@@ -27,6 +27,7 @@ class CreateRetailsalesTable extends Migration
             $table->decimal('quantity', 65, 2);
             $table->decimal('rquantity', 65, 2)->default(0.00);
             $table->string('slot', 165)->default('0');
+            $table->unique(['branch', 'productid','transid','date']);
         });
     }
 

@@ -8,7 +8,7 @@
 	<link rel="icon" href="system/images/neta1.png" type="image/x-icon">
 	<!--plugins-->
 	<link href="dashboard/assets/plugins/vectormap/jquery-jvectormap-2.0.2.css" rel="stylesheet"/>
-	<link href="dashboard/assets/plugins/simplebar/css/simplebar.css" rel="stylesheet" />
+	<!--<link href="dashboard/assets/plugins/simplebar/css/simplebar.css" rel="stylesheet" />-->
 	<link href="dashboard/assets/plugins/perfect-scrollbar/css/perfect-scrollbar.css" rel="stylesheet" />
 	<link href="dashboard/assets/plugins/metismenu/css/metisMenu.min.css" rel="stylesheet"/>
 	<link rel="stylesheet" type="text/css" href="dashboard/font-awesome/css/font-awesome.min.css">

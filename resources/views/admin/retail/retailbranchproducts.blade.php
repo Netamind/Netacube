@@ -541,7 +541,7 @@ $data = DB::table('retailbranchproducts')->where('branch',$branchId)->get();
       
 			<div class="form-group col-md-6">
 				<label for="#"><strong>Quantity</strong> </label>
-				<input type="number" name="quantity" class="form-control" id="editquantity">
+				<input type="number" name="quantity" class="form-control" id="editquantity" autocomplete="off">
 			</div>
 
 

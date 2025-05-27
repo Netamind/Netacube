@@ -217,7 +217,7 @@
 <section>
 <div class="card">
 <div class="card-header">
-<h4><i class="bx bx-grid"></i> Sectors
+<h4>Sectors
 <a href="#" class="btn btn-primary" id="newDataBtn" style="float:right"><i class="fa fa-plus-circle" style="color:white"></i>New Sector</a>
 </h4>
 <span style="font-size:18px;">

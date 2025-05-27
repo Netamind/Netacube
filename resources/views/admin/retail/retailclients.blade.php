@@ -207,7 +207,7 @@
 <section>
 <div class="card">
 <div class="card-header">
-<h4><i class="feather icon-users" style="font-weight:bold;color:gray;"></i> Clients
+<h4> Clients
 
 <a href="#" class="btn btn-primary" id="newDataBtn" style="float:right"><i class="fa fa-plus-circle" style="color:white"></i>New Client</a>
 </h4>

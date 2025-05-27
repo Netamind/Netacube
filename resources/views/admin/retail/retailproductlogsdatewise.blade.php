@@ -271,8 +271,7 @@
 
  ?>
 
-  
-<i class="bx bx-calendar" style="font-weight:bold;color:gray;"></i>
+
 <select  id="" style=";border:none;margin-left:-4px" onchange="submitBranchId(this.value)">
 <option value="" hidden>{{$branchName}}</option>
 <?php

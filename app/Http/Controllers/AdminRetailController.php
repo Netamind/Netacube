@@ -180,9 +180,7 @@ public function adminretailsystemsales(){
   }
   } 
 
-
-
-  public function  editretailbaseproduct(request $request){
+  public function editretailbaseproduct(Request $request){
     $data = array();
     $data['product'] = $request->product;
     $data['supplier'] = $request->supplier;
@@ -192,53 +190,82 @@ public function adminretailsystemsales(){
     $data['vat'] = $request->vat;
 
     $messages = [
-      'product.unique' => 'Product name must be unique (You can separate by brands).',
-      'proudct.required' => 'product name is required.',
-      'supplier.required' => 'Supplier is required.',
-      'unit.required' => 'Unit is required.',
-      'orderprice.required' => 'Order price  is required',
-      'sellingprice.required' => 'Selling price  is required',
+        'product.unique' => 'Product name must be unique (You can separate by brands).',
+        'product.required' => 'Product name is required.',
+        'supplier.required' => 'Supplier is required.',
+        'unit.required' => 'Unit is required.',
+        'orderprice.required' => 'Order price is required',
+        'sellingprice.required' => 'Selling price is required',
     ];
-  $validator = $request->validate([
-    'product' => 'required|unique:retailbaseproducts,product,'.$request->id,
-    'supplier' => 'required',
-    'unit' => 'required',
-    'orderprice' => 'required',
-    'sellingprice' => 'required',
-  ], $messages);
-  
-  if($validator){
 
-    $updateData =DB::table('retailbaseproducts')->where('id',$request->id)->update($data);
+    $validator = $request->validate([
+        'product' => 'required|unique:retailbaseproducts,product,'.$request->id,
+        'supplier' => 'required',
+        'unit' => 'required',
+        'orderprice' => 'required',
+        'sellingprice' => 'required',
+    ], $messages);
 
-    if($updateData ){
-        return response()->json(['success' => 'Data updated succesfully','status'=>201]);
+    if($validator){
+        $existingData = DB::table('retailbaseproducts')->where('id', $request->id)->first();
+
+        $updateData = DB::table('retailbaseproducts')->where('id', $request->id)->update($data);
+
+        if($updateData){
+            // Check if selling price has changed
+            if($existingData->sellingprice != $request->sellingprice){
+                $today = Carbon::today()->toDateString();
+                $existingPriceChange = DB::table('retailpricechanges')->where('productid', $request->id)->where('date', $today)->first();
+
+                if($existingPriceChange){
+                    // Update existing record
+                    DB::table('retailpricechanges')->where('productid', $request->id)->where('date', $today)->update([
+                        'newprice' => $request->sellingprice,
+                    ]);
+                } else {
+                    // Insert new record
+                    DB::table('retailpricechanges')->insert([
+                        'date' => $today,
+                        'productid' => $request->id,
+                        'unit' => $request->unit,
+                        'oldprice' => $existingData->sellingprice,
+                        'newprice' => $request->sellingprice,
+                    ]);
+                }
+            }
+
+            return response()->json(['success' => 'Data updated succesfully','status'=>201]);
+        }else{
+            return response()->json(['error' => 'An error occured no data change detected','status'=>422]);
+        }
+    } else{
+        return back()->withErrors($validator)->withInput();
+    }
+}
+
+
+  public function deleteretailbaseproduct(Request $request){
+    $id = $request->id;
+    $checkinventory = DB::table('retailbranchproducts')->where('product', $request->id)->count();
+
+    if ($checkinventory > 0) {
+        return response()->json(['error' => 'Cannot delete product. Some branches are currently stocking this product.', 'status' => 422]);
     }else{
-        return response()->json(['error' => 'An error occured no data change detected','status'=>422]);
+
+        $deleteData = DB::table('retailbaseproducts')->where('id', $id)->delete();
+
+        if ($deleteData) {
+            return response()->json(['success' => 'Data deleted successfully', 'status' => 201]);
+        } else {
+            return response()->json(['error' => 'An error occurred. Try again later.', 'status' => 422]);
+        }
+
     }
 
-  }
-  else{
-    return back()->withErrors($validator)->withInput();
-  }
-  } 
-
-  
-
-
-public function deleteretailbaseproduct(request $request){
-  $id = $request->id;
-
-  $checkinventory = DB::table('retailbranchproducts')->where('product',$request->id);
-
-
-  $deleteData = DB::table('retailbaseproducts')->where('id',$id)->delete();  
-  if($deleteData){
-    return response()->json(['success' => 'Data deleted succesifully','status'=>201]);
-  }else{
-    return response()->json(['error' => 'An error occured try again later','status'=>422]);
-  }
+   
 }
+
+
 
 
 public function uploadRetailBaseProductsCsvFile(Request $request)
@@ -444,25 +471,6 @@ else{
 
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 public function deleteretailbranchproduct(Request $request)
@@ -1218,7 +1226,7 @@ public function mergeretailfullstocktaking(Request $request)
                     'price' => $data['Price'],
                     'expected' => $expectedQuantity,
                     'found' => $data['Quantity'],
-                    'rate' => $rate,
+                    'rate' => $data['Rate'],
                     'counter' => $newCounter,
                 ]);
             }

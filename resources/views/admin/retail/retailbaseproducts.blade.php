@@ -402,7 +402,7 @@ $data  = DB::table('retailbaseproducts')->whereIn('supplier',$supplierArray)->ge
 				<select name="supplier" id="" class="form-control">
         <option value="" hidden>Select supplier</option>
         <?php 
-        $suppliers = DB::table('suppliers')->where('category',$catId)->get();
+        $suppliers = DB::table('suppliers')->where('sector','Retail')->where('category',$catId)->get();
         ?>
         @foreach($suppliers as $sup)
         <option value="{{$sup->id}}">{{$sup->supplier}}</option>
@@ -415,14 +415,14 @@ $data  = DB::table('retailbaseproducts')->whereIn('supplier',$supplierArray)->ge
 
 			<div class="form-group col-md-12">
 				<label for="#">Unit</label>
-				<input type="text" name="unit" class="form-control" placeholder="Enter unit">
+				<input type="text" name="unit" class="form-control" placeholder="Enter unit" autocomplete="off">
 			</div>
 
 
 
 			<div class="form-group col-md-12">
 				<label for="#">Order Price</label>
-				<input type="number" name="orderprice" class="form-control" placeholder="Enter order price" value="0">
+				<input type="number" name="orderprice" class="form-control" placeholder="Enter order price" value="0" autocomplete="off">
 			</div>
 
       
@@ -431,7 +431,7 @@ $data  = DB::table('retailbaseproducts')->whereIn('supplier',$supplierArray)->ge
       
 			<div class="form-group col-md-12">
 				<label for="#">Selling Price</label>
-				<input type="number" name="sellingprice" class="form-control" placeholder="Enter selling price">
+				<input type="number" name="sellingprice" class="form-control" placeholder="Enter selling price" autocomplete="off">
 			</div>
 
 
@@ -516,14 +516,14 @@ $data  = DB::table('retailbaseproducts')->whereIn('supplier',$supplierArray)->ge
 
 			<div class="form-group col-md-12">
 				<label for="#">Unit</label>
-				<input type="text" name="unit" class="form-control" id="editunit">
+				<input type="text" name="unit" class="form-control" id="editunit" autocomplete="off">
 			</div>
 
 
 
 			<div class="form-group col-md-12">
 				<label for="#">Order Price</label>
-				<input type="number" name="orderprice" class="form-control" id="editorderprice">
+				<input type="number" name="orderprice" class="form-control" id="editorderprice" autocomplete="off">
 			</div>
 
       
@@ -532,7 +532,7 @@ $data  = DB::table('retailbaseproducts')->whereIn('supplier',$supplierArray)->ge
       
 			<div class="form-group col-md-12">
 				<label for="#">Selling Price</label>
-				<input type="number" name="sellingprice" class="form-control" id="editsellingprice">
+				<input type="number" name="sellingprice" class="form-control" id="editsellingprice" autocomplete="off">
 			</div>
 
 

@@ -502,10 +502,21 @@ $products = DB::table('retailbaseproducts')->whereIn('supplier',$supplierArray)-
 @foreach($products as  $product)
 <tr class="trow">
 <td class="tcell">
+
+
  <?php
      $inputid = $product->id."input";
-     $branchqty = DB::table('retailbranchproducts')->where('branch',$branchId)->where('product',$product->id)->value('quantity');
-     $branchrate = DB::table('retailbranchproducts')->where('branch',$branchId)->where('product',$product->id)->value('rate');
+     $branchqty = 0;
+     $branchrate = 1.00;
+     $checkQty =  DB::table('retailbranchproducts')->where('branch',$branchId)->where('product',$product->id)->count();
+    
+     if($checkQty>0){
+
+      $branchqty = DB::table('retailbranchproducts')->where('branch',$branchId)->where('product',$product->id)->value('quantity');
+      $branchrate = DB::table('retailbranchproducts')->where('branch',$branchId)->where('product',$product->id)->value('rate');
+   
+     }
+    
    ?>
   <span style="text-transform: uppercase;font-family:takoma;font-weight:bold;">
   {{$product->product}}

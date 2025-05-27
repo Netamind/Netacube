@@ -240,7 +240,6 @@
   ?>
 
 <h4>
-<i class="bx bx-building" style="font-size:20px" ></i>
 <select name="category" id="" style=";border:none;margin-left:-4px;font-size:20px" onchange="submitBranchId(this.value)">
 <option value="" hidden>{{$branchName}}</option>
 <?php
@@ -292,7 +291,7 @@ $branches = DB::table('branches')->where('sector','Retail')->get();
 
 </h4>
 <span style="font-size:14px;">
-Manage retail branch inventory  <span style="color:gray">[{{$categoryName}}]</span>
+Manage retail branch inventory  <span style="color:gray">{{$categoryName}}</span>
 </span>
 
 </div>

@@ -210,7 +210,8 @@
 <section>
 <div class="card">
 <div class="card-header">
-<h4><i class="bx bx-buildings"></i> Suppliers
+<h4>
+ Suppliers
 <a href="#" class="btn btn-primary" id="newDataBtn" style="float:right"><i class="fa fa-plus-circle" style="color:white"></i>New Supplier</a>
 </h4>
 <span style="font-size:18px;">

@@ -209,7 +209,7 @@
         <div class="card">
             <div class="card-header">
                 <h4>
-                    <i class="fa fa-balance-scale"></i> Stocktaking
+                  Stocktaking
                     <a href="#" class="btn btn-primary" id="newDataBtn" style="float:right">
                         <i class="bx bx-calendar" style="color:white"></i>History
                     </a>
@@ -236,10 +236,16 @@
                 </ul>
                 <div class="tab-content" id="pills-tabContent">
                     <div class="tab-pane fade show active" id="primary-pills-statuses" role="tabpanel">
-                        <p>Partial stocktaking assumes that not all products in the shop are counted. When rectifying, only the counted inventory for the selected branch will be deleted and replaced with newly found data. Ensure you count exhaustively for each product. <a href="retail-partial-stocktaking">Click here for partial stocktaking</a></p>
+                        <p>Partial stocktaking assumes that not all products in the shop are counted.
+                           When rectifying, only the counted inventory for the selected branch will be deleted and replaced with newly found data. 
+                           Ensure you count exhaustively for each product. <br>
+                           <a href="retail-partial-stocktaking" class="btn btn-info">Click here for partial stocktaking</a></p>
                     </div>
                     <div class="tab-pane fade" id="primary-pills-configuration" role="tabpanel">
-                        <p>Full stocktaking assumes that every product is counted. When rectifying, old inventory for the selected branch will be deleted and replaced with newly found data. <a href="retail-full-stocktaking">Click here for full stocktaking</a></p>
+                        <p>Full stocktaking assumes that every product is counted. When rectifying, 
+                          old inventory for the selected branch will be deleted and replaced with 
+                          newly found data. <br>
+                         <a href="retail-full-stocktaking" class="btn btn-danger">Click here for full stocktaking</a></p>
                     </div>
                 </div>
             </div>

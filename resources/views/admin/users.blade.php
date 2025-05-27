@@ -219,11 +219,10 @@
 <section>
 <div class="card">
 <div class="card-header">
-<h4><i class="feather icon-users" style="font-weight:bold;color:gray;"></i> Users
+<h4> System users
 <a href="#" class="btn btn-primary" id="newDataBtn" style="float:right"><i class="fa fa-plus-circle" style="color:white"></i>New User</a>
 </h4>
-<span style="font-size:18px;">
-Administer user accounts : deleting ,editing,  assigning branches and sending password reset emails.
+<span style="font-size:18px;">Manage system users (Those able to log into the system)
 </span>
 </div>
 <div class="card-body">

@@ -244,8 +244,7 @@
 <div class="card-header">
 
  <div style="margin-bottom:10px">
-<i class="bx bx-calendar" style="font-weight:bold;color:gray;"></i>
-<select  style=";border:none;margin-left:-4px" onchange="submitBranchId(this.value)">
+<select  style=";border:none;margin-left:-4px;font-weight:bold;font-size:20px" onchange="submitBranchId(this.value)">
 <option value="" hidden>{{$branchName}}</option>
 <?php
 $branches = DB::table('branches')->where('sector','Retail')->get();

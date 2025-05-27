@@ -13,15 +13,17 @@
 	<link href="dashboard/assets/plugins/metismenu/css/metisMenu.min.css" rel="stylesheet"/>
 	<link rel="stylesheet" type="text/css" href="dashboard/font-awesome/css/font-awesome.min.css">
     <link rel="stylesheet" type="text/css" href="dashboard/feather/css/feather.css">
-
 	<link href="dashboard/assets/plugins/datatable/css/dataTables.bootstrap5.min.css" rel="stylesheet" />
-
 	<link rel="stylesheet" type="text/css" href="dashboard/bower_components/cropper/dist/cropper.css">
-
 	<link rel="stylesheet" type="text/css" href="dashboard/bower_components/lightbox2/dist/css/lightbox.min.css">
-
 	<!-- loader-->
 	<link href="dashboard/assets/css/pace.min.css" rel="stylesheet"/>
+	 <script>
+          window.paceOptions = {
+            ajax: false,
+            restartOnRequestAfter: false
+          };
+     </script>
 	<script src="dashboard/assets/js/pace.min.js"></script>
 	<!-- Bootstrap CSS -->
 	<link href="dashboard/assets/css/bootstrap.min.css" rel="stylesheet">
@@ -286,11 +288,6 @@
 									</a>
 								</div>
 							</li>
-
-
-
-
-
 							<li class="nav-item dropdown dropdown-large">
 								<!--<a class="nav-link dropdown-toggle dropdown-toggle-nocaret position-relative" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"> <span class="alert-count">8</span>
 									<i class='bx bx-shopping-bag'></i>

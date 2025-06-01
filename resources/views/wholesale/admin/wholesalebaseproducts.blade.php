@@ -6,10 +6,7 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="csrf-token" content="{{ csrf_token() }}">
-  <link rel="stylesheet" type="text/css" href="dashboard/files/assets/icon/feather/css/feather.css">
-
-
-	<style>
+  <style>
 .spinner {
   border: 4px solid rgba(0, 0, 0, 0.1);
   border-top: 4px solid #f35800; /* orange color */
@@ -56,10 +53,6 @@
   }
 }
 
-
-.sweet-modal-container {
-  /* styles for the modal container */
-}
 
 .sweet-modal-container .sweet-modal .modal-content {
   border-radius: 5px;
@@ -172,38 +165,64 @@
 }
 
 
+.dataTables_wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+   
+}
 
+.dataTables_filter, .dt-buttons {
+    margin-bottom: 10px;
+    overflow-x: hidden;
+    position: sticky;
+    left:0;
+    right: 0;
+    
+}
 
-
+@media (max-width: 767px) {
+    .dataTables_wrapper {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
+    }
+}
 	</style>
+  
 </head>
 <body>
+
+
+<!--start page wrapper -->
+<div class="page-wrapper">
+<div class="page-content">
 
 
 <div class="loading-status" id="loading-status" style="display:none">
   <div class="waves"></div>
 </div>
+
+
 <section>
 <div class="card">
 <div class="card-header">
-<h4><i class="fa fa-database"></i>  Wholesale Base Products 
+<h4> 
+Wholesale Products
 <a href="#" class="btn btn-primary" id="uploadCsvBtn"style="float:right"> <i class="feather icon-plus-circle" style="color:white"></i> New</a>
 
 <a href="#" class="btn btn-primary"  id="newDataBtn"   style="float:right;margin-right:10px"><i class="fa fa-cloud-upload" style="color:white"></i> CSV</a> 
 </h4>
 <span style="font-size:14px;">
-Manage wholesale base products. Note that a product must be created here before it can be added to a wholesale branch.
+Manage Wholesale base products. Note that a product must be created here before it can be added to a wholesale branch.
 </span>
-
-
-
-<hr>
-
 
 <?php
    
-    $catId =  DB::table('session')->where('user',Auth::user()->id)->value('category');
-    $supId = Cookie::get('supplier') ?? "NA";
+   $catId =  DB::table('selection')->where('user',Auth::user()->id)->value('wcategory')??"NA";
+   $supId =DB::table('selection')->where('user',Auth::user()->id)->value('wsupplier')??"0";
     $categoryName = '';
     $supplierName = '';
     $supplierArray = array();
@@ -241,8 +260,8 @@ Manage wholesale base products. Note that a product must be created here before 
       }
 
   ?>
-
-<select name="category" id="" style=";border:none;margin-left:-4px" onchange="submitCategoryId(this.value)">
+<div style="margin-top:5px">
+<select name="category" class="btn border" style=";border:none;margin-left:-4px;margin-right:10px" onchange="submitCategoryId(this.value)">
 <option value="" hidden>Category : {{$categoryName }}</option>
 <?php
 $categories = DB::table('businesscategories')->get();
@@ -252,9 +271,8 @@ $categories = DB::table('businesscategories')->get();
 @endforeach
 </select>
 
-| &nbsp;
 
-<select name="supplier" id="" style=";border:none;margin-left:-4px" onchange="submitSupplierId(this.value)">
+<select name="supplier" class="btn border" style=";border:none;margin-left:-4px" onchange="submitSupplierId(this.value)">
     <option value="" hidden>Supplier : {{$supplierName}}</option>
     <?php
     $suppliers = DB::table('suppliers')->where('sector','Wholesale')->where('category',$catId)->get();
@@ -264,11 +282,12 @@ $categories = DB::table('businesscategories')->get();
     @endforeach
     <option value="0">All</option>
 </select>
+</div>
 
 
-<a href="#" class="btn" style="float:right; display: flex; align-items: center;margin-top:-10px;background-color: #f2f2f2;"> 
+<!--<a href="#" class="btn" style="float:right; display: flex; align-items: center;margin-top:-10px;background-color: #f2f2f2;"> 
   <span><i class="fa fa-check"></i></span><span> 0 </span>
-</a>
+</a>-->
 
 
 <script>
@@ -282,26 +301,24 @@ $categories = DB::table('businesscategories')->get();
         document.getElementById('supplierForm').submit();
     }
 </script>
-<form action="select-category" method="post" id="categoryForm">
+<form action="make-selection" method="post" id="categoryForm">
   @csrf
-  <input type="hidden" name="category" id="categoryId">
+  <input type="hidden" name="wcategory" id="categoryId">
  </form>
 
-<form action="select-supplier" method="post" id="supplierForm">
+<form action="make-selection" method="post" id="supplierForm">
 @csrf
-<input type="hidden" name="supplier" id="supplierId">
+<input type="hidden" name="wsupplier" id="supplierId">
 </form>
 
 
 
-
-<hr>
 </div>
 
-<div class="card-block" style="margin-top:-5px">
+<div class="card-body">
 
 <div class="table-wrapper">
-<table id="business-table" class="table-striped-column  table-sm table-striped table-fixed-first-column table-fixed-header" >
+<table id="wholesaleproducts-table" class="table table-striped-column  table-sm table-striped table-fixed-first-column table-fixed-header" >
 <thead class="table-dark">
 <tr>
 <th class="table-dark">
@@ -347,24 +364,25 @@ $data  = DB::table('wholesalebaseproducts')->whereIn('supplier',$supplierArray)-
 @endforeach
 </tbody>
 </table>
-<!--</div>-->
+
+</div>
 
 
 </div>
 </div>
 </section>
 
+</div>
+</div>
 
 
 <section decription="Modal for app data info">
-<div class="modal fade-scale" tabindex="-1" role="dialog" id="newDataModal" data-backdrop="static">
+<div class="modal fade-scale" tabindex="-1" role="dialog" id="newDataModal" data-bs-backdrop="static">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
-      <div class="modal-header bg-primary">
+      <div class="modal-header ">
         <h5 class="modal-title">New product <strong>{{$categoryName}}</strong></h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
       <form action="insert-wholesale-baseproduct" method="post"  enctype="multipart/form-data" id="newDataForm">
@@ -372,19 +390,19 @@ $data  = DB::table('wholesalebaseproducts')->whereIn('supplier',$supplierArray)-
 
 
 		<div class="row">
-			<div class="form-group col-md-6">
+			<div class="form-group col-md-12">
 				<label for="#">Product Name</label>
 				<input type="text"name="product" class="form-control" placeholder="Enter product name">
 			</div>
 
 
       
-			<div class="form-group col-md-6">
+			<div class="form-group col-md-12">
 				<label for="#">Supplier</label>
 				<select name="supplier" id="" class="form-control">
         <option value="" hidden>Select supplier</option>
         <?php 
-        $suppliers = DB::table('suppliers')->where('category',$catId)->get();
+        $suppliers = DB::table('suppliers')->where('sector','Wholesale')->where('category',$catId)->get();
         ?>
         @foreach($suppliers as $sup)
         <option value="{{$sup->id}}">{{$sup->supplier}}</option>
@@ -395,25 +413,25 @@ $data  = DB::table('wholesalebaseproducts')->whereIn('supplier',$supplierArray)-
 
 
 
-			<div class="form-group col-md-6">
+			<div class="form-group col-md-12">
 				<label for="#">Unit</label>
-				<input type="text" name="unit" class="form-control" placeholder="Enter unit">
+				<input type="text" name="unit" class="form-control" placeholder="Enter unit" autocomplete="off">
 			</div>
 
 
 
-			<div class="form-group col-md-6">
+			<div class="form-group col-md-12">
 				<label for="#">Order Price</label>
-				<input type="number" name="orderprice" class="form-control" placeholder="Enter order price">
+				<input type="number" name="orderprice" class="form-control" placeholder="Enter order price" value="0" autocomplete="off">
 			</div>
 
       
 
       
       
-			<div class="form-group col-md-6">
+			<div class="form-group col-md-12">
 				<label for="#">Selling Price</label>
-				<input type="number" name="sellingprice" class="form-control" placeholder="Enter selling price">
+				<input type="number" name="sellingprice" class="form-control" placeholder="Enter selling price" autocomplete="off">
 			</div>
 
 
@@ -422,7 +440,7 @@ $data  = DB::table('wholesalebaseproducts')->whereIn('supplier',$supplierArray)-
 
 
 
-      <div class="form-group col-md-6">
+      <div class="form-group col-md-12">
         <label for="#">VAT</label>
 				<select name="vat"  class="form-control"    >
         <option value="EX" hidden>Select VAT</option>
@@ -435,23 +453,21 @@ $data  = DB::table('wholesalebaseproducts')->whereIn('supplier',$supplierArray)-
         </select>
 			</div>
 
-      <div class="col-md-12">
-
-      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-
-
-        <button class="btn btn-primary" style="float:right" id="submitDataBtn">Submit</button> 
-
-
       </div>
-    
-  
-
+     
+   
 
     </div>
-		</form>
+
+    <div class="modal-footer">
+      <a href="#" class="btn btn-secondary" style="float:right"  id="cancelDataBtn">Cancel</a> 
+      <button class="btn btn-primary" style="float:right" id="submitDataBtn">Submit</button> 
       </div>
-    </div>
+
+      </form>
+
+
+
   </div>
 </div>
 </section>
@@ -462,14 +478,12 @@ $data  = DB::table('wholesalebaseproducts')->whereIn('supplier',$supplierArray)-
 <div class="modal fade-scale" tabindex="-1" role="dialog" id="editDataModal" data-backdrop="static">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
-      <div class="modal-header bg-primary">
+      <div class="modal-header">
         <h5 class="modal-title">Edit product <strong>{{$categoryName}}</strong></h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-      <form action="edit-wholesale-baseproduct" method="post"   id="editDataForm">
+      <form action="edit-retail-baseproduct" method="post"   id="editDataForm">
 			@csrf
       <input type="hidden" id="editId" name="id">
       <input type="hidden" id="editRow">
@@ -477,14 +491,14 @@ $data  = DB::table('wholesalebaseproducts')->whereIn('supplier',$supplierArray)-
       
 
 		<div class="row">
-			<div class="form-group col-md-6">
+			<div class="form-group col-md-12">
 				<label for="#">Product Name</label>
 				<input type="text"name="product" class="form-control" id="editproduct">
 			</div>
 
 
       
-			<div class="form-group col-md-6">
+			<div class="form-group col-md-12">
 				<label for="#">Supplier</label>
 				<select name="supplier" id="editsupplier" class="form-control">
         <option value="" hidden>Select supplier</option>
@@ -500,25 +514,25 @@ $data  = DB::table('wholesalebaseproducts')->whereIn('supplier',$supplierArray)-
 
 
 
-			<div class="form-group col-md-6">
+			<div class="form-group col-md-12">
 				<label for="#">Unit</label>
-				<input type="text" name="unit" class="form-control" id="editunit">
+				<input type="text" name="unit" class="form-control" id="editunit" autocomplete="off">
 			</div>
 
 
 
-			<div class="form-group col-md-6">
+			<div class="form-group col-md-12">
 				<label for="#">Order Price</label>
-				<input type="number" name="orderprice" class="form-control" id="editorderprice">
+				<input type="number" name="orderprice" class="form-control" id="editorderprice" autocomplete="off">
 			</div>
 
       
 
       
       
-			<div class="form-group col-md-6">
+			<div class="form-group col-md-12">
 				<label for="#">Selling Price</label>
-				<input type="number" name="sellingprice" class="form-control" id="editsellingprice">
+				<input type="number" name="sellingprice" class="form-control" id="editsellingprice" autocomplete="off">
 			</div>
 
 
@@ -526,7 +540,7 @@ $data  = DB::table('wholesalebaseproducts')->whereIn('supplier',$supplierArray)-
 
 
 
-      <div class="form-group col-md-6">
+      <div class="form-group col-md-12">
         <label for="#">VAT</label>
 				<select name="vat" class="form-control"   id="editvat" >
         <?php 
@@ -538,19 +552,19 @@ $data  = DB::table('wholesalebaseproducts')->whereIn('supplier',$supplierArray)-
         </select>
 			</div>
 
-      <div class="col-md-12">
-
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        <button class="btn btn-primary" style="float:right" id="submitEditDataBtn">Submit</button>
-
-
-      </div>
-    
+      
   
 
 
     </div>
 		</form>
+
+      </div>
+
+      <div class="modal-footer">
+
+  
+        <button class="btn btn-primary" style="float:right" id="submitEditDataBtn">Submit</button>
 
       </div>
      
@@ -574,7 +588,7 @@ $data  = DB::table('wholesalebaseproducts')->whereIn('supplier',$supplierArray)-
           <i class="feather icon-alert-circle text-warning" style="font-size:50px"></i>
 		<h4 style="paddin-top:10px;padding-bottom:10px">Are you sure you want to delete <span id="displayDeleteItem"></span> ?</h4>
 		   <h5>You won't be able to revert this!</h5>
-		   <form action="delete-business-cartigory" method="post" id="deleteForm">
+		   <form action="#" method="post" id="deleteForm">
 			@csrf
 			<input type="hidden" id="deleteInputId" name="id">
 			<input type="hidden" id="deleteInputRow">
@@ -597,11 +611,9 @@ $data  = DB::table('wholesalebaseproducts')->whereIn('supplier',$supplierArray)-
 <div class="modal fade-scale" tabindex="-1" role="dialog" id="csvDataModal" data-backdrop="static">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
-      <div class="modal-header bg-primary">
-        <h5 class="modal-title"><i class="fa fa-cloud-upload" style="color:white"></i> Upload csv </h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
+      <div class="modal-header ">
+        <h5 class="modal-title"><i class="fa fa-cloud-upload"></i> Upload csv </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
           <div class="form-group" id="csvdiv">
@@ -648,11 +660,6 @@ $data  = DB::table('wholesalebaseproducts')->whereIn('supplier',$supplierArray)-
             <div class="modal-body">
 
 
-
-        
-
-
-          
            
             </div>
           </div>
@@ -682,6 +689,10 @@ $(document).ready(function() {
 
   $('#uploadCsvBtn').click(function() {
     $('#newDataModal').modal('show');
+  });
+
+  $('#cancelDataBtn').click(function() {
+    document.getElementById('newDataForm').reset();
   });
 
 
@@ -898,14 +909,25 @@ $('#submitDataBtn').click(function(e) {
 
       
  
-$('#business-table').DataTable({ 
+$('#wholesaleproducts-table').DataTable({ 
      dom: 'Bfrtip', 
      autoWidth:false,
      paging: true,
+     pageLength: -1,
+     lengthChange: false,
      buttons: [
+
+      {
+      extend: 'copy',
+      title: 'Wholesale products',
+      exportOptions: {
+        columns: ':visible:not(:last-child)'
+      }
+    },
+
      {
       extend: 'excel',
-      title: 'Wholesale baseproducts',
+      title: 'Wholesale products',
       exportOptions: {
         columns: ':visible:not(:last-child)'
       }
@@ -913,7 +935,7 @@ $('#business-table').DataTable({
     
     {
       extend: 'pdf',
-      title: 'Wholesale baseproducts',
+      title: 'Wholesale products',
       exportOptions: {
       columns: ':visible:not(:last-child)'
       },
@@ -929,10 +951,17 @@ $('#business-table').DataTable({
       },
      
 
-    }
+    },{
+      extend: 'print',
+      title: 'Wholesale products',
+      exportOptions: {
+        columns: ':visible:not(:last-child)'
+      }
+    },
   
   ]
  }); 
+
 
 
  
@@ -966,7 +995,7 @@ else{
 
 
 
- $(document).on("click", "#submitCsvDataBtn", function(e) {
+$(document).on("click", "#submitCsvDataBtn", function(e) {
 var self = $(this);
 $(this).prop("disabled", true);
 
@@ -1022,12 +1051,10 @@ $.ajax({
         toastr.error('Unspecified error occurred. Please refresh the page and try again.','Unspecified',{timeOut: 5000 ,	progressBar: true});
     }
 }
-
-
-
-
-
 });
+
+
+
 
 });
 

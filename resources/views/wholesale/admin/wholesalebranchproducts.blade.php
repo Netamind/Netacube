@@ -6,10 +6,7 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="csrf-token" content="{{ csrf_token() }}">
-  <link rel="stylesheet" type="text/css" href="dashboard/files/assets/icon/feather/css/feather.css">
-
-
-	<style>
+  <style>
 .spinner {
   border: 4px solid rgba(0, 0, 0, 0.1);
   border-top: 4px solid #f35800; /* orange color */
@@ -56,10 +53,6 @@
   }
 }
 
-
-.sweet-modal-container {
-  /* styles for the modal container */
-}
 
 .sweet-modal-container .sweet-modal .modal-content {
   border-radius: 5px;
@@ -170,26 +163,61 @@
 .table-striped-column tr:nth-child(odd) td:nth-child(1) {
   background-color: #e6e6e6;
 }
- 
+
+
+.dataTables_wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+   
+}
+
+.dataTables_filter, .dt-buttons {
+    margin-bottom: 10px;
+    overflow-x: hidden;
+    position: sticky;
+    left:0;
+    right: 0;
+    
+}
+
+@media (max-width: 767px) {
+    .dataTables_wrapper {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
+    }
+}
 	</style>
 </head>
 <body>
 
 
+<!--start page wrapper -->
+<div class="page-wrapper">
+<div class="page-content">
+
+
 <div class="loading-status" id="loading-status" style="display:none">
   <div class="waves"></div>
 </div>
+
+
+
 <section>
 <div class="card">
 <div class="card-header">
 
 
 <?php
-   
-    $branchId = Cookie::get('branch') ?? "NA";
+     use Carbon\Carbon;
+    
+    $branchId = DB::table('selection')->where('user',Auth::user()->id)->value('wbranch')??"NA";
     $branchName = '';
     $categoryName = '';
-  
+
     $categoryId = DB::table('branches')->where('id',$branchId)->value('category');
     $sectorName = DB::table('branches')->where('id',$branchId)->value('sector');
 
@@ -208,11 +236,11 @@
             
       }
 
+    
   ?>
 
 <h4>
-<i class="feather icon-home"></i>
-<select name="category" id="" style=";border:none;margin-left:-4px" onchange="submitBranchId(this.value)">
+<select name="category" id="" style=";border:none;margin-left:-4px;font-size:20px" onchange="submitBranchId(this.value)">
 <option value="" hidden>{{$branchName}}</option>
 <?php
 $branches = DB::table('branches')->where('sector','Wholesale')->get();
@@ -227,12 +255,12 @@ $branches = DB::table('branches')->where('sector','Wholesale')->get();
 
 
 <a href="#" class="btn btn-primary" id="uploadCsvBtn"style="float:right" title="Add new product"> 
-    <i class="feather icon-plus-circle" style="color:white"></i>  
+    <i class="feather icon-plus-circle" style="color:white"></i>  Add 
 </a>
 
 
 <a href="#" class="btn btn-primary"  id="infoBtn"   style="float:right;margin-right:10px" title="view more info">
-    <i class="feather icon-info"></i>
+    <i class="feather icon-info"></i> Info
 </a> 
 
 
@@ -255,25 +283,23 @@ $branches = DB::table('branches')->where('sector','Wholesale')->get();
         document.getElementById('branchForm').submit();
     }
 </script>
-<form action="select-branch" method="post" id="branchForm">
+<form action="make-selection" method="post" id="branchForm">
   @csrf
-  <input type="hidden" name="branch" id="branchId">
+  <input type="hidden" name="wbranch" id="branchId">
  </form>
 
 
 </h4>
 <span style="font-size:14px;">
-Manage wholesale branch products <strong>{{$categoryName}}</strong> 
+Manage wholesale branch inventory  <span style="color:gray">{{$categoryName}}</span>
 </span>
-
-<hr>
 
 </div>
 
-<div class="card-block" style="margin-top:-15px">
-
+<div class="card-body" style="margin-top:5px">
+  
 <div class="table-wrapper">
-<table id="wbproducts-table" class="table-striped-column  table-sm table-striped table-fixed-first-column table-fixed-header" >
+<table id="wholesaleinventory-table" class="table  table-striped-column  table-sm table-striped table-fixed-first-column table-fixed-header" >
 <thead class="table-dark">
 <tr>
 <th class="table-dark">
@@ -348,22 +374,25 @@ $data = DB::table('wholesalebranchproducts')->where('branch',$branchId)->get();
 @endforeach
 </tbody>
 </table>
+
+</div>
 </div>
 </div>
 </section>
 
+</div>
+</div>
+
 
 <section>
-  <div class="modal fade card-info"  id="newDataModal" data-backdrop="static">
+  <div class="modal fade card-info"  id="newDataModal" data-bs-backdrop="static">
   <div class="modal-dialog ">
     <div class="modal-content">
-      <div class="modal-header btn-primary">
+      <div class="modal-header ">
         <h4 class="modal-title">Add product for {{$branchName}}</h4>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 
+      </div>
       <div class="modal-body">
 
           <?php
@@ -375,7 +404,10 @@ $data = DB::table('wholesalebranchproducts')->where('branch',$branchId)->get();
                 <label>Search a product you want to add</label>
                 <div class="input-group input-group-button">
 
-                <input type="text" autocomplete="off" style="width:80%;border:1px solid #8c8c8c;text-align:left;"  id="mobile-search" ><button style="border:1px solid #8c8c8c"  id="cancelsearch" >Cancel</button>
+                <input type="text" class="form-control" autocomplete="off" style="width:80%;border:1px solid #8c8c8c;text-align:left;"  id="mobile-search" >
+              
+                
+                <!--<button style="border:1px solid #8c8c8c"  id="cancelsearch" >Cancel</button>-->
                
               </div>
                 </div>
@@ -405,13 +437,14 @@ $data = DB::table('wholesalebranchproducts')->where('branch',$branchId)->get();
         $formid = "form".$d->id;
         ?>
         <td style="margin-align:center">
-        <form  action="insert-wholesale-branch-product"  id="{{$formid}}"  class="cart-forms"  method="post">
+        <form  action="insert-retail-branch-product"  id="{{$formid}}"  class="cart-forms"  method="post">
         @csrf
 
             <input type="hidden" name="productid"  value="{{$d->id}}"> 
             <input type="hidden" name="branch"  value="{{$branchId}}"> 
               <div class="input-group-append" style="font-size:10px">
-            <input type="text" name = "quantity" style="width:70%;border:1px solid #8c8c8c;text-align:center;" autocomplete="off"><button class="insertDataBtn" style="border:1px solid #8c8c8c" form="{{$formid}}"  row="{{$btnrow}}" id="{{$btnrow}}">Add</button>
+            <input type="text" class="form-control insertDataBtn" name = "quantity" style="width:70%;border:1px solid #8c8c8c;text-align:center;" autocomplete="off" form="{{$formid}}"  row="{{$btnrow}}" id="{{$btnrow}}">
+            <!--<button class="btn insertDataBtn" style="border:1px solid #8c8c8c" form="{{$formid}}"  row="{{$btnrow}}" id="{{$btnrow}}">Add</button>-->
   
 
         </form>
@@ -465,17 +498,15 @@ $data = DB::table('wholesalebranchproducts')->where('branch',$branchId)->get();
 
 
 <section decription="Modal for app data info">
-<div class="modal fade-scale" tabindex="-1" role="dialog" id="editDataModal" data-backdrop="static">
+<div class="modal fade-scale" tabindex="-1" role="dialog" id="editDataModal" data-bs-backdrop="static">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
-      <div class="modal-header bg-primary">
+      <div class="modal-header ">
         <h5 class="modal-title">Edit product</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-		<form action="edit-business-cartigory" method="post"   id="editDataForm">
+		<form action="#" method="post"   id="editDataForm">
 			@csrf
       <input type="hidden" id="editId" name="id">
       <input type="hidden" id="editRow">
@@ -509,12 +540,12 @@ $data = DB::table('wholesalebranchproducts')->where('branch',$branchId)->get();
       
       
 			<div class="form-group col-md-6">
-				<label for="#">Quantity</label>
-				<input type="number" name="quantity" class="form-control" id="editquantity">
+				<label for="#"><strong>Quantity</strong> </label>
+				<input type="number" name="quantity" class="form-control" id="editquantity" autocomplete="off">
 			</div>
 
 
-      
+      <hr style="margin-top:10px;margin-top:20px">
       
 			<div class="form-group col-md-6">
 				<label for="#">Batch Number</label>
@@ -553,19 +584,18 @@ $data = DB::table('wholesalebranchproducts')->where('branch',$branchId)->get();
 
 
 
-        <div class="col-md-12" style="margin-top:10px">   
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            <button class="btn btn-primary" style="float:right" id="submitEditDataBtn">Submit</button>
-        </div>
-
-
-
-
 
 		</form>
 
       </div>
     </div>
+
+
+    <div class="modal-footer">
+    <button class="btn btn-primary" style="float:right" id="submitEditDataBtn">Submit</button>
+    </div>
+
+
   </div>
 </div>
 </section>
@@ -577,11 +607,9 @@ $data = DB::table('wholesalebranchproducts')->where('branch',$branchId)->get();
 <div class="modal fade-scale" tabindex="-1" role="dialog" id="infoModal" data-backdrop="static">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
-      <div class="modal-header bg-primary">
+      <div class="modal-header">
         <h5 class="modal-title">Branch details</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
       <?php
@@ -598,7 +626,7 @@ $data = DB::table('wholesalebranchproducts')->where('branch',$branchId)->get();
         <span style="display:inline-block;font-size:15px;padding:5px">Sector</span> : <span style="font-weight:bold">{{$sectorName}}</span>  <br>
         <span style="display:inline-block;font-size:15px;padding:5px">Category</span> : <span style="font-weight:bold">{{$categoryName}} </span> <br>
         <span style="display:inline-block;font-size:15px;padding:5px">Shopvalue</span> : <span style="font-weight:bold">@convert($shopvalue)</span>  <br>
-          </div>
+        <span style="display:inline-block;font-size:15px;padding:5px">Date</span> : <span style="font-weight:bold">{{Carbon::today()->toDateString()}}</span>  <br>      </div>
       </div>
     </div>
   </div>
@@ -641,16 +669,25 @@ $(document).ready(function() {
     $('#infoModal').modal('show');
   });
 
-
-  
-$('#wbproducts-table').DataTable({ 
+  $('#wholesaleinventory-table').DataTable({ 
      dom: 'Bfrtip', 
      autoWidth:false,
      paging: true,
+     pageLength: -1,
+     lengthChange: false,
      buttons: [
+
+      {
+      extend: 'copy',
+      title: 'Wholesale inventory',
+      exportOptions: {
+        columns: ':visible:not(:last-child)'
+      }
+    },
+
      {
       extend: 'excel',
-      title: 'Wholesale branch products',
+      title: 'Wholesale inventory',
       exportOptions: {
         columns: ':visible:not(:last-child)'
       }
@@ -658,7 +695,7 @@ $('#wbproducts-table').DataTable({
     
     {
       extend: 'pdf',
-      title: 'Wholesale baseproducts',
+      title: 'Wholesale inventory',
       exportOptions: {
       columns: ':visible:not(:last-child)'
       },
@@ -672,15 +709,25 @@ $('#wbproducts-table').DataTable({
        
         });
       },
-    }
+     
+
+    },{
+      extend: 'print',
+      title: 'Wholesale inventory',
+      exportOptions: {
+        columns: ':visible:not(:last-child)'
+      }
+    },
+  
   ]
  }); 
 
-  $('body').on('click', '.insertDataBtn', function(e) {
+
+  $('body').on('change', '.insertDataBtn', function(e) {
       var self = $(this);
       var formid = $(this).attr('form');
       var row =  $(this).attr('row');
-      $(this).prop("disabled", true);
+      //$(this).prop("disabled", true);
       var form = document.getElementById(formid);
 
       e.preventDefault(); 
@@ -712,7 +759,7 @@ $('#wbproducts-table').DataTable({
             }else{
               toastr.info('Success!','Success',{ timeOut : 5000 , 	progressBar: true}); 
             }
-            self.css('color','red')
+            self.css('border','1px solid blue')
           },
         error: function(xhr, status, error) {
         if (xhr.status === 0 && xhr.readyState === 0) {
@@ -924,7 +971,7 @@ $(document).ready( function () {
     }
   } );
 } );
-$('body').on('click', '#cancelsearch', function () {
+$('body').on('click', '#mobile-search', function () {
   $('#mobile-search').val('');
   $('#mobile-table').hide();
 });

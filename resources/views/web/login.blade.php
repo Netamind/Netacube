@@ -21,10 +21,10 @@
 	<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&amp;display=swap" rel="stylesheet">
 	<link href="dashboard/assets/css/app.css" rel="stylesheet">
 	<link href="dashboard/assets/css/icons.css" rel="stylesheet">
-    <title>Netacube - Business management system</title>
+  <title>Netacube - Business management system</title>
 </head>
 
-<body class="bg-login">
+<body class="bg-login3" style="background-color:#3b7bbf">
 	<!--wrapper-->
 	<div class="wrapper">
             <div class="section-authentication-signin d-flex align-items-center justify-content-center my-5 my-lg-0">
@@ -61,8 +61,8 @@
 
             <div class="col-12">
 
-            <a href="#" id="cancelDataBtn">Cancel</a>
-            <a href="/" style="float:right">Forgot Password ?</a>
+            <a href="/" id="cancelDataBtn2">Cancel</a>
+            <a href="forgot-password" style="float:right">Forgot Password ?</a>
             </div>
 
            

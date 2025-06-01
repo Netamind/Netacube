@@ -427,7 +427,7 @@ $branches = DB::table('branches')->where('sector','Retail')->get();
                 @csrf
                 <input type="date" name="rdate"  class="form-control" value="{{$date}}">
                   <button class="btn btn-sm btn-secondary predefined-date" style="margin:5px">{{ $date }}</button>
-                  </form>
+                </form>
                 @endforeach
               </div>
               

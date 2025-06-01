@@ -141,7 +141,7 @@
 
 
 
-				<!--<li>
+				<li>
 					<a class="has-arrow" href="javascript:;">
 						<div class="parent-icon"><i class='bx bx-car'></i>
 						</div>
@@ -160,7 +160,7 @@
 					<li><a href="admin-wholesale-clients"><i class='bx bx-radio-circle'></i>Clients</a></li>
 						
 					</ul>
-				</li>-->
+		         </li>
 
 
 

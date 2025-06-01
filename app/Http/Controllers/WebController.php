@@ -11,6 +11,9 @@ class WebController extends Controller
         return view('web.login');
     }
 
+    public function forgotpassword(){
+        return view('web.forgotpassword');
+    }
    
 
 }

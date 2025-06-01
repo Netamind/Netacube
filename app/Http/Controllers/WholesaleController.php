@@ -134,7 +134,7 @@ public function deletewholesalebaseproduct(request $request){
 public function uploadWholesaleBaseProductsCsvFile(Request $request)
 {
     $csvData = json_decode($request->data, true);
-    $supplier = Cookie::get('supplier') ?? "NA";
+    $supplier = DB::table('selection')->where('user',Auth::user()->id)->value('wsupplier');
     $vat = "EX";
     $chunkSize = 50;
     $chunks = array_chunk($csvData, $chunkSize);

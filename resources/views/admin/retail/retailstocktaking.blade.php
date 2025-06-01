@@ -239,13 +239,13 @@
                         <p>Partial stocktaking assumes that not all products in the shop are counted.
                            When rectifying, only the counted inventory for the selected branch will be deleted and replaced with newly found data. 
                            Ensure you count exhaustively for each product. <br>
-                           <a href="retail-partial-stocktaking" class="btn btn-info">Click here for partial stocktaking</a></p>
+                           <a href="retail-partial-stocktaking" style="margin-top:10px" class="btn btn-info">Click here for partial stocktaking</a></p>
                     </div>
                     <div class="tab-pane fade" id="primary-pills-configuration" role="tabpanel">
                         <p>Full stocktaking assumes that every product is counted. When rectifying, 
                           old inventory for the selected branch will be deleted and replaced with 
                           newly found data. <br>
-                         <a href="retail-full-stocktaking" class="btn btn-danger">Click here for full stocktaking</a></p>
+                         <a href="retail-full-stocktaking" style="margin-top:10px" class="btn btn-danger">Click here for full stocktaking</a></p>
                     </div>
                 </div>
             </div>

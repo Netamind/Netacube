@@ -24,7 +24,7 @@
   <title>Netacube - Business management system</title>
 </head>
 
-<body class="bg-login3" style="background-color:#3b7bbf">
+<body class="bg-login3" style="background-color: #808080">
 	<!--wrapper-->
 	<div class="wrapper">
             <div class="section-authentication-signin d-flex align-items-center justify-content-center my-5 my-lg-0">
@@ -35,7 +35,7 @@
             <div class="card-body">
             <div class="p-4">
             <div class="mb-3 text-center">
-            <img src="system/images/netacube.png" alt="" style="height:35px">
+            <img src="system/images/netalogin.png" alt="" style="height:55px">
             </div>
             <div class="text-center mb-4">
 
@@ -71,7 +71,7 @@
 
             
               <div class="d-grid">
-              <button type="submit" class="btn btn-primary" style="margin-top:10px"><i class="feather icon-lock"></i>Login</button>
+              <button type="submit" class="btn btn-info" style="margin-top:10px"><i class="feather icon-lock"></i>Login</button>
 
               </div>
      

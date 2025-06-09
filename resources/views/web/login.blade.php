@@ -5,7 +5,7 @@
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<!--favicon-->
-  <link rel="icon" href="system/images/neta1.png" type="image/x-icon">
+  <link rel="icon" href="system/images/nc01.png" type="image/x-icon">
 	<!--plugins-->
 	<link href="dashboard/assets/plugins/simplebar/css/simplebar.css" rel="stylesheet" />
 	<link href="dashboard/assets/plugins/perfect-scrollbar/css/perfect-scrollbar.css" rel="stylesheet" />
@@ -21,10 +21,10 @@
 	<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&amp;display=swap" rel="stylesheet">
 	<link href="dashboard/assets/css/app.css" rel="stylesheet">
 	<link href="dashboard/assets/css/icons.css" rel="stylesheet">
-  <title>Netacube - Business management system</title>
+  <title>Netacube - The ultimate business management system</title>
 </head>
 
-<body class="bg-login3" style="background-color: #808080">
+<body class="bg-login">
 	<!--wrapper-->
 	<div class="wrapper">
             <div class="section-authentication-signin d-flex align-items-center justify-content-center my-5 my-lg-0">
@@ -35,10 +35,9 @@
             <div class="card-body">
             <div class="p-4">
             <div class="mb-3 text-center">
-            <img src="system/images/netalogin.png" alt="" style="height:55px">
+            <img src="system/images/nc.jpeg" alt="" style="height:60px">
             </div>
             <div class="text-center mb-4">
-
             <?php
             $companyNeme = DB::table('appdata')->value('appname');
             ?>
@@ -122,16 +121,15 @@
 const passwordInput = document.getElementById('password');
 const passwordActualInput = document.getElementById('password-actual');
 let actualPasswordValue = '';
-
 passwordInput.addEventListener('input', (e) => {
-    if (e.inputType === 'deleteContentBackward') {
-        actualPasswordValue = actualPasswordValue.slice(0, -1);
-    } else if (e.data) {
-        actualPasswordValue += e.data;
-    }
-    const maskedValue = '*'.repeat(actualPasswordValue.length);
-    e.target.value = maskedValue;
-    passwordActualInput.value = actualPasswordValue;
+  if (e.inputType === 'deleteContentBackward') {
+    actualPasswordValue = actualPasswordValue.slice(0, -1);
+  } else if (e.data && e.inputType !== 'insertCompositionText') {
+    actualPasswordValue += e.data;
+  }
+  const maskedValue = '*'.repeat(actualPasswordValue.length);
+  e.target.value = maskedValue;
+  passwordActualInput.value = actualPasswordValue;
 });
 </script>
     

@@ -3,6 +3,8 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', 'WebController@loginview')->name('login');
 Route::post('/user-login', 'AuthController@userlogin');
 Route::get('/forgot-password', 'WebController@forgotpassword');
+Route::post('/request-password-reset-link', 'WebController@requestpasswordresetlink');
+
 
 /*========================================== Start of Admin Dashboard Routes=================================================================*/
 Route::get('admin-dashboard', 'AdminController@admindashboard');

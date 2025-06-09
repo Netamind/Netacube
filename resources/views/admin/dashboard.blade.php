@@ -5,7 +5,7 @@
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<!--favicon-->
-	<link rel="icon" href="system/images/neta1.png" type="image/x-icon">
+	 <link rel="icon" href="system/images/nc01.png" type="image/x-icon">
 	<!--plugins-->
 	<link href="dashboard/assets/plugins/vectormap/jquery-jvectormap-2.0.2.css" rel="stylesheet"/>
 	<!--<link href="dashboard/assets/plugins/simplebar/css/simplebar.css" rel="stylesheet" />-->
@@ -46,7 +46,7 @@
 			<div class="sidebar-header">
 
 			    <div>
-				   <a href="admin-dashboard"><img src="system/images/cube2.png" style="width:30px;margin-left:10px" class="logo-iconk" alt=""></a>	
+				   <a href="admin-dashboard"><img src="system/images/nc01.png" style="width:35px;margin-left:10px" class="logo-iconk" alt=""></a>	
 				</div>
 
 
@@ -165,21 +165,21 @@
 
 
 
-				<li>
+				<!--<li>
 					<a class="has-arrow" href="javascript:;">
 						<div class="parent-icon"><i class="bx bx-cog"></i>
 						</div>
 						<div class="menu-title">Settings</div>
 					</a>
 					<ul>
-						<!--<li><a href="admin-homepage-settings"><i class='bx bx-radio-circle'></i>Homepage</a></li>-->
+					   <li><a href="admin-homepage-settings"><i class='bx bx-radio-circle'></i>Homepage</a></li>
 						<li><a href="javascript:;"><i class='bx bx-radio-circle'></i>Homepage</a></li>
 					</ul>
-				</li>
+				</li>-->
 
 
 		
-				<li>
+				<!--<li>
 					<a class="has-arrow" href="javascript:;">
 						<div class="parent-icon"><i class="bx bx-globe"></i>
 						</div>
@@ -194,7 +194,7 @@
 						<li><a href="javascript:;"><i class='bx bx-radio-circle'></i>Contact</a></li>
 						<li><a href="javascript:;"><i class='bx bx-radio-circle'></i>Settings</a></li>
 					</ul>
-				</li>
+				</li>-->
 
 
 			</ul>
@@ -404,34 +404,10 @@
 			</div>
 			<div class="modal-body">
 				<div class="search-list">
-				   <p class="mb-1">Html Templates</p>
-				   <div class="list-group">
-					  <a href="javascript:;" class="list-group-item list-group-item-action active align-items-center d-flex gap-2 py-1"><i class='bx bxl-angular fs-4'></i>Best Html Templates</a>
-					  <a href="javascript:;" class="list-group-item list-group-item-action align-items-center d-flex gap-2 py-1"><i class='bx bxl-vuejs fs-4'></i>Html5 Templates</a>
-					  <a href="javascript:;" class="list-group-item list-group-item-action align-items-center d-flex gap-2 py-1"><i class='bx bxl-magento fs-4'></i>Responsive Html5 Templates</a>
-					  <a href="javascript:;" class="list-group-item list-group-item-action align-items-center d-flex gap-2 py-1"><i class='bx bxl-shopify fs-4'></i>eCommerce Html Templates</a>
-				   </div>
-				   <p class="mb-1 mt-3">Web Designe Company</p>
-				   <div class="list-group">
-					  <a href="javascript:;" class="list-group-item list-group-item-action align-items-center d-flex gap-2 py-1"><i class='bx bxl-windows fs-4'></i>Best Html Templates</a>
-					  <a href="javascript:;" class="list-group-item list-group-item-action align-items-center d-flex gap-2 py-1"><i class='bx bxl-dropbox fs-4' ></i>Html5 Templates</a>
-					  <a href="javascript:;" class="list-group-item list-group-item-action align-items-center d-flex gap-2 py-1"><i class='bx bxl-opera fs-4'></i>Responsive Html5 Templates</a>
-					  <a href="javascript:;" class="list-group-item list-group-item-action align-items-center d-flex gap-2 py-1"><i class='bx bxl-wordpress fs-4'></i>eCommerce Html Templates</a>
-				   </div>
-				   <p class="mb-1 mt-3">Software Development</p>
-				   <div class="list-group">
-					  <a href="javascript:;" class="list-group-item list-group-item-action align-items-center d-flex gap-2 py-1"><i class='bx bxl-mailchimp fs-4'></i>Best Html Templates</a>
-					  <a href="javascript:;" class="list-group-item list-group-item-action align-items-center d-flex gap-2 py-1"><i class='bx bxl-zoom fs-4'></i>Html5 Templates</a>
-					  <a href="javascript:;" class="list-group-item list-group-item-action align-items-center d-flex gap-2 py-1"><i class='bx bxl-sass fs-4'></i>Responsive Html5 Templates</a>
-					  <a href="javascript:;" class="list-group-item list-group-item-action align-items-center d-flex gap-2 py-1"><i class='bx bxl-vk fs-4'></i>eCommerce Html Templates</a>
-				   </div>
-				   <p class="mb-1 mt-3">Online Shoping Portals</p>
-				   <div class="list-group">
-					  <a href="javascript:;" class="list-group-item list-group-item-action align-items-center d-flex gap-2 py-1"><i class='bx bxl-slack fs-4'></i>Best Html Templates</a>
-					  <a href="javascript:;" class="list-group-item list-group-item-action align-items-center d-flex gap-2 py-1"><i class='bx bxl-skype fs-4'></i>Html5 Templates</a>
-					  <a href="javascript:;" class="list-group-item list-group-item-action align-items-center d-flex gap-2 py-1"><i class='bx bxl-twitter fs-4'></i>Responsive Html5 Templates</a>
-					  <a href="javascript:;" class="list-group-item list-group-item-action align-items-center d-flex gap-2 py-1"><i class='bx bxl-vimeo fs-4'></i>eCommerce Html Templates</a>
-				   </div>
+
+					
+
+
 				</div>
 			</div>
 		  </div>

@@ -21,6 +21,7 @@ class AdminRetailController extends Controller
 
   }
 
+
     public function adminretailbaseproducts(){
         return view('admin.retail.retailbaseproducts');
     }

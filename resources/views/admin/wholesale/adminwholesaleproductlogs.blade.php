@@ -1,4 +1,3 @@
-    
 @extends('admin.dashboard')
 @section('content')
 <!DOCTYPE html>
@@ -7,7 +6,6 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="csrf-token" content="{{ csrf_token() }}">
-
   <style>
 .spinner {
   border: 4px solid rgba(0, 0, 0, 0.1);
@@ -209,13 +207,13 @@
 <?php
 
    use Carbon\Carbon;
-    $branchId = DB::table('selection')->where('user',Auth::user()->id)->value('rbranch')??0;
-    $productId = DB::table('selection')->where('user',Auth::user()->id)->value('rproduct')??0;
+    $branchId = DB::table('selection')->where('user',Auth::user()->id)->value('wbranch')??0;
+    $productId = DB::table('selection')->where('user',Auth::user()->id)->value('wproduct')??0;
     $branchName = '';
     $categoryName = '';
     $categoryId = DB::table('branches')->where('id',$branchId)->value('category');
 
-    $supplierArray = DB::table('suppliers')->where('sector','Retail')->where('category',$categoryId)->pluck('id');
+    $supplierArray = DB::table('suppliers')->where('sector','Wholesale')->where('category',$categoryId)->pluck('id');
 
     if(is_numeric($branchId)){
        
@@ -228,7 +226,7 @@
         $branchName = 'Branch not defined';
             
       }
-      $productName = DB::table('retailbaseproducts')->where('id',$productId)->value('product') ?? "Product not defined";
+      $productName = DB::table('wholesalebaseproducts')->where('id',$productId)->value('product') ?? "Product not defined";
 
    
       $startdate = DB::table('selection')->where('user',Auth::user()->id)->value('startdate')??Carbon::today()->toDateString();
@@ -247,7 +245,7 @@
 <select  style=";border:none;margin-left:-4px;font-weight:bold;font-size:20px" onchange="submitBranchId(this.value)">
 <option value="" hidden>{{$branchName}}</option>
 <?php
-$branches = DB::table('branches')->where('sector','Retail')->get();
+$branches = DB::table('branches')->where('sector','Wholesale')->get();
 ?>
 @foreach($branches as $branch)
 <option value="{{$branch->id}}">{{$branch->branch}}</option>
@@ -263,7 +261,7 @@ $branches = DB::table('branches')->where('sector','Retail')->get();
 </a>
 
 
-<a href="admin-retail-product-logs-datewise" class="btn border-secondary" id="productBtn" style="float:right;margin-right:10px">
+<a href="admin-wholesale-product-logs-datewise" class="btn border-secondary" id="productBtn" style="float:right;margin-right:10px">
     <i class="fa fa-calendar" ></i> Date wise logs <i class="feather icon-arrow-right"></i>
 </a>
 
@@ -283,7 +281,7 @@ $branches = DB::table('branches')->where('sector','Retail')->get();
 
 
 <span style="font-size:16px;">
- Transaction log for <strong>{{$productName}}</strong>  between <strong>{{$startdate}}</strong>  and <strong>{{$enddate}}</strong> .
+ Wholesale transaction log for <strong>{{$productName}}</strong>  between <strong>{{$startdate}}</strong>  and <strong>{{$enddate}}</strong> .
 </span>
 </div>
 <div class="card-body"> 
@@ -303,7 +301,7 @@ $branches = DB::table('branches')->where('sector','Retail')->get();
 </thead>
 <tbody id="tbody">
 <?php
-$history  = DB::table('retailproducthistory')
+$history  = DB::table('wholesaleproducthistory')
             ->where('branchid',$branchId)
             ->where('productid',$productId)
             ->where('date','>=',$startdate)
@@ -403,7 +401,7 @@ $history  = DB::table('retailproducthistory')
       <div class="modal-body">
 
       <?php
-       $data = DB::table('retailbaseproducts')->whereIn('supplier',$supplierArray)->get();
+       $data = DB::table('wholesalebaseproducts')->whereIn('supplier',$supplierArray)->get();
       ?>
        <label>Search and click on product you want to select</label>
     <div class="input-group input-group-button">
@@ -423,7 +421,7 @@ $history  = DB::table('retailproducthistory')
            
         <form action="make-selection" method="post" >
           @csrf
-          <input type="hidden" name="rproduct" value="{{$d->id}}">
+          <input type="hidden" name="wproduct" value="{{$d->id}}">
           <button style="width:100%;border:none;background:none;font-size:15px">
          {{$d->product}} &nbsp; @convert($d->sellingprice) / {{$d->unit}}
          </button>

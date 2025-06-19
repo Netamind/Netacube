@@ -565,17 +565,17 @@ $(document).ready(function() {
         toastr.success('Data updateed successifully','Success')  
         self.text("Submit")
         self.prop("disabled", false)
-        form.reset();
+        //form.reset();
         $("#generaldiv").load(" #generaldiv  > *",function(){});
-        $("#generalformdiv").load(" #generalformdiv  > *",function(){});
+        //$("#generalformdiv").load(" #generalformdiv  > *",function(){});
         }
         if(data == 4){
         toastr.success('Data inserted successifully','Success')  
         self.text("Submit")
         self.prop("disabled", false)
-        form.reset();
+        //form.reset();
         $("#generaldiv").load(" #generaldiv  > *",function(){});
-        $("#generalformdiv").load(" #generalformdiv  > *",function(){});
+        //$("#generalformdiv").load(" #generalformdiv  > *",function(){});
         }
 
         if(data == 1){
@@ -646,17 +646,17 @@ $(document).ready(function() {
         toastr.success('Data updateed successifully','Success')  
         self.text("Submit")
         self.prop("disabled", false)
-        form.reset();
+        //form.reset();
         $("#contactdiv").load(" #contactdiv  > *",function(){});
-        $("#contactformdiv").load(" #contactformdiv  > *",function(){});
+        //$("#contactformdiv").load(" #contactformdiv  > *",function(){});
         }
         if(data == 4){
         toastr.success('Data inserted successifully','Success')  
         self.text("Submit")
         self.prop("disabled", false)
-        form.reset();
+        //form.reset();
         $("#contactdiv").load(" #contactdiv  > *",function(){});
-        $("#contactformdiv").load(" #contactformdiv  > *",function(){});
+       //$("#contactformdiv").load(" #contactformdiv  > *",function(){});
         }
 
         if(data == 1){

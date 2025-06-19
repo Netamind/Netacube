@@ -6,10 +6,7 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="csrf-token" content="{{ csrf_token() }}">
-  <link rel="stylesheet" type="text/css" href="dashboard/files/assets/icon/feather/css/feather.css">
-
-
-	<style>
+  <style>
 .spinner {
   border: 4px solid rgba(0, 0, 0, 0.1);
   border-top: 4px solid #f35800; /* orange color */
@@ -56,10 +53,6 @@
   }
 }
 
-
-.sweet-modal-container {
-  /* styles for the modal container */
-}
 
 .sweet-modal-container .sweet-modal .modal-content {
   border-radius: 5px;
@@ -172,21 +165,49 @@
 }
 
 
+.dataTables_wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+   
+}
 
+.dataTables_filter, .dt-buttons {
+    margin-bottom: 10px;
+    overflow-x: hidden;
+    position: sticky;
+    left:0;
+    right: 0;
+    
+}
 
-
+@media (max-width: 767px) {
+    .dataTables_wrapper {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
+    }
+}
 	</style>
+
 </head>
 <body>
+
+<!--start page wrapper -->
+<div class="page-wrapper">
+<div class="page-content">
 
 
 <div class="loading-status" id="loading-status" style="display:none">
   <div class="waves"></div>
 </div>
+
 <section>
 <div class="card">
 <div class="card-header">
-<h4><i class="feather icon-users" style="font-weight:bold;color:gray;"></i> Clients
+<h4> Clients
 
 <a href="#" class="btn btn-primary" id="newDataBtn" style="float:right"><i class="fa fa-plus-circle" style="color:white"></i>New Client</a>
 </h4>
@@ -194,10 +215,10 @@
 Manage wholesale clients
 </span>
 </div>
-<div class="card-block">
+<div class="card-body">
 
 <div class="table-wrapper">
-<table id="employee-table" class="table-striped-column  table-sm table-striped table-fixed-first-column table-fixed-header" >
+<table id="wholesaleclients-table" class="table table-striped-column  table-sm table-striped table-fixed-first-column table-fixed-header" >
 <thead class="table-dark">
 <tr>
 <th class="table-dark">ClientName</th>
@@ -241,7 +262,7 @@ $data  = DB::table('wholesaleclients')->get();
 @endforeach
 </tbody>
 </table>
-<!--</div>-->
+</div>
 
 
 </div>
@@ -251,14 +272,12 @@ $data  = DB::table('wholesaleclients')->get();
 
 
 <section decription="Modal for app data info">
-<div class="modal fade-scale" tabindex="-1" role="dialog" id="newDataModal" data-backdrop="static">
+<div class="modal fade-scale" tabindex="-1" role="dialog" id="newDataModal" data-bs-backdrop="static">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
-      <div class="modal-header bg-primary">
+      <div class="modal-header ">
         <h5 class="modal-title">Add  new client</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
 		<form action="insert-wholesale-client" method="post"  id="newDataForm">
@@ -283,39 +302,48 @@ $data  = DB::table('wholesaleclients')->get();
         <label for="#">Email</label>
          <input type="email" name="email" class="form-control" placeholder="Enter email">
         </div>
-
-
        </div>
 		
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      
 
   
-	     	<button class="btn btn-primary" style="float:right" id="submitDataBtn">Submit</button>
+	    
 
-		    </form>
+		   
       </div>
+
+      
+    <div class="modal-footer">
+    <a href="#" class="btn btn-secondary" style="float:right"  id="cancelDataBtn">Cancel</a> 
+    <button class="btn btn-primary" style="float:right" id="submitDataBtn">Submit</button>
+    </div>
+
+    </form>
+
+
     </div>
   </div>
 </div>
 </section>
 
+</div>
+</div>
 
 
 <section decription="Modal for app data info">
 <div class="modal fade-scale" tabindex="-1" role="dialog" id="editDataModal" data-backdrop="static">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
-      <div class="modal-header bg-primary">
+      <div class="modal-header">
         <h5 class="modal-title">Edit client info</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
 		<form action="edit-wholesale-client" method="post"   id="editDataForm">
 			@csrf
       <input type="hidden" id="editId" name="id">
       <input type="hidden" id="editRow">
+
       <div class="row">
 
       <div class="col-md-12 form-group">
@@ -341,12 +369,18 @@ $data  = DB::table('wholesaleclients')->get();
       
 
       </div>
-    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-		<button class="btn btn-primary" style="float:right" id="submitEditDataBtn">Submit</button>
-		</form>
+
       </div>
-     
+    
+      <div class="modal-footer">
+      <button class="btn btn-primary" style="float:right" id="submitEditDataBtn">Submit</button>
+      </div>
+      </form>
     </div>
+
+  
+
+
   </div>
 </div>
 </section>
@@ -398,6 +432,11 @@ $(document).ready(function() {
   $('#newDataBtn').click(function() {
     $('#newDataModal').modal('show');
   });
+
+  $('#cancelDataBtn').click(function() {
+    document.getElementById('newDataForm').reset();
+  });
+
 
 $('#submitDataBtn').click(function(e) {
       var self = $(this);
@@ -601,54 +640,59 @@ $('#submitDataBtn').click(function(e) {
       })
 
 
-      
-              $('#employee-table').DataTable({ 
-                  dom: 'Bfrtip', 
-                  autoWidth:false,
-                  paging: true,
-                  //lengthMenu: [[20, 25, 50, -1], [20, 25, 50, "All"]],
-                  buttons: [
-                  {
-                    extend: 'excel',
-                    title: 'Employees',
-                    exportOptions: {
-                      columns: ':visible:not(:last-child)'
-                    }
-                  },
-                  
-                  {
-                    extend: 'pdf',
-                    title: 'Employees',
-                    exportOptions: {
-                    columns: ':visible:not(:last-child)'
-                    },
-                    customize: function (doc) {
-                      doc.content[1].table.widths = Array(doc.content[1].table.body[0].length + 1).join('*').split('');
-                      doc.content[1].table.body.forEach(function(row, i) {
-                        row[0].alignment = 'left'; 
-                        for (var j = 1; j < row.length; j++) {
-                          row[j].alignment = 'center'; 
-                        }
-                    
-                      });
-                    },
-                  
+ 
+      $('#wholesaleclients-table').DataTable({ 
+     dom: 'Bfrtip', 
+     autoWidth:false,
+     paging: true,
+     pageLength: -1,
+     lengthChange: false,
+     buttons: [
 
-                  }
-                
-                ]
-              }); 
+      {
+      extend: 'copy',
+      title: 'Wholesale clients',
+      exportOptions: {
+        columns: ':visible:not(:last-child)'
+      }
+    },
 
+     {
+      extend: 'excel',
+      title: 'Wholesale clients',
+      exportOptions: {
+        columns: ':visible:not(:last-child)'
+      }
+    },
+    
+    {
+      extend: 'pdf',
+      title: 'Wholesale clients',
+      exportOptions: {
+      columns: ':visible:not(:last-child)'
+      },
+      customize: function (doc) {
+        doc.content[1].table.widths = Array(doc.content[1].table.body[0].length + 1).join('*').split('');
+        doc.content[1].table.body.forEach(function(row, i) {
+          row[0].alignment = 'left'; 
+          for (var j = 1; j < row.length; j++) {
+            row[j].alignment = 'center'; 
+          }
+       
+        });
+      },
+     
 
-
-
-
-
-
-
-
-
-
+    },{
+      extend: 'print',
+      title: 'Wholesale clients',
+      exportOptions: {
+        columns: ':visible:not(:last-child)'
+      }
+    },
+  
+  ]
+ }); 
 
 
 

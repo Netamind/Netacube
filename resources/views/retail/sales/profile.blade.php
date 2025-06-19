@@ -437,7 +437,7 @@ $(document).ready(function() {
       });
       $.ajax({
         type:"post",
-         url: '/change-password',
+         url: '/rsales-change-password',
          data: $(form).serialize(),
           timeout: 60000,
           beforeSend: function() {

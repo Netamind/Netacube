@@ -19,6 +19,13 @@ class WebController extends Controller
     public function forgotpassword(){
         return view('web.forgotpassword');
     }
+
+    public function resetpasswordview(){
+
+        return view('web.resetpasswordview');
+
+    }
+
 public function requestpasswordresetlink(Request $request)
 {
     $data = array();
@@ -62,6 +69,53 @@ public function requestpasswordresetlink(Request $request)
 }
 
 
-   
+public function resetpassword(Request $request)
+{
+
+    $data = array();
+
+    $data['password'] = Hash::make($request->password);
+
+    $token = $request->token;
+
+    $messages = [
+        'password.required' => 'Password is required.',
+        'password_confirmation.required' => 'Password confirmation is required.',
+    ];
+
+    $validator = $request->validate([
+        'password' => 'required|min:4|confirmed',
+        'password_confirmation' => 'required',
+    ], $messages);
+    if ($validator) {
+        $tokenData = DB::table('password_resets')->where('token', $token)->first();
+        if ($tokenData) {
+            if ($tokenData->status == 1) {
+                $tokenDate = date('Y-m-d', strtotime($tokenData->date));
+                $currentDate = date('Y-m-d');
+                if ($tokenDate == $currentDate) {
+                    $updateData = DB::table('users')->where('email', $tokenData->email)->update($data);
+                    if ($updateData) {
+                        DB::table('password_resets')->where('token', $token)->where('email', $tokenData->email)->update(['status' => 0]);
+                        return response()->json(['success' => 'Password reset successfully', 'status' => 201]);
+                    } else {
+                        return response()->json(['error' => 'An error occurred try again later', 'status' => 422]);
+                    }
+                } else {
+                    return response()->json(['error' => 'Link has expired', 'status' => 400]);
+                }
+            } else {
+                return response()->json(['error' => 'Link already used', 'status' => 400]);
+            }
+        } else {
+            return response()->json(['error' => 'Invalid token'.$token, 'status' => 400]);
+        }
+    } else {
+        return back()->withErrors($validator)->withInput();
+    }
+}
+
+
+
 
 }

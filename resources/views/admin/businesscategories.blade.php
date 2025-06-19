@@ -299,7 +299,7 @@ $data  = DB::table('businesscategories')->get();
 		
 			<div class="form-group">
 				<label for="#">Category Name</label>
-				<input type="text"name="category" class="form-control" placeholder="Enter branch name">
+				<input type="text"name="category" class="form-control" placeholder="Enter category name">
 			</div>
 
 

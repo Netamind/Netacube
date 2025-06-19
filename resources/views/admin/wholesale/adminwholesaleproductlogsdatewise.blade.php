@@ -6,10 +6,7 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="csrf-token" content="{{ csrf_token() }}">
-  <link rel="stylesheet" type="text/css" href="dashboard/files/assets/icon/feather/css/feather.css">
-
-
-	<style>
+  <style>
 .spinner {
   border: 4px solid rgba(0, 0, 0, 0.1);
   border-top: 4px solid #f35800; /* orange color */
@@ -56,10 +53,6 @@
   }
 }
 
-
-.sweet-modal-container {
-  /* styles for the modal container */
-}
 
 .sweet-modal-container .sweet-modal .modal-content {
   border-radius: 5px;
@@ -170,10 +163,43 @@
 .table-striped-column tr:nth-child(odd) td:nth-child(1) {
   background-color: #e6e6e6;
 }
- 
+
+
+.dataTables_wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+   
+}
+
+.dataTables_filter, .dt-buttons {
+    margin-bottom: 10px;
+    overflow-x: hidden;
+    position: sticky;
+    left:0;
+    right: 0;
+    
+}
+
+@media (max-width: 767px) {
+    .dataTables_wrapper {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
+    }
+}
 	</style>
+
 </head>
 <body>
+
+<!--start page wrapper -->
+<div class="page-wrapper">
+<div class="page-content">
+
+
 <div class="loading-status" id="loading-status" style="display:none">
   <div class="waves"></div>
 </div>
@@ -184,8 +210,12 @@
 <h4>
 <?php
    use Carbon\Carbon;
-   $branchId = Cookie::get('branch') ?? "NA";
-   $productId = Cookie::get('product') ?? "NA";
+   $branchId = DB::table('selection')->where('user',Auth::user()->id)->value('wbranch')??0;
+   $productId = DB::table('selection')->where('user',Auth::user()->id)->value('wproduct')??0;
+   $date = DB::table('selection')->where('user',Auth::user()->id)->value('wdate')??Carbon::today()->toDateString();
+
+   
+
    $branchName = '';
    $categoryName = '';
    $categoryId = DB::table('branches')->where('id',$branchId)->value('category');
@@ -197,7 +227,7 @@
        $branchName = 'Branch not defined';   
      }
     
-      $date = Cookie::get('wdate') ?? "Date not defined";
+    
 
       $data = DB::table('wholesaledeliverynotes')->where('branchid',$branchId)->where('date',$date)->get();
       $data2 = DB::table('wholesaleproducthistory')->where('branchid',$branchId)->where('date',$date)->get();
@@ -241,8 +271,7 @@
 
  ?>
 
-  
-<i class="feather icon-home" style="font-weight:bold;color:gray;"></i>
+
 <select  id="" style=";border:none;margin-left:-4px" onchange="submitBranchId(this.value)">
 <option value="" hidden>{{$branchName}}</option>
 <?php
@@ -258,245 +287,151 @@ $branches = DB::table('branches')->where('sector','Wholesale')->get();
     <i class="fa fa-edit" style="color:white"></i>Date
 </a>
 
+
+
+<a href="admin-wholesale-product-logs" class="btn btn-primary" id="dateBtn" style="float:right;margin-right:10px">
+    <i class="feather icon-arrow-left" style="color:white"></i>Back
+</a>
+
 <script> 
     function submitBranchId(value) {
         document.getElementById('branchId').value = value;
         document.getElementById('branchForm').submit();
     }
 </script>
-<form action="select-branch" method="post" id="branchForm">
+<form action="make-selection" method="post" id="branchForm">
   @csrf
-  <input type="hidden" name="branch" id="branchId">
+  <input type="hidden" name="wbranch" id="branchId">
  </form>
 
 
 </h4>
-<span style="font-size:15px">Wholesale branch supplies <strong> ( {{$date}} )</strong> </span>
+<span style="font-size:15px">Wholesale product transaction logs  <strong>[ {{$date}} ]</strong> </span>
 </div>
-<div class="card-block">
-<div class="row">
+<div class="card-body">
 
-<div class="col-md-12">
-<ul class="nav nav-tabs  tabs" role="tablist">
-<li class="nav-item">
-<a class="nav-link active" data-toggle="tab" href="#suppliesTab" role="tab"><i class="fa fa-file"></i> Supplies</a>
-</li>
-<li class="nav-item">
-<a class="nav-link" data-toggle="tab" href="#logsTab" role="tab"><i class="fa fa-calendar"></i> Logs</a>
-</li>
-<!--<li class="nav-item">
-<a class="nav-link" data-toggle="tab" href="#infoTab" role="tab"> <i class="fa fa-info-circle"></i> Info</a>
-</li>-->
+      <div>
+          <a href="#" class="btn" style="margin-left:-10px" disabled>
+            <i>Loss value : @convert($lossvalue)</i>
+          </a>
+          <a href="#" class="btn" disabled>
+            <i>Added value : @convert($addedvalue)</i>
+          </a>
 
-</ul>
+          <a href="#" class="btn" disabled>
+            <i>With selected :</i>
+          </a>
 
-<div class="tab-content tabs card-block">
-
-<div class="tab-pane active" id="suppliesTab" role="tabpanel">
-<div>
-  <a href="#" class="btn" style="margin-left:-10px" disabled>
-    <i>Value : @convert($dnotevalue)</i>
-  </a>
-  <a href="#" class="btn" disabled>
-    <i>With selected:</i>
-  </a>
-  <a href="#" class="btn text-warning">
-    <i class="fa fa-undo"></i> Unsubmit
-  </a>
-  <a href="#" class="btn text-primary">
-    <i class="fa fa-calendar"></i> Change date
-  </a>
-  <a href="#" class="btn text-secondary">
-    <i class="fa fa-building"></i> Change branch
-  </a>
-  <a href="#" class="btn text-success">
-  <i class="fa fa-check"></i> Submit
-   </a>
-  <a href="#" class="btn text-danger">
-    <i class="fa fa-trash"></i> Delete
-  </a>
-</div>
-<br>
-<div class="table-wrapper">
-<table id="wsupplies-table" class="table-striped-column  table-sm table-striped table-fixed-first-column table-fixed-header" >
-<thead class="table-dark">
-<tr>
-<th class="table-dark">
-<input type="checkbox" class="selectall"> Product</th>
-<th style="text-align:center">Unit</th>
-<th style="text-align:center">Quantity</th>
-<th style="text-align:center">Price</th>
-<th style="text-align:center">Total</th>
-<th style="text-align:center">Submitted</th>
-<th style="text-align:center">Action</th>
-</tr>
-</thead>
-<tbody id="tbody">
-@foreach($data as $d)
-<?php
- $editrow = "editrow".$d->id;
- ?>
-<tr id="{{$editrow}}">
-   <td ><input type="checkbox" name="select" class="select"> {{$d->productname}}</td>
-   <td style="text-align:center">{{$d->unit}}</td>
-   <td style="text-align:center">{{$d->quantity}}</td>
-   <td style="text-align:center">@convert($d->price)</td>
-   <td style="text-align:center;">@convert($d->quantity*$d->price)</td>
-   <td style="text-align:center">{{$d->added_to_branch}}</td>
-
-	 <td style="text-align:center">
-	 <a href="#" class="editDataBtnClass" 
-    editId ="{{$d->id}}"
-    editRow="{{$editrow}}"
-    editproduct="{{$d->productname}}" 
-    editunit="{{$d->unit}}"
-    editquantity="{{$d->quantity}}"  
-    editprice="{{$d->price}}"
-    > 
-    <i class="fa fa-edit text-primary fa-2x" ></i>
-    </a>
-		<a href="#" class="deleteDataBtnClass" deleteLabel="{{$d->productname}}"  deleteId="{{$d->id}}" deleteRow="{{$editrow}}">
-      <i class="fa fa-trash text-danger fa-2x"></i>
-    </a>
-	</td>
-</tr>
-@endforeach
-</tbody>
-</table>
-</div>
-</div>
-
-<div class="tab-pane" id="logsTab" role="tabpanel">
-<div>
-  <a href="#" class="btn" style="margin-left:-10px" disabled>
-    <i>Loss value : @convert($lossvalue)</i>
-  </a>
-  <a href="#" class="btn" disabled>
-    <i>Added value : @convert($addedvalue)</i>
-  </a>
-
-  <a href="#" class="btn" disabled>
-    <i>With selected :</i>
-  </a>
-
-  <a href="#" class="btn text-warning">
-    <i class="fa fa-undo"></i> Reverse
-  </a>
-  
-  <a href="#" class="btn text-danger">
-    <i class="fa fa-trash"></i> Delete
-  </a>
-
-</div>
-<br>
-<div class="table-wrapper">
-<table id="wlogs-table" class="table-striped-column  table-sm table-striped table-fixed-first-column table-fixed-header" >
-<thead class="table-dark">
-<tr>
-<th class="table-dark">
-<input type="checkbox" class="selectall">Product</th>
-<th style="text-align:center">QtyBefore(QB)</th>
-<th style="text-align:center">QtyAfrer(QA)</th>
-<th style="text-align:center">Diff(QA-QB)</th>
-<th style="text-align:center">Description</th>
-<th style="text-align:center">Action</th>
-</tr>
-</thead>
-<tbody id="tbody">
-@foreach($data2 as $log)
-<?php
- $editrow = "editrowlogs".$log->id;
- ?>
-<tr id="{{$editrow}}">
-   <td ><input type="checkbox" name="select" class="select">
-    <?php
-    $logProduct =DB::table('wholesalebaseproducts')->where('id',$log->productid)->value('product');
-    $logUnit =DB::table('wholesalebaseproducts')->where('id',$log->productid)->value('unit');
-    $logPrice =DB::table('wholesalebaseproducts')->where('id',$log->productid)->value('sellingprice');
-    ?>
-    {{$logProduct}} <span style="color:	 #b3b3b3">[ @convert($logPrice) | {{$logUnit}} ]</span> 
-    </td>
-   <td style="text-align:center">{{$log->qtybefore}}</td>
-   <td style="text-align:center">{{$log->qtyafter}}</td>
-   <td style="text-align:center">{{$log->qtyadded}}</td>
-   <td style="text-align:center">{{$log->description}} <span style="color:#b3b3b3" >{{$log->time}} by {{$log->username}}</span> </td>
-	 <td style="text-align:center">
-	 <a href="#" class="editDataBtnClass" 
-    editId ="{{$d->id}}"
-    editRow="{{$editrow}}"
-    editproduct="{{$logProduct}}" 
-    > 
-    <i class="fa fa-edit text-primary fa-2x" ></i>
-    </a>
-		<a href="#" class="deleteDataBtnClass" deleteLabel="{{$logProduct}}"  deleteId="{{$d->id}}" deleteRow="{{$editrow}}">
-      <i class="fa fa-trash text-danger fa-2x"></i>
-    </a>
-	</td>
-</tr>
-@endforeach
-</tbody>
-</table>
-</div>
-</div>
-
-<!--<div class="tab-pane" id="infoTab" role="tabpanel">
-  info
-</div>-->
+          <a href="#" class="btn text-warning">
+            <i class="fa fa-undo"></i> Reverse
+          </a>
+          
+          <a href="#" class="btn text-danger">
+            <i class="fa fa-trash"></i> Delete
+          </a>
+        </div>
 
 
+        <div class="table-wrapper">
+        <table id="retaillogs-table" class="table table-striped-column  table-sm table-striped table-fixed-first-column table-fixed-header" >
+        <thead class="table-dark">
+        <tr>
+        <th class="table-dark">
+        <input type="checkbox" class="selectall">Product</th>
+        <th style="text-align:center">QtyBefore(QB)</th>
+        <th style="text-align:center">QtyAfrer(QA)</th>
+        <th style="text-align:center">Diff(QA-QB)</th>
+        <th style="text-align:center">Description</th>
+        <th style="text-align:center">Action</th>
+        </tr>
+        </thead>
+        <tbody id="tbody">
+        @foreach($data2 as $log)
+        <?php
+        $editrow = "editrowlogs".$log->id;
+        ?>
+        <tr id="{{$editrow}}">
+          <td ><input type="checkbox" name="select" class="select">
+            <?php
+            $logProduct =DB::table('wholesalebaseproducts')->where('id',$log->productid)->value('product');
+            $logUnit =DB::table('wholesalebaseproducts')->where('id',$log->productid)->value('unit');
+            $logPrice =DB::table('wholesalebaseproducts')->where('id',$log->productid)->value('sellingprice');
+            ?>
+            {{$logProduct}} <span style="color:	 #b3b3b3">[ @convert($logPrice) | {{$logUnit}} ]</span> 
+            </td>
+          <td style="text-align:center">{{$log->qtybefore}}</td>
+          <td style="text-align:center">{{$log->qtyafter}}</td>
+          <td style="text-align:center">{{$log->qtyadded}}</td>
+          <td style="text-align:center">{{$log->description}} <span style="color:#b3b3b3" >{{$log->time}} by {{$log->username}}</span> </td>
+          <td style="text-align:center">
+          <a href="#" class="editDataBtnClass" 
+            editId ="{{$log->id}}"
+            editRow="{{$editrow}}"
+            editproduct="{{$logProduct}}" 
+            > 
+            <i class="fa fa-edit text-primary fa-2x" ></i>
+            </a>
+            <a href="#" class="deleteDataBtnClass" deleteLabel="{{$logProduct}}"  deleteId="{{$log->id}}" deleteRow="{{$editrow}}">
+              <i class="fa fa-trash text-danger fa-2x"></i>
+            </a>
+          </td>
+        </tr>
+        @endforeach
+        </tbody>
+        </table>
+        </div>
+                        
+       
 
-</div>
-</div>
-
-
+<!-------------- end tabs ---------------------->
 
 </div>
 </div>
 </div>
 </section>
-
+</div>
+</div>
 
 <section description="Modal for changing interval">
-  <div class="modal fade-scale" tabindex="-1" role="dialog" id="dateModal" data-backdrop="static">
+  <div class="modal fade-scale" tabindex="-1" role="dialog" id="dateModal" data-bs-backdrop="static">
     <div class="modal-dialog" role="document">
       <div class="modal-content">
-        <div class="modal-header bg-primary">
+        <div class="modal-header">
           <h5 class="modal-title">Change date</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <form action="select-wdate" method="post" id="date-form">
+          <form action="make-selection" method="post" id="date-form">
             @csrf
             <div class="form-group">
               <label for="">Select custom date</label>
-              <input type="date" name="date" id="selected-date" class="form-control" value="{{$date}}">
-              <button class="btn btn-primary" style="margin-top:10px;float:right">Submit</button>
-              <br>
+              <input type="date" name="wdate" id="selected-date" class="form-control" value="{{$date}}">
+              <button class="btn btn-primary" style="margin-top:15px;float:right">Submit</button>
+              <br> <br> <br>
             </div>
+            </form>
+
             <div class="form-group">
               <label for="">Predefined dates: (Within last 124 days)</label>
+              <hr>
               <div class="scrollable-container" style="overflow-x: auto; white-space: nowrap;">
                 <?php
-                  $dates = DB::table('wholesaledeliverynotes')
-                    ->where('branchid', $branchId)
-                    ->where('date', '>=', Carbon::today()->subDays(124))
-                    ->pluck('date');
                   $dates2 = DB::table('wholesaleproducthistory')
                     ->where('branchid', $branchId)
                     ->where('date', '>=', Carbon::today()->subDays(124))
                     ->distinct()
                     ->pluck('date');
-                  $combinedDates = array_unique(array_merge($dates->toArray(), $dates2->toArray()));
-                  rsort($combinedDates);
                 ?>
-                @foreach($combinedDates as $date)
+                @foreach($dates2 as $date)
+                <form action="make-selection" method="post">
+                @csrf
+                <input type="hidden" name="wdate"  class="form-control" value="{{$date}}">
                   <button class="btn btn-sm btn-secondary predefined-date" style="margin:5px">{{ $date }}</button>
+                </form>
                 @endforeach
               </div>
+              
             </div>
-          </form>
         </div>
       </div>
     </div>
@@ -546,11 +481,21 @@ $(document).ready(function() {
   });
 
 
-$('#wsupplies-table').DataTable({ 
+  
+$('#retailsupplies-table').DataTable({ 
      dom: 'Bfrtip', 
      autoWidth:false,
      paging: true,
      buttons: [
+
+      {
+      extend: 'copy',
+      title: @json($title1),
+      exportOptions: {
+        columns: ':visible:not(:last-child)'
+      }
+    },
+
      {
       extend: 'excel',
       title: @json($title1),
@@ -575,17 +520,37 @@ $('#wsupplies-table').DataTable({
        
         });
       },
-    }
+     
+
+    },{
+      extend: 'print',
+      title: @json($title1),
+      exportOptions: {
+        columns: ':visible:not(:last-child)'
+      }
+    },
+  
   ]
  }); 
-
 
  
-$('#wlogs-table').DataTable({ 
+  
+$('#retaillogs-table').DataTable({ 
      dom: 'Bfrtip', 
      autoWidth:false,
      paging: true,
+     pageLength: -1,
+     lengthChange: false,
      buttons: [
+
+      {
+      extend: 'copy',
+      title: @json($title2),
+      exportOptions: {
+        columns: ':visible:not(:last-child)'
+      }
+    },
+
      {
       extend: 'excel',
       title: @json($title2),
@@ -610,9 +575,22 @@ $('#wlogs-table').DataTable({
        
         });
       },
-    }
+     
+
+    },{
+      extend: 'print',
+      title: @json($title2),
+      exportOptions: {
+        columns: ':visible:not(:last-child)'
+      }
+    },
+  
   ]
  }); 
+
+
+
+
 
   $('body').on('click', '.insertDataBtn', function(e) {
       var self = $(this);

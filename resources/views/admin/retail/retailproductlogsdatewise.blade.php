@@ -411,27 +411,32 @@ $branches = DB::table('branches')->where('sector','Retail')->get();
             
             </div>
             </form>
-            <div class="form-group">
-              <label for="">Predefined dates: (Within last 124 days)</label>
-              <hr>
-              <div class="scrollable-container" style="overflow-x: auto; white-space: nowrap;">
-                <?php
+
+             <?php
                   $dates2 = DB::table('retailproducthistory')
                     ->where('branchid', $branchId)
                     ->where('date', '>=', Carbon::today()->subDays(124))
-                    ->distinct()
+                    ->distinct()->orderBy('date','desc')
                     ->pluck('date');
                 ?>
-                @foreach($dates2 as $date)
-                <form action="make-selection" method="post">
-                @csrf
-                <input type="date" name="rdate"  class="form-control" value="{{$date}}">
-                  <button class="btn btn-sm btn-secondary predefined-date" style="margin:5px">{{ $date }}</button>
-                </form>
-                @endforeach
+
+
+
+              <div class="form-group">
+              <label for="">Predefined dates: (Within last 124 days)</label>
+              <hr>
+              <div class="d-flex flex-row overflow-auto">
+                  @foreach($dates2 as $date)
+                      <form action="make-selection" method="post" class="me-2">
+                          @csrf
+                          <input type="hidden" name="rdate" class="form-control" value="{{$date}}">
+                          <button class="btn btn-sm btn-secondary predefined-date">{{ $date }}</button>
+                      </form>
+                  @endforeach
               </div>
-              
-            </div>
+          </div>
+
+
         </div>
       </div>
     </div>

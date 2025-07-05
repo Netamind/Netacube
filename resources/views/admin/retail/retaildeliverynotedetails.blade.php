@@ -272,7 +272,7 @@ $title = $branchName." Deliverynote ".$date." (MWK".$dnotevalue.")";
     <a href="#" class="btn text-danger">
         <i class="fa fa-trash"></i> Delete
     </a>
-    </div>
+ </div>
 </div>
 <div class="card-body">
 

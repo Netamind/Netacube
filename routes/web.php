@@ -8,6 +8,11 @@ Route::get('/reset-password-view', 'WebController@resetpasswordview');
 Route::post('/reset-password', 'WebController@resetpassword');
 Route::post('/make-selection', 'SelectionController@makeselection');
 
+/*==========================================Start Website ==========================================*/
+Route::get('website-status', 'WebsiteController@websitestatus');
+/*==========================================End Website ==========================================*/
+
+
 /*========================================== Start of Admin Dashboard Routes=================================================================*/
 Route::get('admin-dashboard', 'AdminController@admindashboard');
 Route::get('business-category', 'AdminController@businesscategory');

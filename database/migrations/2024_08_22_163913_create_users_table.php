@@ -34,6 +34,10 @@ class CreateUsersTable extends Migration
             'role' => 'Admin',
         ]);
 
+
+  
+
+
            
     }
 

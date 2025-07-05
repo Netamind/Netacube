@@ -161,32 +161,15 @@
 						
 					</ul>
 		         </li>
-
-
-
-
-				<!--<li>
-					<a class="has-arrow" href="javascript:;">
-						<div class="parent-icon"><i class="bx bx-cog"></i>
-						</div>
-						<div class="menu-title">Settings</div>
-					</a>
-					<ul>
-					   <li><a href="admin-homepage-settings"><i class='bx bx-radio-circle'></i>Homepage</a></li>
-						<li><a href="javascript:;"><i class='bx bx-radio-circle'></i>Homepage</a></li>
-					</ul>
-				</li>-->
-
-
 		
-				<!--<li>
+				<li>
 					<a class="has-arrow" href="javascript:;">
 						<div class="parent-icon"><i class="bx bx-globe"></i>
 						</div>
 						<div class="menu-title">Website</div>
 					</a>
 					<ul>
-						<li><a href="javascript:;"><i class='bx bx-radio-circle'></i>Status</a></li>
+						<li><a href="website-status"><i class='bx bx-radio-circle'></i>Status</a></li>
 						<li><a href="javascript:;"><i class='bx bx-radio-circle'></i>Wellcome</a></li>
 						<li><a href="javascript:;"><i class='bx bx-radio-circle'></i>About</a></li>
 						<li><a href="javascript:;"><i class='bx bx-radio-circle'></i>Services</a></li>
@@ -194,7 +177,7 @@
 						<li><a href="javascript:;"><i class='bx bx-radio-circle'></i>Contact</a></li>
 						<li><a href="javascript:;"><i class='bx bx-radio-circle'></i>Settings</a></li>
 					</ul>
-				</li>-->
+				</li>
 
 
 			</ul>

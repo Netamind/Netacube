@@ -224,6 +224,7 @@
             @if(optional($status)->status==0)
 
              <div>{{optional($status)->is_zero_description}}</div>
+              <a href="#" class="btn btn-info" style="margin-top:10px" id="statusBtn">Click here to enable website</a>
 
             @else
 
@@ -261,6 +262,39 @@ Otherwise, it will redirect to the login page.
 
 
 
+
+
+<section description="Modal for changing interval">
+  <div class="modal fade-scale" tabindex="-1" role="dialog" id="statusModal" data-bs-backdrop="static">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Comfirmation</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form action="#" method="post" id="status-form">
+            @csrf
+            <div class="form-group">
+              <label for="">Enter password to comfirm changing  website status</label>
+            
+              <input type="password" class="form-control" name="password" id="comfirmpassword" placeholder="Enter password" autocomplete="off">
+              
+              
+              <button class="btn btn-primary" id="changeStatusBtn" style="margin-top:15px;float:right">Submit</button>
+           
+            
+            </div>
+           
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+
 <!-- jQuery -->
 <script src="Admin320/plugins/jquery/jquery.min.js"></script>
 <script src="Admin320/plugins/sweetalert2/sweetalert2.min.js"></script>
@@ -280,52 +314,46 @@ $(document).ready(function() {
   });
 
     
- 
-$('#vat-table').DataTable({ 
-     dom: 'Bfrtip', 
-     autoWidth:false,
-     paging: true,
-     pageLength: -1,
-     lengthChange: false,
-     buttons: [
-
-      {
-      extend: 'copy',
-      title: 'VAT Statuses',
-    },
-
-     {
-      extend: 'excel',
-      title: 'VAT Statuses',
-    },
     
-    {
-      extend: 'pdf',
-      title: 'VAT Statuses',
-      customize: function (doc) {
-        doc.content[1].table.widths = Array(doc.content[1].table.body[0].length + 1).join('*').split('');
-        doc.content[1].table.body.forEach(function(row, i) {
-          row[0].alignment = 'left'; 
-          for (var j = 1; j < row.length; j++) {
-            row[j].alignment = 'center'; 
-          }
-       
-        });
-      },
-     
+$('#statusBtn').click(function() {
+    $('#statusModal').modal('show');
+  });
 
-    },{
-      extend: 'print',
-      title: 'VAT Statuses',
-    },
+
   
-  ]
- }); 
-
-
-
-
-
+  $(document).on("click", "#changeStatusBtn", function() {  
+    var self = $(this);
+    var form = document.getElementById('status-form')
+    $(this).prop("disabled", true);
+    $.ajax({
+        beforeSend: function() {
+          $('#loading-status').css('display', 'block');
+        },
+        complete: function() {
+            $('#loading-status').css('display', 'none');
+		        self.prop("disabled", false);
+        },
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        type: "POST",
+        url: '/change-website-status',
+        data: form.serialize(),
+        success: function(data) {
+            if (data == 2) {
+        
+                toastr.success('Data merged successfully');
+                localStorage.removeItem('cartDataFstock');
+            }
+            if (data == 1) {
+                toastr.error('An error occurred, password entered is not correct');
+            }
+        },
+        error: function(data) {
+            toastr.error('An error occurred, make sure you are connected to the internet');
+        }
+    });
+});
 
 })
 </script>

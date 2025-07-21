@@ -398,7 +398,7 @@ $branches = DB::table('branches')->where('sector','Retail')->get();
     <input type="hidden" name="productid" value="{{$product->id}}">
     <input type="hidden" name="productname" value="{{$product->product}}">
     <input type="hidden" name="unit" value="{{$product->unit}}">
-    <input type="hidden" name="price" value="{{$product->sellingprice}}">
+    <!--<input type="hidden" name="price" value="{{$product->sellingprice}}">-->
 
 
  </form>

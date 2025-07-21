@@ -44,7 +44,7 @@
 			<div class="sidebar-header">
 
 			    <div>
-				   <a href="retail-sales-dashboard"><img src="system/images/nc1.png" style="width:30px;margin-left:10px" class="logo-iconk" alt=""></a>	
+				   <a href="retail-sales-dashboard"><img src="system/images/icon.png" style="width:30px;margin-left:10px" class="logo-iconk" alt=""></a>	
 				</div>
 
 

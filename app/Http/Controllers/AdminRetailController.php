@@ -762,13 +762,15 @@ public function rselecteditemschangedate(request $request){
 
 public function insertretaildeliverynote(Request $request)
 {
+
+    $price =DB::table('retailbaseproducts')->where('id',$request->productid)->value('sellingprice');
     $data = array();
     $data['date'] = $request->date;
     $data['branchid'] = $request->branchid;
     $data['productid'] = $request->productid;
     $data['productname'] = $request->productname;
     $data['unit'] = $request->unit;
-    $data['price'] = $request->price;
+    $data['price'] = $price;
     $data['quantity'] = $request->quantity;
 
     $checkproduct = DB::table('retaildeliverynotes')
@@ -786,7 +788,7 @@ public function insertretaildeliverynote(Request $request)
                 'productid' => $request->productid,
                 'productname' => $request->productname,
                 'unit' => $request->unit,
-                'price' => $request->price,
+                'price' => $price,
                 'quantity' => $request->quantity,
                 'added_to_branch' => 'No'
             ]);
@@ -819,7 +821,7 @@ public function insertretaildeliverynote(Request $request)
             'productid' => $request->productid,
             'productname' => $request->productname,
             'unit' => $request->unit,
-            'price' => $request->price,
+            'price' => $price,
             'quantity' => $request->quantity,
             'added_to_branch' => 'No'
         ]);

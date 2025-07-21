@@ -10,6 +10,9 @@ Route::post('/make-selection', 'SelectionController@makeselection');
 
 /*==========================================Start Website ==========================================*/
 Route::get('website-status', 'WebsiteController@websitestatus');
+Route::get('change-website-status', 'WebsiteController@changewebsitestatus');
+
+
 /*==========================================End Website ==========================================*/
 
 

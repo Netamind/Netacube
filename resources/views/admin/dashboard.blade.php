@@ -5,7 +5,7 @@
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<!--favicon-->
-	 <link rel="icon" href="system/images/nc1.png" type="image/x-icon">
+	 <link rel="icon" href="system/images/icon1.png" type="image/x-icon">
 	<!--plugins-->
 	<link href="dashboard/assets/plugins/vectormap/jquery-jvectormap-2.0.2.css" rel="stylesheet"/>
 	<!--<link href="dashboard/assets/plugins/simplebar/css/simplebar.css" rel="stylesheet" />-->
@@ -46,7 +46,7 @@
 			<div class="sidebar-header">
 
 			    <div>
-				   <a href="admin-dashboard"><img src="system/images/nc1.png" style="width:35px;margin-left:10px" class="logo-iconk" alt=""></a>	
+				   <a href="admin-dashboard"><img src="system/images/icon1.png" style="width:35px;margin-left:10px" class="logo-iconk" alt=""></a>	
 				</div>
 
 

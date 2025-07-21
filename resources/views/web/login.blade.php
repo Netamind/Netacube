@@ -35,7 +35,7 @@
             <div class="card-body">
             <div class="p-4">
             <div class="mb-3 text-center">
-            <img src="system/images/nc.jpeg" alt="" style="height:60px">
+            <img src="system/images/netacube2.png" alt="" style="height:50px">
             </div>
             <div class="text-center mb-4">
             <?php

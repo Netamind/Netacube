@@ -384,8 +384,8 @@ $branches = DB::table('branches')->where('sector','Retail')->get();
 
   ?>
 <label for="#" >
-   <span style="font-size:15px;font-weight:bold">{{$branch->branch}} </span> <br>
-  <span style="color:gray;font-size:12px">stock  : {{$stock}} | order : 0 | sdnote : {{$sdnote}} </span>
+   <span style="font-size:15px;font-weight:bold;">{{$branch->branch}} </span> <br>
+  <span style="color:gray;font-size:12px"> <span style="color:#737373;font-weight:bold">stock  : {{$stock}}</span>  | order : 0 | sdnote : {{$sdnote}} </span>
   <span>  </span> </span>
 </label>
 
@@ -400,12 +400,9 @@ $branches = DB::table('branches')->where('sector','Retail')->get();
     <input type="hidden" name="unit" value="{{$product->unit}}">
     <!--<input type="hidden" name="price" value="{{$product->sellingprice}}">-->
 
-
  </form>
 
 </div>
-
-
 @endforeach
 </div>
 </div>

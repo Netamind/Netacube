@@ -48,7 +48,7 @@ class AuthController extends Controller
             elseif($userbranchsector=="Wholesale"){
 
                 Auth::loginUsingId($userid);
-                return  redirect('retail-sales-dashboard');
+                return  redirect('wholesale-sales-dashboard');
 
             }
             else{

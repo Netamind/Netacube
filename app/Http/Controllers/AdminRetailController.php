@@ -920,12 +920,9 @@ public function retailaddproducttobranches(Request $request)
 }
 
 
-public function retailaddallproductstobranches(Request $request)
-{
+public function retailaddallproductstobranches(Request $request) {
     // Get the date from the request
-       // Get the date and product ID from the request
-       $date = DB::table('selection')->where('user',Auth::user()->id)->value('rdate');
-     
+    $date = DB::table('selection')->where('user', Auth::user()->id)->value('rdate');
 
     // Get the delivery notes where date matches and status is 'no'
     $deliveryNotes = DB::table('retaildeliverynotes')
@@ -943,7 +940,7 @@ public function retailaddallproductstobranches(Request $request)
             $quantity = $deliveryNote->quantity;
 
             try {
-                DB::transaction(function () use ($branchId, $productId, $quantity, $deliveryNote) {
+                DB::transaction(function () use ($branchId, $productId, $quantity, $deliveryNote, $date) {
                     // Check if the product exists in the retail branch products table
                     $existingBranchProduct = DB::table('retailbranchproducts')
                         ->where('branch', $branchId)
@@ -957,6 +954,11 @@ public function retailaddallproductstobranches(Request $request)
                             ->where('product', $productId)
                             ->increment('quantity', $quantity);
                     } else {
+                        // Check if the quantity is valid (not negative)
+                        if ($quantity < 0) {
+                            $quantity = 0;
+                        }
+
                         // Insert new product
                         DB::table('retailbranchproducts')
                             ->insert([
@@ -966,22 +968,53 @@ public function retailaddallproductstobranches(Request $request)
                             ]);
                     }
 
-                    // Update the status of the current delivery note to 'yes'
-                    DB::table('retaildeliverynotes')
-                        ->where('id', $deliveryNote->id)
-                        ->update(['added_to_branch' => 'Yes']);
+                    // Check if there is already a delivery note with the same product and branch and date and status 'yes'
+                    $existingDeliveryNote = DB::table('retaildeliverynotes')
+                        ->where('branchid', $branchId)
+                        ->where('productid', $productId)
+                        ->where('date', $date)
+                        ->where('added_to_branch', 'Yes')
+                        ->first();
+
+                    if ($existingDeliveryNote) {
+                        // Update the quantity of the existing delivery note
+                        DB::table('retaildeliverynotes')
+                            ->where('id', $existingDeliveryNote->id)
+                            ->update([
+                                'quantity' => $existingDeliveryNote->quantity + $quantity,
+                            ]);
+
+                        // Delete the current delivery note
+                        DB::table('retaildeliverynotes')
+                            ->where('id', $deliveryNote->id)
+                            ->delete();
+                    } else {
+                        // Update the status of the current delivery note to 'yes'
+                        DB::table('retaildeliverynotes')
+                            ->where('id', $deliveryNote->id)
+                            ->update(['added_to_branch' => 'Yes']);
+                    }
                 });
             } catch (\Exception $e) {
-                // Return error response
-                return response()->json(['error' => 'Failed to process delivery note: ' . $e->getMessage()], 500);
+                // Return error response with code
+                return response()->json([
+                    'code' => 500,
+                    'error' => 'Failed to process delivery note: ' . $e->getMessage(),
+                ], 500);
             }
         }
 
-        // Return success response
-        return response()->json(['success' => 'Delivery notes processed successfully']);
+        // Return success response with code
+        return response()->json([
+            'code' => 200,
+            'success' => 'Delivery notes processed successfully',
+        ], 200);
     } else {
-        // Return response if no delivery notes were processed
-        return response()->json(['success' => 'No delivery notes to process']);
+        // Return response if no delivery notes were processed with code
+        return response()->json([
+            'code' => 204,
+            'message' => 'No delivery notes to process',
+        ], 204);
     }
 }
 

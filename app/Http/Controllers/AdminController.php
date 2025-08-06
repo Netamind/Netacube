@@ -52,9 +52,9 @@ class AdminController extends Controller
 
     }
 
-    public function appdata(){
+    public function companyinfo(){
 
-        return view('admin.appdata');
+        return view('admin.companyinfo');
 
     }
 
@@ -109,59 +109,39 @@ class AdminController extends Controller
      }
     
  
-    
-  
-    
-   
+   public function updateCompanyGeneralInfo(Request $request)
+{
+    $data = array();
+    $data['business_name'] = $request->business_name;
+    $data['business_license_number'] = $request->business_license_number;
+    $data['tin_number'] = $request->tin_number;
+    $data['business_description'] = $request->business_description;
+    $data['business_mission'] = $request->business_mission;
+    $data['business_vision'] = $request->business_vision;
 
+    $validator = $request->validate([
+        'business_name' => 'nullable|string',
+        'business_license_number' => 'nullable|string',
+        'tin_number' => 'nullable|string',
+        'business_description' => 'nullable|string',
+        'business_mission' => 'nullable|string',
+        'business_vision' => 'nullable|string',
+    ]);
 
+    if ($validator) {
+        $updateData = DB::table('companygeneral_info')
+            ->where('id', 1)
+            ->update($data);
 
-    public function updateappdatageneral(request $request){
-
-        $data = array();
-        $response ="";
-
-        $data['appname']=$request->appname;
-        $data['applink']=$request->applink;
-        $data['apptitle']=$request->apptitle;
-
-        $checkRow = DB::table('appdata')->count();
-
-        if($checkRow>0){
-
-          $updateData =  DB::table('appdata')->update($data);
-
-          if($updateData){
-
-             $response= 2;
-             return json_encode($response);
-          }
-          else{
-            $response= 1;
-            return json_encode($response);
-
-          }
-
-
+        if ($updateData) {
+            return response()->json(['success' => 'Data updated successfully', 'status' => 201]);
+        } else {
+            return response()->json(['error' => 'An error occurred try again later', 'status' => 422]);
         }
-
-        else{
-
-          $insertData = DB::table('appdata')->insert($data);
-          if($insertData ){
-            $response= 4;
-            return json_encode($response);
-         }
-         else{
-           $response= 3;
-           return json_encode($response);
-
-         }
-
-        }
-
-
+    } else {
+        return back()->withErrors($validator)->withInput();
     }
+  }
 
 
     public function updateappdatacontact(request $request){

@@ -1,6 +1,7 @@
 <?php
 use Illuminate\Support\Facades\Route;
-Route::get('/', 'WebController@loginview')->name('login');
+Route::get('/', 'WebController@homeview')->name('login');
+Route::get('login', 'WebController@loginview');
 Route::post('/user-login', 'AuthController@userlogin');
 Route::get('/forgot-password', 'WebController@forgotpassword');
 Route::post('/request-password-reset-link', 'WebController@requestpasswordresetlink');
@@ -10,17 +11,24 @@ Route::post('/make-selection', 'SelectionController@makeselection');
 
 /*==========================================Start Website ==========================================*/
 Route::get('website-status', 'WebsiteController@websitestatus');
-Route::get('change-website-status', 'WebsiteController@changewebsitestatus');
+Route::post('change-website-status', 'WebsiteController@changewebsitestatus');
 
 
 /*==========================================End Website ==========================================*/
+
+/*==========================================Company Info ==========================================*/
+Route::get('company-info', 'AdminController@companyinfo');
+Route::post('update-company-general-info', 'AdminController@updatecompanygeneralinfo');
+
+/*========================================== End Company Info ==========================================*/
+
 
 
 /*========================================== Start of Admin Dashboard Routes=================================================================*/
 Route::get('admin-dashboard', 'AdminController@admindashboard');
 Route::get('business-category', 'AdminController@businesscategory');
-Route::get('company-info', 'AdminController@appdata');
-Route::post('update-app-data-general', 'AdminController@updateappdatageneral');
+
+
 Route::post('update-app-data-contact', 'AdminController@updateappdatacontact');
 Route::post('update-app-data-logo', 'AdminController@updateappdatalogo');
 Route::post('update-app-data-letterhead', 'AdminController@updateappdataletterhead');
@@ -145,3 +153,11 @@ Route::post('insert-interval-sales','RetailSalesController@insertintervalsales')
 Route::post('edit-interval-sales','RetailSalesController@editintervalsales');
 /*==========================================End Retail Sales Routes=================================================================*/
 
+
+/*==========================================Retail Sales Routes=================================================================*/
+Route::get('wholesale-sales-dashboard', 'WholesaleSalesController@wholesalesalesdashboard');
+Route::get('wholesale-sales-profile', 'WholesaleSalesController@wholesalesalesprofile');
+Route::post('wholesale-change-password', 'WholesaleSalesController@changepassword');
+Route::get('wholesale-branch-info', 'WholesaleSalesController@wholesalebranchinfo');
+
+/*==========================================End Retail Sales Routes=================================================================*/

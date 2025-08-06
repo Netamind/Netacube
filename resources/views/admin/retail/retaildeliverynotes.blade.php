@@ -1,4 +1,3 @@
-    
 @extends('admin.dashboard')
 @section('content')
 <!DOCTYPE html>
@@ -358,9 +357,6 @@ $toSubmit = DB::table('retaildeliverynotes')->where('date',$date)->where('branch
 </div>
 
 </div>
-
-
-
 
 
 </div>

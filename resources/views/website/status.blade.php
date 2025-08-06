@@ -206,6 +206,16 @@
 <!-- start page wrapper -->
 <div class="page-wrapper">
     <div class="page-content">
+
+    
+
+<div class="loading-status" id="loading-status" style="display:none">
+  <div class="waves"></div>
+</div>
+
+
+
+
         <div class="card">
             <div class="card-header">
                 <h4>
@@ -228,7 +238,8 @@
 
             @else
 
-            
+              <div>{{optional($status)->is_one_description}}</div>
+              <a href="#" class="btn btn-info" style="margin-top:10px" id="statusBtn">Click here to disable website</a>
            @endif
 
             </div>
@@ -321,39 +332,40 @@ $('#statusBtn').click(function() {
 
 
   
-  $(document).on("click", "#changeStatusBtn", function() {  
+$(document).on("click", "#changeStatusBtn", function() {
     var self = $(this);
     var form = document.getElementById('status-form')
     $(this).prop("disabled", true);
     $.ajax({
         beforeSend: function() {
-          $('#loading-status').css('display', 'block');
+            $('#loading-status').css('display', 'block');
         },
         complete: function() {
             $('#loading-status').css('display', 'none');
-		        self.prop("disabled", false);
+            self.prop("disabled", false);
         },
         headers: {
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
         },
         type: "POST",
         url: '/change-website-status',
-        data: form.serialize(),
+        data: $(form).serialize(),
         success: function(data) {
-            if (data == 2) {
-        
-                toastr.success('Data merged successfully');
-                localStorage.removeItem('cartDataFstock');
-            }
-            if (data == 1) {
-                toastr.error('An error occurred, password entered is not correct');
+            if (data.code == 200) {
+                toastr.success(data.success);
+                 setTimeout(function() {location.reload();}, 2000);
+            } else if (data.code == 401) {
+                toastr.error(data.error);
+            } else if (data.code == 400) {
+                toastr.error(data.error);
             }
         },
-        error: function(data) {
+        error: function(xhr, status, error) {
             toastr.error('An error occurred, make sure you are connected to the internet');
         }
     });
 });
+
 
 })
 </script>

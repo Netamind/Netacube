@@ -11,8 +11,17 @@ use Auth;
 use Illuminate\Support\Str;
 class WebController extends Controller
 {
+    public function homeview(){
+        $webstatus = DB::table('websitestatus')->value('status');
+        if($webstatus==0){
+         return view('web.login');
+        }
+        else{
+           return view('website.home'); 
+        }
+      
+    }
     public function loginview(){
-
         return view('web.login');
     }
 

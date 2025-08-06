@@ -13,31 +13,38 @@ use Auth;class WebsiteController extends Controller
     public function websitestatus(){
         return view('website.status');
     }
+public function changeWebsiteStatus(Request $request)
+{
+    $password = $request->password;
+    $hashedPassword = DB::table('users')->where('id', Auth::user()->id)->value('password');
 
-    public function changewebsitestatus(request $request){
+    if (Hash::check($password, $hashedPassword)) {
+        $currentStatus = DB::table('websitestatus')->value('status');
+        $newStatus = $currentStatus == 1 ? 0 : 1;
 
+        $updateStatus = DB::table('websitestatus')->update(['status' => $newStatus]);
 
+        if ($updateStatus) {
+            return response()->json([
+                'success' => 'Website status updated successfully',
+                'status' => $newStatus,
+                'code' => 200
+            ]);
+        } else {
+            return response()->json([
+                'error' => 'No data update was made',
+                'code' => 400
+            ]);
+        }
+    } else {
+        return response()->json([
+            'error' => 'Invalid password entered',
+            'code' => 401
+        ]);
     }
+}
 
 
 
     
-public function rselecteditemschangedate(request $request){
-    $data = json_decode($request->data, true);
-    $password =  end($data);
-    $date = $data[0];
-    $hashedPassword=DB::table('users')->where('id',Auth::user()->id)->value('password');
-    $dateData = Array();
-    $dateData['date'] = $date;
-    if(Hash::check($password, $hashedPassword)) {
-        for($i=0;$i<count($data)-1;$i++){
-            $oldqty = DB::table('retailsales')->where('id',$data[$i])->update($dateData); 
-        }
-        return 2;
-        }
-        else{
-          return 1;
-        }
-}
-
 }

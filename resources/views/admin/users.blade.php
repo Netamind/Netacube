@@ -337,7 +337,7 @@ $data  = DB::table('users')->get();
           <option value="" hidden>Select Branch</option>
           <?php $branches=DB::table('branches')->get();?>
           @foreach($branches as $branch)
-          <option value="{{$branch->id}}">{{$branch->branch}}</option>
+          <option value="{{$branch->id}}">{{$branch->branch}}  [<span style="color:graye">{{$branch->sector}}</span>] </option>
           @endforeach
          </select>
 			</div>
